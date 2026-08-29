@@ -1,0 +1,49 @@
+{
+  "signals": [
+    {
+      "id": 1787650036546,
+      "symbol": "GOLDM",
+      "name": "GOLDM",
+      "type": "BUY",
+      "entry": "161700",
+      "stopLoss": "161400",
+      "target1": "165000",
+      "target2": "171000",
+      "target3": "173000",
+      "risk": "Medium",
+      "note": "",
+      "active": true,
+      "updatedAt": "2026-08-25T09:41:34.167Z"
+    },
+    {
+      "id": 1787641527927,
+      "symbol": "BTCUSD",
+      "name": "BTCUSD",
+      "type": "BUY",
+      "entry": "78821",
+      "stopLoss": "78121",
+      "target1": "79000",
+      "target2": "80000",
+      "target3": "81000",
+      "risk": "High",
+      "note": "",
+      "active": true,
+      "updatedAt": "2026-08-27T06:58:26.035Z"
+    },
+    {
+      "id": 1787641297874,
+      "symbol": "TCS",
+      "name": "TCS",
+      "type": "BUY",
+      "entry": "2288",
+      "stopLoss": "2250",
+      "target1": "2400",
+      "target2": "2500",
+      "target3": "2600",
+      "risk": "Medium",
+      "note": "",
+      "active": true,
+      "updatedAt": "2026-08-25T09:37:28.987Z"
+    }
+  ]
+}
