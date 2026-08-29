@@ -1,16 +1,19 @@
 {
   "name": "stockpulse",
   "version": "1.0.0",
-  "description": "StockPulse Market Advisor",
+  "description": "StockPulse - Live Stock, Crypto, Premium Signals and Payments",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5",
+    "razorpay": "^2.9.6"
   }
 }
