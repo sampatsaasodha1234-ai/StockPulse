@@ -1,0 +1,2725 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+:root {
+  --bg: #070b14;
+  --bg-secondary: #08111f;
+  --card: #0f172a;
+  --card-secondary: #101826;
+
+  --text: #ffffff;
+  --muted: #94a3b8;
+  --muted-dark: #64748b;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --nav-bg: rgba(7, 11, 20, 0.88);
+  --grid-line: rgba(255, 255, 255, 0.045);
+
+  --green: #00f5a0;
+  --blue: #00c2ff;
+  --red: #ff5d6c;
+
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-text: #ffffff;
+  --input-border: rgba(255, 255, 255, 0.12);
+
+  --shadow: rgba(0, 0, 0, 0.28);
+}
+
+
+/* =====================================================
+   LIGHT MODE
+===================================================== */
+
+body.light-mode {
+
+  --bg: #f5f7fb;
+  --bg-secondary: #ffffff;
+
+  --card: #ffffff;
+  --card-secondary: #ffffff;
+
+  --text: #0f172a;
+  --muted: #64748b;
+  --muted-dark: #64748b;
+
+  --border: rgba(15, 23, 42, 0.10);
+
+  --nav-bg: rgba(255, 255, 255, 0.94);
+
+  --grid-line: rgba(15, 23, 42, 0.08);
+
+  --input-bg: #ffffff;
+  --input-text: #0f172a;
+  --input-border: rgba(15, 23, 42, 0.14);
+
+  --shadow: rgba(15, 23, 42, 0.12);
+}
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
+}
+
+button,
+input,
+a {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+
+/* =====================================================
+   NAVBAR
+===================================================== */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  min-height: 92px;
+
+  padding: 20px 5%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  background: var(--nav-bg);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-bottom: 1px solid var(--border);
+
+  z-index: 1000;
+
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+
+/* =====================================================
+   LOGO
+===================================================== */
+
+.logo {
+  font-size: 32px;
+  font-weight: 800;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.logo span {
+  color: var(--green);
+}
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+.navbar nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.navbar nav a {
+  color: var(--muted);
+  text-decoration: none;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  padding: 10px 4px;
+
+  white-space: nowrap;
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.navbar nav a:hover {
+  color: var(--green);
+  transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   SINGLE MARKET SEARCH
+===================================================== */
+
+.market-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 320px;
+  height: 52px;
+
+  flex-shrink: 1;
+}
+
+#marketSearch {
+  width: 100%;
+  height: 52px;
+
+  padding: 0 58px 0 17px;
+
+  border-radius: 13px;
+
+  border: 1px solid var(--input-border);
+
+  outline: none;
+
+  background: var(--input-bg);
+  color: var(--input-text);
+
+  font-size: 15px;
+
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+#marketSearch::placeholder {
+  color: var(--muted);
+  opacity: 0.9;
+}
+
+#marketSearch:focus {
+  border-color: var(--green);
+
+  box-shadow:
+    0 0 0 3px rgba(0, 245, 160, 0.10);
+}
+
+
+/* SEARCH BUTTON */
+
+#marketSearchBtn {
+  position: absolute;
+
+  right: 5px;
+  top: 5px;
+
+  width: 42px;
+  height: 42px;
+
+  border: none;
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--green),
+      var(--blue)
+    );
+
+  color: #061018;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+#marketSearchBtn:hover {
+  transform: scale(1.04);
+
+  box-shadow:
+    0 7px 20px rgba(0, 245, 160, 0.18);
+}
+
+
+/* =====================================================
+   SEARCH RESULTS
+===================================================== */
+
+.search-results {
+  position: absolute;
+
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+
+  background: var(--card);
+
+  border: 1px solid var(--border);
+
+  border-radius: 13px;
+
+  box-shadow:
+    0 20px 45px var(--shadow);
+
+  overflow: hidden;
+
+  z-index: 3000;
+
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.search-results:empty {
+  display: none;
+}
+
+.search-result-item {
+  padding: 13px 15px;
+
+  color: var(--text);
+
+  border-bottom:
+    1px solid var(--border);
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background:
+    rgba(0, 245, 160, 0.08);
+
+  color: var(--green);
+}
+
+.search-result-symbol {
+  font-weight: 800;
+  display: block;
+}
+
+.search-result-name {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+
+/* =====================================================
+   THEME TOGGLE
+===================================================== */
+
+.theme-toggle {
+  width: 52px;
+  height: 52px;
+
+  flex-shrink: 0;
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 13px;
+
+  background: var(--card);
+
+  color: var(--text);
+
+  font-size: 22px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    transform 0.25s ease,
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px);
+
+  border-color: var(--green);
+
+  box-shadow:
+    0 0 18px rgba(0, 245, 160, 0.15);
+}
+
+
+/* =====================================================
+   PREMIUM BUTTON
+===================================================== */
+
+.login-btn {
+  min-height: 52px;
+
+  padding: 0 20px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--green),
+      var(--blue)
+    );
+
+  color: #061018;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 25px rgba(0, 245, 160, 0.18);
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero {
+  min-height: 100vh;
+
+  padding: 150px 7% 80px;
+
+  display: grid;
+
+  grid-template-columns:
+    1.2fr 0.8fr;
+
+  align-items: center;
+
+  gap: 70px;
+
+  background:
+    radial-gradient(
+      circle at 80% 35%,
+      rgba(0, 194, 255, 0.08),
+      transparent 35%
+    ),
+    var(--bg);
+
+  transition:
+    background 0.3s ease;
+}
+
+.hero-left {
+  max-width: 720px;
+}
+
+.badge {
+  display: inline-block;
+
+  padding: 8px 14px;
+
+  border-radius: 30px;
+
+  background:
+    rgba(16, 34, 49, 0.9);
+
+  border:
+    1px solid rgba(0, 245, 160, 0.18);
+
+  color: var(--green);
+
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 0.8px;
+
+  margin-bottom: 22px;
+}
+
+.hero h1 {
+  font-size: 68px;
+
+  line-height: 1.04;
+
+  letter-spacing: -2px;
+
+  margin-bottom: 25px;
+
+  color: var(--text);
+}
+
+.hero h1 span {
+  color: var(--green);
+}
+
+.hero-left > p {
+  max-width: 600px;
+
+  color: var(--muted);
+
+  font-size: 18px;
+
+  line-height: 1.75;
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.hero-buttons {
+  display: flex;
+
+  gap: 15px;
+
+  margin: 32px 0;
+}
+
+.btn-primary,
+.btn-outline {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 50px;
+
+  padding: 0 24px;
+
+  border-radius: 11px;
+
+  text-decoration: none;
+
+  font-weight: 800;
+
+  transition: 0.25s;
+}
+
+.btn-primary {
+  background:
+    linear-gradient(
+      135deg,
+      var(--green),
+      var(--blue)
+    );
+
+  color: #061018;
+
+  border: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 12px 28px rgba(0, 245, 160, 0.15);
+}
+
+.btn-outline {
+  border:
+    1px solid var(--border);
+
+  color: var(--text);
+
+  background:
+    rgba(255, 255, 255, 0.02);
+}
+
+body.light-mode .btn-outline {
+  background: #ffffff;
+}
+
+.btn-outline:hover {
+  border-color: var(--green);
+
+  color: var(--green);
+
+  transform: translateY(-3px);
+}
+
+
+/* =====================================================
+   ANALYST
+===================================================== */
+
+.analyst {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  margin-top: 28px;
+}
+
+.avatar {
+  width: 54px;
+  height: 54px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: var(--green);
+
+  color: #061018;
+
+  font-weight: 800;
+}
+
+.analyst small {
+  color: var(--muted-dark);
+
+  font-size: 10px;
+
+  letter-spacing: 1.2px;
+}
+
+.analyst h3 {
+  margin-top: 4px;
+
+  color: var(--text);
+}
+
+
+/* =====================================================
+   HERO CARD
+===================================================== */
+
+.hero-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(17, 28, 46, 0.98),
+      rgba(8, 16, 30, 0.98)
+    );
+
+  border:
+    1px solid var(--border);
+
+  padding: 30px;
+
+  border-radius: 25px;
+
+  box-shadow:
+    0 25px 70px var(--shadow);
+
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+body.light-mode .hero-card {
+  background: #ffffff;
+}
+
+.card-top {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  color: var(--muted);
+
+  margin-bottom: 18px;
+}
+
+.card-top b {
+  color: var(--green);
+
+  font-size: 11px;
+
+  letter-spacing: 1px;
+}
+
+.hero-card h2 {
+  font-size: 46px;
+
+  margin: 8px 0;
+
+  color: var(--text);
+}
+
+.green {
+  color: var(--green);
+}
+
+.red {
+  color: var(--red);
+}
+
+
+/* =====================================================
+   HERO CHART
+===================================================== */
+
+.hero-chart {
+  position: relative;
+
+  height: 190px;
+
+  margin: 25px 0;
+
+  overflow: hidden;
+
+  border-radius: 15px;
+
+  background: #08111f;
+}
+
+body.light-mode .hero-chart {
+  background: #f3f6fa;
+}
+
+.hero-chart svg {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  z-index: 2;
+}
+
+.chart-grid {
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      var(--grid-line) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      var(--grid-line) 1px,
+      transparent 1px
+    );
+
+  background-size: 32px 32px;
+}
+
+.market-status {
+  display: flex;
+
+  justify-content: space-between;
+
+  color: var(--muted);
+}
+
+
+/* =====================================================
+   SECTIONS
+===================================================== */
+
+.section,
+.market,
+.crypto,
+.advisor {
+  padding: 100px 7%;
+
+  background: var(--bg);
+
+  transition:
+    background 0.3s ease;
+}
+
+.title {
+  text-align: center;
+
+  margin-bottom: 50px;
+}
+
+.title p {
+  color: var(--green);
+
+  font-size: 12px;
+
+  letter-spacing: 2px;
+
+  font-weight: 700;
+
+  margin-bottom: 9px;
+}
+
+.title h2 {
+  font-size: 42px;
+
+  letter-spacing: -1px;
+
+  color: var(--text);
+}
+
+.section-subtitle {
+  display: block;
+
+  margin-top: 10px;
+
+  color: var(--muted-dark);
+
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   GRID
+===================================================== */
+
+.grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 22px;
+}
+
+
+/* =====================================================
+   MARKET / CRYPTO CARDS
+===================================================== */
+
+.box,
+.coin {
+  position: relative;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      #101a2b,
+      #0b1422
+    );
+
+  padding: 24px;
+
+  border-radius: 18px;
+
+  border:
+    1px solid var(--border);
+
+  transition: 0.3s;
+
+  cursor: pointer;
+}
+
+body.light-mode .box,
+body.light-mode .coin {
+  background: #ffffff;
+}
+
+.box:hover,
+.coin:hover {
+  transform: translateY(-7px);
+
+  border-color:
+    rgba(0, 245, 160, 0.4);
+
+  box-shadow:
+    0 20px 40px var(--shadow);
+}
+
+.card-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  margin-bottom: 18px;
+}
+
+.card-header h4,
+.card-header h3 {
+  color: var(--text);
+
+  margin-bottom: 5px;
+}
+
+.card-header small {
+  color: var(--muted-dark);
+
+  font-size: 10px;
+}
+
+.box h2,
+.coin h2 {
+  font-size: 30px;
+
+  margin-bottom: 9px;
+
+  color: var(--text);
+}
+
+
+/* =====================================================
+   SIGNAL BADGES
+===================================================== */
+
+.signal-badge {
+  padding: 6px 10px;
+
+  border-radius: 7px;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.5px;
+}
+
+.buy-badge {
+  color: var(--green);
+
+  background:
+    rgba(0, 245, 160, 0.1);
+
+  border:
+    1px solid rgba(0, 245, 160, 0.2);
+}
+
+.sell-badge {
+  color: var(--red);
+
+  background:
+    rgba(255, 93, 108, 0.1);
+
+  border:
+    1px solid rgba(255, 93, 108, 0.2);
+}
+
+.hold-badge {
+  color: #fbbf24;
+
+  background:
+    rgba(251, 191, 36, 0.1);
+
+  border:
+    1px solid rgba(251, 191, 36, 0.2);
+}
+
+
+/* =====================================================
+   MINI CHART
+===================================================== */
+
+.mini-chart {
+  height: 72px;
+
+  margin: 18px 0 14px;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      var(--grid-line) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      var(--grid-line) 1px,
+      transparent 1px
+    );
+
+  background-size: 20px 20px;
+}
+
+.mini-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.card-footer {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  border-top:
+    1px solid var(--border);
+
+  padding-top: 13px;
+
+  color: var(--muted-dark);
+
+  font-size: 11px;
+}
+
+.card-footer strong {
+  color: var(--green);
+}
+
+
+/* =====================================================
+   SIGNAL CARDS
+===================================================== */
+
+.signal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+.signal {
+  position: relative;
+
+  padding: 27px;
+
+  border-radius: 18px;
+
+  background: var(--card-secondary);
+
+  border:
+    1px solid var(--border);
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.signal:hover {
+  transform: translateY(-7px);
+}
+
+.signal.buy {
+  border-left:
+    4px solid var(--green);
+}
+
+.signal.sell {
+  border-left:
+    4px solid var(--red);
+}
+
+.signal.hold {
+  border-left:
+    4px solid #fbbf24;
+}
+
+.signal-top {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 22px;
+}
+
+.signal-label {
+  color: var(--muted-dark);
+
+  font-size: 10px;
+
+  letter-spacing: 1.2px;
+
+  font-weight: 700;
+}
+
+.signal h2 {
+  margin-bottom: 18px;
+
+  color: var(--text);
+}
+
+.signal p {
+  color: var(--muted);
+
+  margin: 9px 0;
+}
+
+.signal-view {
+  margin-top: 20px;
+
+  padding-top: 14px;
+
+  border-top:
+    1px solid var(--border);
+
+  color: var(--green);
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   PREMIUM
+===================================================== */
+
+.premium-section {
+  padding: 70px 7%;
+
+  background: var(--bg);
+}
+
+.premium-box {
+  max-width: 900px;
+
+  margin: auto;
+
+  text-align: center;
+
+  padding: 55px 30px;
+
+  border-radius: 25px;
+
+  border:
+    1px solid rgba(0, 245, 160, 0.14);
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(0, 245, 160, 0.08),
+      transparent 60%
+    ),
+    #0c1524;
+}
+
+body.light-mode .premium-box {
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(0, 245, 160, 0.08),
+      transparent 60%
+    ),
+    #ffffff;
+}
+
+.premium-tag {
+  color: var(--green);
+
+  font-size: 11px;
+
+  letter-spacing: 2px;
+
+  font-weight: 800;
+}
+
+.premium-box h2 {
+  font-size: 35px;
+
+  margin: 15px 0;
+
+  color: var(--text);
+}
+
+.premium-box p {
+  max-width: 600px;
+
+  margin: 0 auto 25px;
+
+  color: var(--muted);
+
+  line-height: 1.7;
+}
+
+
+/* =====================================================
+   CONTACT
+===================================================== */
+
+.contact {
+  padding: 100px 7%;
+
+  text-align: center;
+
+  background: var(--bg-secondary);
+
+  transition:
+    background 0.3s ease;
+}
+
+.contact h2 {
+  font-size: 42px;
+
+  margin-bottom: 15px;
+
+  color: var(--text);
+}
+
+.contact p {
+  color: var(--muted);
+
+  max-width: 650px;
+
+  margin: 0 auto;
+
+  line-height: 1.7;
+}
+
+.contact .hero-buttons {
+  justify-content: center;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer {
+  padding: 28px;
+
+  text-align: center;
+
+  color: var(--muted-dark);
+
+  background: var(--bg-secondary);
+
+  font-size: 13px;
+
+  border-top:
+    1px solid var(--border);
+}
+
+
+/* =====================================================
+   DETAIL VIEW
+===================================================== */
+
+.detail-view {
+  min-height: 100vh;
+
+  padding: 120px 7% 70px;
+
+  background:
+    radial-gradient(
+      circle at 80% 10%,
+      rgba(0, 194, 255, 0.06),
+      transparent 30%
+    ),
+    var(--bg);
+
+  transition:
+    background 0.3s ease;
+}
+
+.detail-container {
+  max-width: 1250px;
+
+  margin: auto;
+}
+
+.back-btn {
+  border:
+    1px solid var(--border);
+
+  background: var(--card);
+
+  color: var(--text);
+
+  padding: 11px 17px;
+
+  border-radius: 10px;
+
+  font-weight: 700;
+
+  margin-bottom: 30px;
+
+  transition: 0.25s;
+}
+
+.back-btn:hover {
+  border-color: var(--green);
+
+  color: var(--green);
+}
+
+.detail-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-end;
+
+  gap: 30px;
+
+  margin-bottom: 30px;
+}
+
+.detail-symbol {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 10px;
+}
+
+.detail-symbol span:first-child {
+  color: var(--muted-dark);
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.detail-symbol span:last-child {
+  color: var(--green);
+
+  font-size: 13px;
+
+  font-weight: 800;
+}
+
+.detail-header h1 {
+  font-size: 40px;
+
+  margin-bottom: 7px;
+
+  color: var(--text);
+}
+
+.detail-exchange,
+#detailExchange {
+  color: var(--muted-dark);
+}
+
+.detail-price-box {
+  text-align: right;
+}
+
+.detail-price-box h2 {
+  font-size: 38px;
+
+  margin-bottom: 8px;
+
+  color: var(--text);
+}
+
+
+/* =====================================================
+   TIMEFRAMES
+===================================================== */
+
+.timeframe-bar {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  padding: 8px;
+
+  background: var(--card);
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 12px;
+
+  margin-bottom: 18px;
+}
+
+.timeframe-bar button {
+  border: none;
+
+  background: transparent;
+
+  color: var(--muted);
+
+  padding: 9px 15px;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.timeframe-bar button:hover,
+.timeframe-bar button.active {
+  color: #061018;
+
+  background: var(--green);
+}
+
+
+/* =====================================================
+   TRADINGVIEW CHART
+===================================================== */
+
+.detail-chart-card {
+  background: var(--card);
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 18px;
+
+  overflow: hidden;
+}
+
+.chart-toolbar {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 18px 20px;
+
+  border-bottom:
+    1px solid var(--border);
+}
+
+.chart-toolbar strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: var(--text);
+}
+
+.chart-toolbar span {
+  color: var(--muted-dark);
+
+  font-size: 11px;
+}
+
+.chart-live {
+  color: var(--green) !important;
+
+  font-weight: 700;
+}
+
+.tradingview-chart-container {
+  width: 100%;
+
+  height: 620px;
+
+  min-height: 500px;
+
+  position: relative;
+
+  overflow: hidden;
+
+  background: #080c14;
+
+  border-radius: 12px;
+}
+
+.tradingview-widget-container {
+  width: 100%;
+  height: 100%;
+}
+
+.tradingview-widget-container__widget {
+  width: 100%;
+  height: 100%;
+}
+
+.tradingview-widget-copyright {
+  display: none !important;
+}
+
+
+/* =====================================================
+   OLD / CUSTOM CANDLE CHART SUPPORT
+===================================================== */
+
+.trading-chart {
+  position: relative;
+
+  height: 440px;
+
+  overflow: hidden;
+
+  background: #08111f;
+}
+
+body.light-mode .trading-chart {
+  background: #f3f6fa;
+}
+
+.chart-grid-lines {
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      var(--grid-line) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      var(--grid-line) 1px,
+      transparent 1px
+    );
+
+  background-size: 60px 55px;
+}
+
+.chart-y {
+  position: absolute;
+
+  right: 8px;
+
+  color: #475569;
+
+  font-size: 10px;
+
+  z-index: 5;
+}
+
+.y1 {
+  top: 15%;
+}
+
+.y2 {
+  top: 35%;
+}
+
+.y3 {
+  top: 55%;
+}
+
+.y4 {
+  top: 75%;
+}
+
+.candles {
+  position: absolute;
+
+  left: 30px;
+  right: 60px;
+
+  top: 20px;
+  bottom: 20px;
+}
+
+.candle {
+  position: absolute;
+
+  width: 8px;
+
+  border-radius: 2px;
+}
+
+.candle::before {
+  content: "";
+
+  position: absolute;
+
+  left: 3px;
+
+  width: 2px;
+
+  background: inherit;
+
+  top: -12px;
+
+  height: calc(100% + 24px);
+}
+
+.candle.green-candle {
+  background: var(--green);
+}
+
+.candle.red-candle {
+  background: var(--red);
+}
+
+
+/* =====================================================
+   REAL CANDLE CHART
+===================================================== */
+
+#candles {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 10;
+}
+
+.real-candle {
+  position: absolute;
+
+  top: 0;
+
+  height: 100%;
+}
+
+.candle-wick {
+  position: absolute;
+
+  left: 50%;
+
+  width: 2px;
+
+  transform: translateX(-50%);
+
+  background: #cbd5e1;
+}
+
+.candle-body {
+  position: absolute;
+
+  left: 15%;
+
+  width: 70%;
+
+  border-radius: 2px;
+}
+
+.bullish .candle-body {
+  background: #00e676;
+}
+
+.bearish .candle-body {
+  background: #ff5252;
+}
+
+
+/* =====================================================
+   CHART LINE
+===================================================== */
+
+.chart-line-overlay {
+  position: absolute;
+
+  left: 35px;
+  right: 65px;
+
+  bottom: 70px;
+
+  height: 2px;
+
+  background:
+    rgba(0, 245, 160, 0.15);
+}
+
+
+/* =====================================================
+   ANALYSIS
+===================================================== */
+
+.analysis-grid {
+  display: grid;
+
+  grid-template-columns:
+    1.2fr 1fr 1fr;
+
+  gap: 18px;
+
+  margin-top: 20px;
+}
+
+.signal-summary,
+.levels-card,
+.risk-card {
+  background: var(--card);
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 16px;
+
+  padding: 23px;
+
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.analysis-title {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 15px;
+}
+
+.analysis-title span {
+  color: var(--muted-dark);
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 1px;
+}
+
+.buy-text {
+  color: var(--green);
+}
+
+.sell-text {
+  color: var(--red);
+}
+
+.hold-text {
+  color: #fbbf24;
+}
+
+.signal-summary p {
+  color: var(--muted);
+
+  line-height: 1.6;
+}
+
+.watchlist-btn {
+  margin-top: 22px;
+
+  border:
+    1px solid rgba(0, 245, 160, 0.25);
+
+  background:
+    rgba(0, 245, 160, 0.06);
+
+  color: var(--green);
+
+  padding: 11px 15px;
+
+  border-radius: 9px;
+
+  font-weight: 700;
+
+  transition: 0.25s;
+}
+
+.watchlist-btn:hover {
+  background:
+    rgba(0, 245, 160, 0.12);
+
+  transform: translateY(-2px);
+}
+
+.levels-card h3,
+.risk-card h3 {
+  margin-bottom: 18px;
+
+  color: var(--text);
+}
+
+.level-row,
+.info-row {
+  display: flex;
+
+  justify-content: space-between;
+
+  padding: 12px 0;
+
+  border-bottom:
+    1px solid var(--border);
+}
+
+.level-row:last-child,
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.level-row span,
+.info-row span {
+  color: var(--muted-dark);
+}
+
+.level-row strong,
+.info-row strong {
+  color: var(--text);
+}
+
+
+/* =====================================================
+   DISCLAIMER
+===================================================== */
+
+.disclaimer {
+  margin-top: 20px;
+
+  padding: 15px 18px;
+
+  background:
+    rgba(255, 193, 7, 0.04);
+
+  border:
+    1px solid rgba(255, 193, 7, 0.12);
+
+  color: var(--muted);
+
+  border-radius: 10px;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+
+/* =====================================================
+   REVEAL
+===================================================== */
+
+.reveal-card {
+  opacity: 0;
+
+  transform: translateY(25px);
+
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.reveal-card.visible {
+  opacity: 1;
+
+  transform: translateY(0);
+}
+
+
+/* =====================================================
+   LIGHT MODE EXTRA
+===================================================== */
+
+body.light-mode .badge {
+  background:
+    rgba(0, 245, 160, 0.08);
+}
+
+body.light-mode .signal {
+  background: #ffffff;
+}
+
+body.light-mode .timeframe-bar {
+  background: #ffffff;
+}
+
+body.light-mode .detail-chart-card {
+  background: #ffffff;
+}
+
+body.light-mode .signal-summary,
+body.light-mode .levels-card,
+body.light-mode .risk-card {
+  background: #ffffff;
+}
+
+body.light-mode .search-results {
+  background: #ffffff;
+}
+
+body.light-mode .back-btn {
+  background: #ffffff;
+}
+
+body.light-mode .tradingview-chart-container {
+  background: #f3f6fa;
+}
+
+
+/* =====================================================
+   MOBILE / TABLET
+===================================================== */
+
+@media (max-width: 1200px) {
+
+  .navbar {
+    padding: 18px 3%;
+    gap: 15px;
+  }
+
+  .logo {
+    font-size: 27px;
+  }
+
+  .navbar nav {
+    gap: 16px;
+  }
+
+  .navbar nav a {
+    font-size: 14px;
+  }
+
+  .market-search {
+    width: 250px;
+  }
+
+  .login-btn {
+    padding: 0 15px;
+  }
+
+  .grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 1050px) {
+
+  .hero {
+    grid-template-columns: 1fr;
+
+    text-align: center;
+
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+
+  .hero-left {
+    margin: auto;
+  }
+
+  .hero-left > p {
+    margin: auto;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .analyst {
+    justify-content: center;
+  }
+
+  .analysis-grid {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .signal-summary {
+    grid-column: 1 / -1;
+  }
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .navbar {
+    min-height: 70px;
+
+    padding: 12px 4%;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-size: 24px;
+  }
+
+  .navbar nav {
+    display: none;
+  }
+
+  .market-search {
+    width: 220px;
+    height: 44px;
+  }
+
+  #marketSearch {
+    height: 44px;
+
+    font-size: 13px;
+
+    padding-left: 13px;
+    padding-right: 48px;
+  }
+
+  #marketSearchBtn {
+    width: 36px;
+    height: 36px;
+
+    right: 4px;
+    top: 4px;
+
+    font-size: 15px;
+  }
+
+  .theme-toggle {
+    width: 44px;
+    height: 44px;
+
+    font-size: 19px;
+  }
+
+  .login-btn {
+    min-height: 44px;
+
+    padding: 0 13px;
+
+    font-size: 13px;
+  }
+
+  .hero {
+    padding-top: 120px;
+  }
+
+  .hero h1 {
+    font-size: 43px;
+
+    letter-spacing: -1.5px;
+  }
+
+  .hero-card h2 {
+    font-size: 36px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .signal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .title h2 {
+    font-size: 32px;
+  }
+
+  .section,
+  .market,
+  .crypto,
+  .advisor {
+    padding: 75px 5%;
+  }
+
+  .detail-view {
+    padding: 100px 5% 50px;
+  }
+
+  .detail-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .detail-header h1 {
+    font-size: 30px;
+  }
+
+  .detail-price-box {
+    text-align: left;
+  }
+
+  .detail-price-box h2 {
+    font-size: 30px;
+  }
+
+  .tradingview-chart-container {
+    height: 500px;
+    min-height: 450px;
+  }
+
+  .trading-chart {
+    height: 320px;
+  }
+
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .signal-summary {
+    grid-column: auto;
+  }
+
+  .timeframe-bar button {
+    padding: 8px 11px;
+  }
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media (max-width: 450px) {
+
+  .navbar {
+    justify-content: center;
+  }
+
+  .logo {
+    width: 100%;
+
+    text-align: center;
+
+    font-size: 24px;
+  }
+
+  .market-search {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .theme-toggle,
+  .login-btn {
+    flex-shrink: 0;
+  }
+
+  .hero h1 {
+    font-size: 36px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-outline {
+    width: 100%;
+  }
+
+  .hero-card {
+    padding: 20px;
+  }
+
+  .hero-card h2 {
+    font-size: 32px;
+  }
+
+  .premium-box {
+    padding: 40px 20px;
+  }
+
+  .search-results {
+    max-height: 280px;
+  }
+}
+
+
+/* =====================================================
+   SMOOTH THEME TRANSITION
+===================================================== */
+
+body,
+.navbar,
+.hero,
+.hero-card,
+.box,
+.coin,
+.signal,
+.premium-section,
+.premium-box,
+.contact,
+footer,
+.detail-view,
+.detail-chart-card,
+.signal-summary,
+.levels-card,
+.risk-card,
+.timeframe-bar,
+.back-btn,
+.theme-toggle,
+.search-results,
+#marketSearch {
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+/* =========================================================
+   STOCKPULSE - MOBILE CARD FIX
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Main containers */
+.container,
+.dashboard,
+.market-section,
+.crypto-section,
+.signals-section,
+.hero-section,
+.detail-view,
+.analysis-grid,
+.market-grid,
+.crypto-grid,
+.signal-grid {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Cards */
+.market-card,
+.crypto-card,
+.signal-card,
+.hero-card,
+.levels-card,
+.chart-card,
+.stat-card,
+.signal-box {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Card text */
+.market-card h2,
+.market-card h3,
+.market-card p,
+.crypto-card h2,
+.crypto-card h3,
+.crypto-card p,
+.signal-card h2,
+.signal-card h3,
+.signal-card p,
+.hero-card h2,
+.hero-card h3,
+.hero-card p {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* Long numbers / IDs */
+.price,
+.market-price,
+.current-price,
+.payment-id,
+.order-id {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* Buttons */
+button {
+    max-width: 100%;
+}
+
+/* Tables */
+.table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Search */
+.search-container,
+.search-box,
+.search-results {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    body {
+        overflow-x: hidden;
+    }
+
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    /* Grid ko single column */
+    .market-grid,
+    .crypto-grid,
+    .signal-grid,
+    .stats-grid,
+    .analysis-grid {
+        grid-template-columns: 1fr !important;
+        width: 100%;
+        gap: 14px;
+    }
+
+    /* Card spacing */
+    .market-card,
+    .crypto-card,
+    .signal-card,
+    .hero-card,
+    .levels-card,
+    .chart-card,
+    .stat-card,
+    .signal-box {
+        padding: 15px !important;
+        border-radius: 14px;
+    }
+
+    /* Card headings */
+    .market-card h2,
+    .crypto-card h2,
+    .signal-card h2,
+    .hero-card h2 {
+        font-size: 22px;
+        line-height: 1.2;
+    }
+
+    .market-card h3,
+    .crypto-card h3,
+    .signal-card h3 {
+        font-size: 16px;
+    }
+
+    /* Prices */
+    .market-card .price,
+    .market-card .market-price,
+    .market-card .current-price,
+    .crypto-card .price,
+    .crypto-card .market-price,
+    .crypto-card .current-price {
+        font-size: 24px;
+        max-width: 100%;
+    }
+
+    /* Hero */
+    .hero-card {
+        width: 100%;
+    }
+
+    /* Search input */
+    .search-container input,
+    .search-box input,
+    #marketSearch {
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* Search result */
+    .search-results {
+        left: 0;
+        right: 0;
+        width: 100%;
+    }
+
+    /* Chart */
+    #tradingview-chart {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: 420px !important;
+    }
+
+    /* Detail section */
+    .detail-view,
+    .detail-header,
+    .detail-content {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Timeframe buttons */
+    .timeframe-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .timeframe-bar button {
+        flex: 1 1 auto;
+        min-width: 55px;
+        padding: 9px 10px;
+        font-size: 12px;
+    }
+
+    /* Signal levels */
+    .signal-levels,
+    .signal-info {
+        width: 100%;
+    }
+
+    .signal-levels p,
+    .signal-info p {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+}
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .market-card,
+    .crypto-card,
+    .signal-card,
+    .hero-card,
+    .levels-card,
+    .chart-card,
+    .stat-card,
+    .signal-box {
+        padding: 13px !important;
+    }
+
+    .market-card h2,
+    .crypto-card h2,
+    .signal-card h2,
+    .hero-card h2 {
+        font-size: 20px;
+    }
+
+    .market-card .price,
+    .market-card .market-price,
+    .market-card .current-price,
+    .crypto-card .price,
+    .crypto-card .market-price,
+    .crypto-card .current-price {
+        font-size: 22px;
+    }
+
+    #tradingview-chart {
+        height: 350px !important;
+        min-height: 350px !important;
+    }
+
+}
+/* =========================================================
+   STOCKPULSE - CONTACT SECTION MOBILE FIX
+   ========================================================= */
+
+.contact-section,
+#contact,
+.contact {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.contact-section *,
+#contact *,
+.contact * {
+    max-width: 100%;
+}
+
+/* Contact buttons container */
+.contact-buttons,
+.contact-actions,
+.contact-links,
+.social-buttons,
+.social-links {
+    width: 100%;
+    max-width: 100%;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center;
+    gap: 12px;
+    overflow: hidden;
+}
+
+/* Individual contact buttons */
+.contact-buttons a,
+.contact-buttons button,
+.contact-actions a,
+.contact-actions button,
+.contact-links a,
+.contact-links button,
+.social-buttons a,
+.social-buttons button,
+.social-links a,
+.social-links button {
+    flex: 1 1 140px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* =========================================================
+   MOBILE CONTACT
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .contact-section,
+    #contact,
+    .contact {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        overflow-x: hidden !important;
+    }
+
+    .contact-buttons,
+    .contact-actions,
+    .contact-links,
+    .social-buttons,
+    .social-links {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    .contact-buttons a,
+    .contact-buttons button,
+    .contact-actions a,
+    .contact-actions button,
+    .contact-links a,
+    .contact-links button,
+    .social-buttons a,
+    .social-buttons button,
+    .social-links a,
+    .social-links button {
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 12px 8px !important;
+        font-size: 14px !important;
+        white-space: normal !important;
+    }
+
+}
+
+/* Small phone */
+@media (max-width: 480px) {
+
+    .contact-buttons,
+    .contact-actions,
+    .contact-links,
+    .social-buttons,
+    .social-links {
+        grid-template-columns: 1fr !important;
+    }
+
+    .contact-buttons a,
+    .contact-buttons button,
+    .contact-actions a,
+    .contact-actions button,
+    .contact-links a,
+    .contact-links button,
+    .social-buttons a,
+    .social-buttons button,
+    .social-links a,
+    .social-links button {
+        width: 100% !important;
+    }
+
+}
+/* =========================================================
+   STOCKPULSE CONTACT - FINAL MOBILE FIX
+   ========================================================= */
+
+.contact-buttons-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr)) !important;
+
+    gap: 12px !important;
+
+    margin: 0 auto !important;
+
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    overflow: visible !important;
+}
+
+
+/* Every button/link inside contact */
+.contact-buttons-mobile a,
+.contact-buttons-mobile button {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    max-width: 100% !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    text-align: center !important;
+
+    white-space: normal !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+
+    margin: 0 !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .contact-buttons-mobile {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr)) !important;
+
+        width: 100% !important;
+
+        gap: 10px !important;
+
+    }
+
+    .contact-buttons-mobile a,
+    .contact-buttons-mobile button {
+
+        min-height: 52px !important;
+
+        padding:
+            10px 8px !important;
+
+        font-size:
+            14px !important;
+
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .contact-buttons-mobile {
+
+        grid-template-columns: 1fr !important;
+
+    }
+
+}
+/* ===== CONTACT BUTTON SAME COLOR ===== */
+
+.contact-buttons{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:16px;
+    margin-top:35px;
+}
+
+.contact-buttons a{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:58px;
+    border-radius:14px;
+    text-decoration:none;
+    font-weight:700;
+    color:#041225 !important;
+    background:linear-gradient(90deg,#00F5A0,#18C8F7) !important;
+    border:none !important;
+    transition:.3s;
+    box-shadow:0 8px 20px rgba(0,245,160,.18);
+}
+
+.contact-buttons a:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 28px rgba(0,245,160,.35);
+}
+
+.btn-outline{
+    background:linear-gradient(90deg,#00F5A0,#18C8F7) !important;
+    color:#041225 !important;
+    border:none !important;
+}

@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>StockPulse Premium Payment</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+
+            font-family: Arial, sans-serif;
+
+            background: #0b0f19;
+
+            color: white;
+
+            min-height: 100vh;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            padding: 20px;
+
+        }
+
+        .payment-box {
+
+            width: 100%;
+
+            max-width: 460px;
+
+            background: #111827;
+
+            border: 1px solid #263244;
+
+            border-radius: 22px;
+
+            padding: 30px;
+
+            text-align: center;
+
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.45);
+
+        }
+
+        .logo {
+
+            font-size: 30px;
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+
+        }
+
+        .logo span {
+
+            color: #00f5a0;
+
+        }
+
+        .premium {
+
+            color: #00f5a0;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            letter-spacing: 1px;
+
+            margin-bottom: 20px;
+
+        }
+
+        .price {
+
+            font-size: 42px;
+
+            font-weight: bold;
+
+            margin-bottom: 5px;
+
+        }
+
+        .validity {
+
+            color: #9ca3af;
+
+            margin-bottom: 24px;
+
+        }
+
+        .features {
+
+            text-align: left;
+
+            background: #0b1220;
+
+            padding: 18px;
+
+            border-radius: 14px;
+
+            margin-bottom: 25px;
+
+            border: 1px solid #1e293b;
+
+        }
+
+        .features p {
+
+            margin: 10px 0;
+
+            color: #d1d5db;
+
+            font-size: 14px;
+
+        }
+
+        /* =========================================
+           CUSTOMER FORM
+        ========================================== */
+
+        .customer-form {
+
+            text-align: left;
+
+            margin-bottom: 20px;
+
+        }
+
+        .customer-form label {
+
+            display: block;
+
+            color: #d1d5db;
+
+            font-size: 13px;
+
+            margin-bottom: 7px;
+
+        }
+
+        .customer-form input {
+
+            width: 100%;
+
+            padding: 13px 14px;
+
+            margin-bottom: 15px;
+
+            border-radius: 10px;
+
+            border: 1px solid #263244;
+
+            background: #0b1220;
+
+            color: white;
+
+            font-size: 14px;
+
+            outline: none;
+
+        }
+
+        .customer-form input:focus {
+
+            border-color: #00f5a0;
+
+        }
+
+        .customer-form input::placeholder {
+
+            color: #6b7280;
+
+        }
+
+        .payment-info {
+
+            background: #0b1220;
+
+            border: 1px solid #263244;
+
+            border-radius: 14px;
+
+            padding: 16px;
+
+            margin-bottom: 18px;
+
+            text-align: left;
+
+        }
+
+        .payment-info-title {
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            margin-bottom: 7px;
+
+        }
+
+        .payment-info-text {
+
+            color: #9ca3af;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+        }
+
+        .pay-btn {
+
+            display: block;
+
+            width: 100%;
+
+            border: none;
+
+            padding: 16px;
+
+            border-radius: 11px;
+
+            background: #00f5a0;
+
+            color: #06120d;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s ease;
+
+        }
+
+        .pay-btn:hover {
+
+            opacity: 0.9;
+
+            transform: translateY(-1px);
+
+        }
+
+        .pay-btn:disabled {
+
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+        }
+
+        .secure {
+
+            margin-top: 15px;
+
+            color: #9ca3af;
+
+            font-size: 13px;
+
+        }
+
+        .status {
+
+            margin-top: 15px;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+            min-height: 20px;
+
+        }
+
+        .back-btn {
+
+            display: inline-block;
+
+            margin-top: 20px;
+
+            color: #9ca3af;
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+        }
+
+        .back-btn:hover {
+
+            color: white;
+
+        }
+
+        @media (max-width: 400px) {
+
+            .payment-box {
+
+                padding: 22px;
+
+            }
+
+            .price {
+
+                font-size: 36px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="payment-box">
+
+
+    <!-- =========================================
+         LOGO
+    ========================================== -->
+
+    <div class="logo">
+
+        Stock<span>Pulse</span>
+
+    </div>
+
+
+    <!-- =========================================
+         PREMIUM TITLE
+    ========================================== -->
+
+    <div class="premium">
+
+        PREMIUM MEMBERSHIP
+
+    </div>
+
+
+    <!-- =========================================
+         PRICE
+    ========================================== -->
+
+    <div class="price">
+
+        ₹2,000
+
+    </div>
+
+
+    <div class="validity">
+
+        Premium Membership
+
+    </div>
+
+
+    <!-- =========================================
+         FEATURES
+    ========================================== -->
+
+    <div class="features">
+
+        <p>✅ Premium Stock Signals</p>
+
+        <p>✅ Crypto Signals</p>
+
+        <p>✅ Gold Signals</p>
+
+        <p>✅ Entry / Target / Stop Loss</p>
+
+        <p>✅ Live Market Data</p>
+
+    </div>
+
+
+    <!-- =========================================
+         CUSTOMER DETAILS
+    ========================================== -->
+
+    <div class="customer-form">
+
+        <label for="customerName">
+            Full Name
+        </label>
+
+        <input
+            type="text"
+            id="customerName"
+            placeholder="Enter your full name"
+            autocomplete="name"
+        >
+
+
+        <label for="customerEmail">
+            Email Address
+        </label>
+
+        <input
+            type="email"
+            id="customerEmail"
+            placeholder="Enter your email"
+            autocomplete="email"
+        >
+
+
+        <label for="customerPhone">
+            Mobile Number
+        </label>
+
+        <input
+            type="tel"
+            id="customerPhone"
+            placeholder="Enter 10-digit mobile number"
+            maxlength="10"
+            inputmode="numeric"
+            autocomplete="tel"
+        >
+
+    </div>
+
+
+    <!-- =========================================
+         PAYMENT INFO
+    ========================================== -->
+
+    <div class="payment-info">
+
+        <div class="payment-info-title">
+
+            💳 Secure Payment
+
+        </div>
+
+        <div class="payment-info-text">
+
+            Pay securely using Razorpay.
+
+            UPI, Google Pay, PhonePe, Cards,
+            Net Banking and other available
+            payment methods will be shown
+            on the Razorpay payment page.
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         PAYMENT BUTTON
+    ========================================== -->
+
+    <button
+        id="payBtn"
+        class="pay-btn"
+        type="button"
+    >
+
+        💳 Pay ₹2,000
+
+    </button>
+
+
+    <!-- =========================================
+         PAYMENT STATUS
+    ========================================== -->
+
+    <div
+        id="paymentStatus"
+        class="status"
+    ></div>
+
+
+    <!-- =========================================
+         SECURITY
+    ========================================== -->
+
+    <div class="secure">
+
+        🔒 Secure Payment • Razorpay
+
+    </div>
+
+
+    <!-- =========================================
+         BACK TO WEBSITE
+    ========================================== -->
+
+    <a
+        href="index.html"
+        class="back-btn"
+    >
+
+        ← Back to StockPulse
+
+    </a>
+
+
+</div>
+
+
+<!-- =============================================
+     RAZORPAY CHECKOUT
+============================================= -->
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
+<script>
+
+"use strict";
+
+
+// ======================================================
+// CONFIG
+// ======================================================
+
+const API_BASE =
+    "http://localhost:3000";
+
+
+// ======================================================
+// ELEMENTS
+// ======================================================
+
+const payBtn =
+    document.getElementById("payBtn");
+
+const paymentStatus =
+    document.getElementById(
+        "paymentStatus"
+    );
+
+const customerName =
+    document.getElementById(
+        "customerName"
+    );
+
+const customerEmail =
+    document.getElementById(
+        "customerEmail"
+    );
+
+const customerPhone =
+    document.getElementById(
+        "customerPhone"
+    );
+
+
+// ======================================================
+// STATUS HELPER
+// ======================================================
+
+function showStatus(
+    message,
+    type = "normal"
+) {
+
+    paymentStatus.innerText =
+        message;
+
+
+    if (type === "success") {
+
+        paymentStatus.style.color =
+            "#00f5a0";
+
+    }
+    else if (type === "error") {
+
+        paymentStatus.style.color =
+            "#ff5c5c";
+
+    }
+    else {
+
+        paymentStatus.style.color =
+            "#9ca3af";
+
+    }
+
+}
+
+
+// ======================================================
+// VALIDATE CUSTOMER DETAILS
+// ======================================================
+
+function validateCustomerDetails() {
+
+    const name =
+        customerName.value.trim();
+
+    const email =
+        customerEmail.value.trim();
+
+    const phone =
+        customerPhone.value.trim();
+
+
+    if (!name) {
+
+        showStatus(
+            "❌ Please enter your full name.",
+            "error"
+        );
+
+        customerName.focus();
+
+        return false;
+
+    }
+
+
+    if (name.length < 2) {
+
+        showStatus(
+            "❌ Please enter a valid name.",
+            "error"
+        );
+
+        customerName.focus();
+
+        return false;
+
+    }
+
+
+    if (!email) {
+
+        showStatus(
+            "❌ Please enter your email address.",
+            "error"
+        );
+
+        customerEmail.focus();
+
+        return false;
+
+    }
+
+
+    const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+    if (
+        !emailPattern.test(email)
+    ) {
+
+        showStatus(
+            "❌ Please enter a valid email address.",
+            "error"
+        );
+
+        customerEmail.focus();
+
+        return false;
+
+    }
+
+
+    if (!phone) {
+
+        showStatus(
+            "❌ Please enter your mobile number.",
+            "error"
+        );
+
+        customerPhone.focus();
+
+        return false;
+
+    }
+
+
+    if (!/^\d{10}$/.test(phone)) {
+
+        showStatus(
+            "❌ Please enter a valid 10-digit mobile number.",
+            "error"
+        );
+
+        customerPhone.focus();
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// ======================================================
+// PAYMENT BUTTON
+// ======================================================
+
+payBtn.addEventListener(
+    "click",
+    async function () {
+
+
+        try {
+
+
+            // ==========================================
+            // VALIDATE CUSTOMER
+            // ==========================================
+
+            if (
+                !validateCustomerDetails()
+            ) {
+
+                return;
+
+            }
+
+
+            const name =
+                customerName.value.trim();
+
+            const email =
+                customerEmail.value.trim();
+
+            const phone =
+                customerPhone.value.trim();
+
+
+            // ==========================================
+            // BUTTON LOCK
+            // ==========================================
+
+            payBtn.disabled =
+                true;
+
+            payBtn.innerText =
+                "Creating secure payment...";
+
+            showStatus(
+                "Please wait..."
+            );
+
+
+            // ==========================================
+            // CREATE RAZORPAY ORDER
+            // ==========================================
+
+            const orderResponse =
+                await fetch(
+                    `${API_BASE}/api/payment/create-order`,
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                customerName:
+                                    name,
+
+                                customerEmail:
+                                    email,
+
+                                customerPhone:
+                                    phone
+
+                            })
+
+                    }
+                );
+
+
+            const orderData =
+                await orderResponse.json();
+
+
+            // ==========================================
+            // ORDER ERROR
+            // ==========================================
+
+            if (
+                !orderResponse.ok ||
+                !orderData.success
+            ) {
+
+                throw new Error(
+
+                    orderData.error ||
+                    "Unable to create payment order"
+
+                );
+
+            }
+
+
+            // ==========================================
+            // CHECK RAZORPAY
+            // ==========================================
+
+            if (
+                typeof Razorpay ===
+                "undefined"
+            ) {
+
+                throw new Error(
+                    "Razorpay Checkout could not load"
+                );
+
+            }
+
+
+            // ==========================================
+            // RAZORPAY OPTIONS
+            // ==========================================
+
+            const options = {
+
+                key:
+                    orderData.keyId,
+
+
+                amount:
+                    orderData.order.amount,
+
+
+                currency:
+                    orderData.order.currency,
+
+
+                name:
+                    "StockPulse",
+
+
+                description:
+                    "StockPulse Premium Membership",
+
+
+                order_id:
+                    orderData.order.id,
+
+
+                prefill: {
+
+                    name:
+                        name,
+
+                    email:
+                        email,
+
+                    contact:
+                        phone
+
+                },
+
+
+                notes: {
+
+                    product:
+                        "StockPulse Premium",
+
+                    customerName:
+                        name,
+
+                    customerEmail:
+                        email,
+
+                    customerPhone:
+                        phone
+
+                },
+
+
+                theme: {
+
+                    color:
+                        "#00f5a0"
+
+                },
+
+
+                // ======================================
+                // PAYMENT SUCCESS
+                // ======================================
+
+                handler:
+                    async function (
+                        response
+                    ) {
+
+
+                        try {
+
+
+                            showStatus(
+                                "Payment successful. Verifying payment..."
+                            );
+
+
+                            payBtn.innerText =
+                                "Verifying payment...";
+
+
+                            // ==================================
+                            // VERIFY PAYMENT
+                            // ==================================
+
+                            const verifyResponse =
+                                await fetch(
+                                    `${API_BASE}/api/payment/verify`,
+                                    {
+
+                                        method:
+                                            "POST",
+
+                                        headers: {
+
+                                            "Content-Type":
+                                                "application/json"
+
+                                        },
+
+                                        body:
+                                            JSON.stringify({
+
+                                                razorpay_order_id:
+                                                    response.razorpay_order_id,
+
+                                                razorpay_payment_id:
+                                                    response.razorpay_payment_id,
+
+                                                razorpay_signature:
+                                                    response.razorpay_signature,
+
+                                                customerName:
+                                                    name,
+
+                                                customerEmail:
+                                                    email,
+
+                                                customerPhone:
+                                                    phone
+
+                                            })
+
+                                    }
+                                );
+
+
+                            const verifyData =
+                                await verifyResponse.json();
+
+
+                            // ==================================
+                            // VERIFICATION FAILED
+                            // ==================================
+
+                            if (
+                                !verifyResponse.ok ||
+                                !verifyData.success ||
+                                !verifyData.paid ||
+                                !verifyData.premiumToken
+                            ) {
+
+                                throw new Error(
+
+                                    verifyData.error ||
+                                    "Payment verification failed"
+
+                                );
+
+                            }
+
+
+                            // ==================================
+                            // SAVE PREMIUM TOKEN
+                            // ==================================
+
+                            localStorage.setItem(
+
+                                "stockpulsePremiumToken",
+
+                                verifyData.premiumToken
+
+                            );
+
+
+                            // ==================================
+                            // SAVE PAYMENT ID
+                            // ==================================
+
+                            localStorage.setItem(
+
+                                "stockpulsePaymentId",
+
+                                verifyData.paymentId
+
+                            );
+
+
+                            // ==================================
+                            // PREMIUM STATUS
+                            // ==================================
+
+                            localStorage.setItem(
+
+                                "stockpulsePremium",
+
+                                "true"
+
+                            );
+
+
+                            // ==================================
+                            // SAVE CUSTOMER DETAILS LOCALLY
+                            // ==================================
+
+                            localStorage.setItem(
+
+                                "stockpulseCustomer",
+
+                                JSON.stringify({
+
+                                    name:
+                                        name,
+
+                                    email:
+                                        email,
+
+                                    phone:
+                                        phone
+
+                                })
+
+                            );
+
+
+                            // ==================================
+                            // SUCCESS
+                            // ==================================
+
+                            showStatus(
+
+                                "✅ Payment verified successfully! Premium activated.",
+
+                                "success"
+
+                            );
+
+
+                            payBtn.innerText =
+                                "✅ Premium Activated";
+
+
+                            // ==================================
+                            // REDIRECT
+                            // ==================================
+
+                            setTimeout(
+                                function () {
+
+                                    window.location.href =
+                                        "index.html";
+
+                                },
+                                1200
+                            );
+
+
+                        }
+                        catch (error) {
+
+
+                            console.error(
+                                "PAYMENT VERIFY ERROR:",
+                                error
+                            );
+
+
+                            showStatus(
+
+                                "❌ " +
+                                error.message,
+
+                                "error"
+
+                            );
+
+
+                            payBtn.disabled =
+                                false;
+
+
+                            payBtn.innerText =
+                                "💳 Pay ₹2,000";
+
+                        }
+
+                    },
+
+
+                // ======================================
+                // PAYMENT MODAL CLOSED
+                // ======================================
+
+                modal: {
+
+                    ondismiss:
+                        function () {
+
+
+                            payBtn.disabled =
+                                false;
+
+
+                            payBtn.innerText =
+                                "💳 Pay ₹2,000";
+
+
+                            showStatus(
+                                "Payment cancelled."
+                            );
+
+                        }
+
+                }
+
+            };
+
+
+            // ==========================================
+            // OPEN RAZORPAY
+            // ==========================================
+
+            const razorpay =
+                new Razorpay(options);
+
+
+            // ==========================================
+            // PAYMENT FAILED
+            // ==========================================
+
+            razorpay.on(
+                "payment.failed",
+                function (
+                    response
+                ) {
+
+
+                    console.error(
+                        "RAZORPAY PAYMENT FAILED:",
+                        response.error
+                    );
+
+
+                    showStatus(
+
+                        "❌ Payment failed. Please try again.",
+
+                        "error"
+
+                    );
+
+
+                    payBtn.disabled =
+                        false;
+
+
+                    payBtn.innerText =
+                        "💳 Pay ₹2,000";
+
+
+                }
+            );
+
+
+            // ==========================================
+            // OPEN CHECKOUT
+            // ==========================================
+
+            razorpay.open();
+
+
+        }
+        catch (error) {
+
+
+            console.error(
+                "PAYMENT ERROR:",
+                error
+            );
+
+
+            showStatus(
+
+                "❌ " +
+                error.message,
+
+                "error"
+
+            );
+
+
+            payBtn.disabled =
+                false;
+
+
+            payBtn.innerText =
+                "💳 Pay ₹2,000";
+
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
