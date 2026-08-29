@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>StockPulse Admin Panel</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: #0b1220;
+        color: #ffffff;
+        min-height: 100vh;
+    }
+
+    /* ==============================
+       LOGIN
+    ============================== */
+
+    #loginScreen {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 420px;
+        background: #111827;
+        border: 1px solid #263247;
+        border-radius: 18px;
+        padding: 35px;
+        box-shadow: 0 20px 50px rgba(0,0,0,.35);
+        text-align: center;
+    }
+
+    .login-logo {
+        font-size: 42px;
+        margin-bottom: 10px;
+    }
+
+    .login-box h1 {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .login-box p {
+        color: #94a3b8;
+        margin-bottom: 25px;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: 13px 14px;
+        border-radius: 10px;
+        border: 1px solid #334155;
+        background: #0f172a;
+        color: #fff;
+        outline: none;
+        margin-bottom: 12px;
+    }
+
+    textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #38bdf8;
+    }
+
+    button {
+        border: none;
+        cursor: pointer;
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-weight: 700;
+        color: white;
+        background: #2563eb;
+    }
+
+    button:hover {
+        opacity: .9;
+    }
+
+    .login-btn {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .error {
+        color: #f87171;
+        margin-top: 12px;
+    }
+
+    /* ==============================
+       ADMIN PANEL
+    ============================== */
+
+    #adminPanel {
+        display: none;
+    }
+
+    header {
+        background: #111827;
+        border-bottom: 1px solid #263247;
+        padding: 18px 25px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .header-inner {
+        max-width: 1400px;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .brand h1 {
+        font-size: 25px;
+    }
+
+    .brand-name {
+        color: #38bdf8;
+        font-size: 14px;
+        margin-top: 5px;
+        font-weight: 600;
+    }
+
+    .admin-badge {
+        display: inline-block;
+        margin-top: 6px;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: #172554;
+        color: #93c5fd;
+        font-size: 12px;
+    }
+
+    .logout-btn {
+        background: #dc2626;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: auto;
+        padding: 25px;
+    }
+
+    /* ==============================
+       DASHBOARD
+    ============================== */
+
+    .welcome {
+        background: linear-gradient(
+            135deg,
+            #111827,
+            #172554
+        );
+        border: 1px solid #263247;
+        border-radius: 18px;
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+
+    .welcome h2 {
+        font-size: 26px;
+        margin-bottom: 8px;
+    }
+
+    .welcome p {
+        color: #94a3b8;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: #111827;
+        border: 1px solid #263247;
+        border-radius: 16px;
+        padding: 22px;
+    }
+
+    .stat-card .icon {
+        font-size: 25px;
+        margin-bottom: 12px;
+    }
+
+    .stat-card .label {
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    .stat-card .value {
+        font-size: 28px;
+        font-weight: 800;
+        margin-top: 8px;
+    }
+
+    /* ==============================
+       SECTIONS
+    ============================== */
+
+    .section {
+        background: #111827;
+        border: 1px solid #263247;
+        border-radius: 18px;
+        padding: 22px;
+        margin-bottom: 25px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .section-header h2 {
+        font-size: 21px;
+    }
+
+    .refresh-btn {
+        background: #334155;
+    }
+
+    /* ==============================
+       TABLE
+    ============================== */
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
+
+    th,
+    td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #263247;
+        font-size: 13px;
+    }
+
+    th {
+        color: #93c5fd;
+        background: #0f172a;
+    }
+
+    td {
+        color: #e2e8f0;
+    }
+
+    .empty {
+        color: #94a3b8;
+        text-align: center;
+        padding: 25px;
+    }
+
+    /* ==============================
+       SIGNAL BOXES
+    ============================== */
+
+    .signal-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .signal-box {
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 15px;
+        padding: 20px;
+    }
+
+    .signal-box h3 {
+        margin-bottom: 15px;
+        font-size: 18px;
+    }
+
+    .signal-title {
+        color: #38bdf8;
+        margin-bottom: 12px;
+        font-weight: 700;
+    }
+
+    .save-btn {
+        width: 100%;
+        background: #16a34a;
+        margin-top: 5px;
+    }
+
+    .delete-btn {
+        background: #dc2626;
+        padding: 8px 12px;
+    }
+
+    .active-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #cbd5e1;
+        font-size: 14px;
+        margin: 5px 0 12px;
+    }
+
+    .active-label input {
+        width: auto;
+        margin: 0;
+    }
+
+    /* ==============================
+       STATUS
+    ============================== */
+
+    .status {
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        display: none;
+    }
+
+    .status.success {
+        display: block;
+        background: #052e16;
+        color: #86efac;
+        border: 1px solid #166534;
+    }
+
+    .status.error {
+        display: block;
+        background: #450a0a;
+        color: #fca5a5;
+        border: 1px solid #991b1b;
+    }
+
+    /* ==============================
+       RESPONSIVE
+    ============================== */
+
+    @media (max-width: 1000px) {
+        .stats-grid {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 700px) {
+        .header-inner {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .container {
+            padding: 15px;
+        }
+
+        .stats-grid,
+        .signal-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .section {
+            padding: 16px;
+        }
+
+        .welcome h2 {
+            font-size: 21px;
+        }
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<!-- ==================================================
+     LOGIN SCREEN
+================================================== -->
+
+<div id="loginScreen">
+
+```
+<div class="login-box">
+
+    <div class="login-logo">👑</div>
+
+    <h1>StockPulse Admin</h1>
+
+    <p>Administrator Login</p>
+
+    <input
+        type="password"
+        id="adminPassword"
+        placeholder="Enter Admin Password"
+    >
+
+    <button
+        class="login-btn"
+        onclick="adminLogin()"
+    >
+        🔐 Login
+    </button>
+
+    <div
+        id="loginError"
+        class="error"
+    ></div>
+
+</div>
+```
+
+</div>
+
+<!-- ==================================================
+     ADMIN PANEL
+================================================== -->
+
+<div id="adminPanel">
+
+```
+<header>
+
+    <div class="header-inner">
+
+        <div class="brand">
+
+            <h1>📊 StockPulse Admin Panel</h1>
+
+            <div class="brand-name">
+                👤 Sampat Singh Sodha
+            </div>
+
+            <span class="admin-badge">
+                👑 Administrator
+            </span>
+
+        </div>
+
+        <button
+            class="logout-btn"
+            onclick="logout()"
+        >
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+    <!-- ==========================================
+         WELCOME
+    =========================================== -->
+
+    <div class="welcome">
+
+        <h2>
+            Welcome, Sampat Singh Sodha 👋
+        </h2>
+
+        <p>
+            Manage StockPulse customers,
+            payments and premium trading signals
+            from one place.
+        </p>
+
+    </div>
+
+
+    <!-- ==========================================
+         STATUS
+    =========================================== -->
+
+    <div
+        id="status"
+        class="status"
+    ></div>
+
+
+    <!-- ==========================================
+         DASHBOARD STATS
+    =========================================== -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <h2>
+                📊 Dashboard Stats
+            </h2>
+
+            <button
+                class="refresh-btn"
+                onclick="loadStats()"
+            >
+                🔄 Refresh
+            </button>
+
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="icon">👥</div>
+
+                <div class="label">
+                    Total Customers
+                </div>
+
+                <div
+                    class="value"
+                    id="totalCustomers"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="icon">💳</div>
+
+                <div class="label">
+                    Successful Payments
+                </div>
+
+                <div
+                    class="value"
+                    id="totalPayments"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="icon">💰</div>
+
+                <div class="label">
+                    Total Revenue
+                </div>
+
+                <div
+                    class="value"
+                    id="totalRevenue"
+                >
+                    ₹0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="icon">⭐</div>
+
+                <div class="label">
+                    Active Premium
+                </div>
+
+                <div
+                    class="value"
+                    id="activePremium"
+                >
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         CUSTOMER RECORDS
+    =========================================== -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <h2>
+                👥 Customer Records
+            </h2>
+
+            <button
+                class="refresh-btn"
+                onclick="loadPayments()"
+            >
+                🔄 Refresh
+            </button>
+
+        </div>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Payment ID</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Premium Expiry</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="customerTable">
+
+                    <tr>
+                        <td
+                            colspan="7"
+                            class="empty"
+                        >
+                            Loading customers...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         PAYMENT RECORDS
+    =========================================== -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <h2>
+                💳 Payment Records
+            </h2>
+
+            <button
+                class="refresh-btn"
+                onclick="loadPayments()"
+            >
+                🔄 Refresh
+            </button>
+
+        </div>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Payment ID</th>
+                        <th>Order ID</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="paymentTable">
+
+                    <tr>
+                        <td
+                            colspan="8"
+                            class="empty"
+                        >
+                            Loading payments...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         PREMIUM SIGNALS
+    =========================================== -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <h2>
+                📈 Premium Signals
+            </h2>
+
+            <button
+                class="refresh-btn"
+                onclick="loadSignals()"
+            >
+                🔄 Refresh
+            </button>
+
+        </div>
+
+
+        <div class="signal-grid">
+
+
+            <!-- ==================================
+                 INDIAN STOCKS
+            =================================== -->
+
+            <div class="signal-box">
+
+                <h3>
+                    🇮🇳 Indian Stocks
+                </h3>
+
+                <div class="signal-title">
+                    Stock Premium Signal
+                </div>
+
+                <input
+                    id="stockSymbol"
+                    placeholder="Symbol e.g. RELIANCE"
+                >
+
+                <input
+                    id="stockName"
+                    placeholder="Stock Name"
+                >
+
+                <select id="stockType">
+
+                    <option value="BUY">
+                        BUY
+                    </option>
+
+                    <option value="SELL">
+                        SELL
+                    </option>
+
+                </select>
+
+                <input
+                    id="stockEntry"
+                    placeholder="Entry Price"
+                >
+
+                <input
+                    id="stockSL"
+                    placeholder="Stop Loss"
+                >
+
+                <input
+                    id="stockTarget1"
+                    placeholder="Target 1"
+                >
+
+                <input
+                    id="stockTarget2"
+                    placeholder="Target 2"
+                >
+
+                <input
+                    id="stockTarget3"
+                    placeholder="Target 3"
+                >
+
+                <select id="stockRisk">
+
+                    <option value="Low">
+                        Low Risk
+                    </option>
+
+                    <option value="Medium" selected>
+                        Medium Risk
+                    </option>
+
+                    <option value="High">
+                        High Risk
+                    </option>
+
+                </select>
+
+                <textarea
+                    id="stockNote"
+                    placeholder="Signal Note"
+                ></textarea>
+
+                <label class="active-label">
+
+                    <input
+                        type="checkbox"
+                        id="stockActive"
+                        checked
+                    >
+
+                    Active Signal
+
+                </label>
+
+                <button
+                    class="save-btn"
+                    onclick="saveSignal('stock')"
+                >
+                    💾 Save Stock Signal
+                </button>
+
+            </div>
+
+
+            <!-- ==================================
+                 CRYPTO
+            =================================== -->
+
+            <div class="signal-box">
+
+                <h3>
+                    ₿ Crypto
+                </h3>
+
+                <div class="signal-title">
+                    Crypto Premium Signal
+                </div>
+
+                <input
+                    id="cryptoSymbol"
+                    placeholder="BTC / ETH / SOL / XRP"
+                >
+
+                <input
+                    id="cryptoName"
+                    placeholder="Crypto Name"
+                >
+
+                <select id="cryptoType">
+
+                    <option value="BUY">
+                        BUY
+                    </option>
+
+                    <option value="SELL">
+                        SELL
+                    </option>
+
+                </select>
+
+                <input
+                    id="cryptoEntry"
+                    placeholder="Entry Price"
+                >
+
+                <input
+                    id="cryptoSL"
+                    placeholder="Stop Loss"
+                >
+
+                <input
+                    id="cryptoTarget1"
+                    placeholder="Target 1"
+                >
+
+                <input
+                    id="cryptoTarget2"
+                    placeholder="Target 2"
+                >
+
+                <input
+                    id="cryptoTarget3"
+                    placeholder="Target 3"
+                >
+
+                <select id="cryptoRisk">
+
+                    <option value="Low">
+                        Low Risk
+                    </option>
+
+                    <option value="Medium" selected>
+                        Medium Risk
+                    </option>
+
+                    <option value="High">
+                        High Risk
+                    </option>
+
+                </select>
+
+                <textarea
+                    id="cryptoNote"
+                    placeholder="Signal Note"
+                ></textarea>
+
+                <label class="active-label">
+
+                    <input
+                        type="checkbox"
+                        id="cryptoActive"
+                        checked
+                    >
+
+                    Active Signal
+
+                </label>
+
+                <button
+                    class="save-btn"
+                    onclick="saveSignal('crypto')"
+                >
+                    💾 Save Crypto Signal
+                </button>
+
+            </div>
+
+
+            <!-- ==================================
+                 COMMODITY
+            =================================== -->
+
+            <div class="signal-box">
+
+                <h3>
+                    🪙 Commodity
+                </h3>
+
+                <div class="signal-title">
+                    Commodity Premium Signal
+                </div>
+
+                <input
+                    id="commoditySymbol"
+                    placeholder="GOLD / SILVER / CRUDE"
+                >
+
+                <input
+                    id="commodityName"
+                    placeholder="Commodity Name"
+                >
+
+                <select id="commodityType">
+
+                    <option value="BUY">
+                        BUY
+                    </option>
+
+                    <option value="SELL">
+                        SELL
+                    </option>
+
+                </select>
+
+                <input
+                    id="commodityEntry"
+                    placeholder="Entry Price"
+                >
+
+                <input
+                    id="commoditySL"
+                    placeholder="Stop Loss"
+                >
+
+                <input
+                    id="commodityTarget1"
+                    placeholder="Target 1"
+                >
+
+                <input
+                    id="commodityTarget2"
+                    placeholder="Target 2"
+                >
+
+                <input
+                    id="commodityTarget3"
+                    placeholder="Target 3"
+                >
+
+                <select id="commodityRisk">
+
+                    <option value="Low">
+                        Low Risk
+                    </option>
+
+                    <option value="Medium" selected>
+                        Medium Risk
+                    </option>
+
+                    <option value="High">
+                        High Risk
+                    </option>
+
+                </select>
+
+                <textarea
+                    id="commodityNote"
+                    placeholder="Signal Note"
+                ></textarea>
+
+                <label class="active-label">
+
+                    <input
+                        type="checkbox"
+                        id="commodityActive"
+                        checked
+                    >
+
+                    Active Signal
+
+                </label>
+
+                <button
+                    class="save-btn"
+                    onclick="saveSignal('commodity')"
+                >
+                    💾 Save Commodity Signal
+                </button>
+
+            </div>
+
+
+            <!-- ==================================
+                 INTRADAY
+            =================================== -->
+
+            <div class="signal-box">
+
+                <h3>
+                    ⚡ Intraday
+                </h3>
+
+                <div class="signal-title">
+                    Intraday Premium Signal
+                </div>
+
+                <input
+                    id="intradaySymbol"
+                    placeholder="NIFTY / BANKNIFTY / STOCK"
+                >
+
+                <input
+                    id="intradayName"
+                    placeholder="Instrument Name"
+                >
+
+                <select id="intradayType">
+
+                    <option value="BUY">
+                        BUY
+                    </option>
+
+                    <option value="SELL">
+                        SELL
+                    </option>
+
+                </select>
+
+                <input
+                    id="intradayEntry"
+                    placeholder="Entry Price"
+                >
+
+                <input
+                    id="intradaySL"
+                    placeholder="Stop Loss"
+                >
+
+                <input
+                    id="intradayTarget1"
+                    placeholder="Target 1"
+                >
+
+                <input
+                    id="intradayTarget2"
+                    placeholder="Target 2"
+                >
+
+                <input
+                    id="intradayTarget3"
+                    placeholder="Target 3"
+                >
+
+                <select id="intradayRisk">
+
+                    <option value="Low">
+                        Low Risk
+                    </option>
+
+                    <option value="Medium" selected>
+                        Medium Risk
+                    </option>
+
+                    <option value="High">
+                        High Risk
+                    </option>
+
+                </select>
+
+                <textarea
+                    id="intradayNote"
+                    placeholder="Signal Note"
+                ></textarea>
+
+                <label class="active-label">
+
+                    <input
+                        type="checkbox"
+                        id="intradayActive"
+                        checked
+                    >
+
+                    Active Signal
+
+                </label>
+
+                <button
+                    class="save-btn"
+                    onclick="saveSignal('intraday')"
+                >
+                    💾 Save Intraday Signal
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         EXISTING SIGNALS
+    =========================================== -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <h2>
+                📋 Saved Premium Signals
+            </h2>
+
+            <button
+                class="refresh-btn"
+                onclick="loadSignals()"
+            >
+                🔄 Refresh
+            </button>
+
+        </div>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Entry</th>
+                        <th>SL</th>
+                        <th>T1</th>
+                        <th>T2</th>
+                        <th>T3</th>
+                        <th>Risk</th>
+                        <th>Active</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="signalTable">
+
+                    <tr>
+                        <td
+                            colspan="11"
+                            class="empty"
+                        >
+                            Loading signals...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+</main>
+```
+
+</div>
+
+<script>
+
+"use strict";
+
+/* ==========================================
+   ADMIN STATE
+========================================== */
+
+let adminPassword =
+    sessionStorage.getItem(
+        "stockpulse_admin_password"
+    ) || "";
+
+
+/* ==========================================
+   API HELPER
+========================================== */
+
+async function apiRequest(
+    url,
+    options = {}
+) {
+
+    const headers = {
+
+        ...(options.headers || {}),
+
+        "x-admin-password":
+            adminPassword,
+
+        "Content-Type":
+            "application/json"
+
+    };
+
+    const response =
+        await fetch(
+            url,
+            {
+                ...options,
+                headers
+            }
+        );
+
+    const text =
+        await response.text();
+
+    let data;
+
+    try {
+
+        data =
+            JSON.parse(text);
+
+    } catch (error) {
+
+        throw new Error(
+            "Server returned invalid response. Check that server.js is running."
+        );
+
+    }
+
+    if (!response.ok) {
+
+        throw new Error(
+            data.error ||
+            "Request failed"
+        );
+
+    }
+
+    return data;
+
+}
+
+
+/* ==========================================
+   LOGIN
+========================================== */
+
+async function adminLogin() {
+
+    const password =
+        document
+            .getElementById(
+                "adminPassword"
+            )
+            .value
+            .trim();
+
+    const errorBox =
+        document
+            .getElementById(
+                "loginError"
+            );
+
+    errorBox.textContent = "";
+
+    if (!password) {
+
+        errorBox.textContent =
+            "Please enter admin password.";
+
+        return;
+
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/admin/login",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            password
+                        })
+
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok || !data.success) {
+
+            throw new Error(
+                data.error ||
+                "Invalid password"
+            );
+
+        }
+
+        adminPassword =
+            password;
+
+        sessionStorage.setItem(
+            "stockpulse_admin_password",
+            password
+        );
+
+        showAdminPanel();
+
+    } catch (error) {
+
+        errorBox.textContent =
+            error.message;
+
+    }
+
+}
+
+
+/* ==========================================
+   SHOW PANEL
+========================================== */
+
+function showAdminPanel() {
+
+    document
+        .getElementById(
+            "loginScreen"
+        )
+        .style.display =
+        "none";
+
+    document
+        .getElementById(
+            "adminPanel"
+        )
+        .style.display =
+        "block";
+
+    loadAll();
+
+}
+
+
+/* ==========================================
+   LOGOUT
+========================================== */
+
+function logout() {
+
+    sessionStorage.removeItem(
+        "stockpulse_admin_password"
+    );
+
+    adminPassword = "";
+
+    location.reload();
+
+}
+
+
+/* ==========================================
+   STATUS MESSAGE
+========================================== */
+
+function showStatus(
+    message,
+    type = "success"
+) {
+
+    const box =
+        document.getElementById(
+            "status"
+        );
+
+    box.textContent =
+        message;
+
+    box.className =
+        "status " +
+        type;
+
+    setTimeout(
+        () => {
+
+            box.className =
+                "status";
+
+        },
+        3500
+    );
+
+}
+
+
+/* ==========================================
+   DASHBOARD STATS
+========================================== */
+
+async function loadStats() {
+
+    try {
+
+        const data =
+            await apiRequest(
+                "/api/admin/stats"
+            );
+
+        const stats =
+            data.stats || {};
+
+        document
+            .getElementById(
+                "totalCustomers"
+            )
+            .textContent =
+            stats.totalCustomers || 0;
+
+        document
+            .getElementById(
+                "totalPayments"
+            )
+            .textContent =
+            stats.totalPayments || 0;
+
+        document
+            .getElementById(
+                "totalRevenue"
+            )
+            .textContent =
+            "₹" +
+            Number(
+                stats.totalRevenue || 0
+            ).toLocaleString("en-IN");
+
+        document
+            .getElementById(
+                "activePremium"
+            )
+            .textContent =
+            stats.activePremium || 0;
+
+    } catch (error) {
+
+        showStatus(
+            "Stats error: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   PAYMENTS / CUSTOMERS
+========================================== */
+
+async function loadPayments() {
+
+    try {
+
+        const data =
+            await apiRequest(
+                "/api/admin/payments"
+            );
+
+        const payments =
+            data.payments || [];
+
+        const customerTable =
+            document.getElementById(
+                "customerTable"
+            );
+
+        const paymentTable =
+            document.getElementById(
+                "paymentTable"
+            );
+
+
+        if (!payments.length) {
+
+            customerTable.innerHTML = `
+                <tr>
+                    <td colspan="7" class="empty">
+                        No customer records found.
+                    </td>
+                </tr>
+            `;
+
+            paymentTable.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty">
+                        No payment records found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        customerTable.innerHTML =
+            payments.map(
+                payment => `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.customerName || "Not Provided"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.customerEmail || "Not Provided"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.customerPhone || "Not Provided"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.paymentId || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ₹${(
+                                Number(
+                                    payment.amount || 0
+                                ) / 100
+                            ).toLocaleString("en-IN")}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.status || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${formatDate(
+                                payment.premiumExpiry
+                            )}
+                        </td>
+
+                    </tr>
+
+                `
+            ).join("");
+
+
+        paymentTable.innerHTML =
+            payments.map(
+                payment => `
+
+                    <tr>
+
+                        <td>
+                            ${formatDate(
+                                payment.paymentDate ||
+                                payment.createdAt
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.customerName || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.customerPhone || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.paymentId || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.orderId || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ₹${(
+                                Number(
+                                    payment.amount || 0
+                                ) / 100
+                            ).toLocaleString("en-IN")}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.method || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.status || "-"
+                            )}
+                        </td>
+
+                    </tr>
+
+                `
+            ).join("");
+
+
+    } catch (error) {
+
+        showStatus(
+            "Payment records error: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   SAVE SIGNAL
+========================================== */
+
+async function saveSignal(
+    category
+) {
+
+    const prefix =
+        category;
+
+    const symbol =
+        document
+            .getElementById(
+                prefix + "Symbol"
+            )
+            .value
+            .trim();
+
+    const name =
+        document
+            .getElementById(
+                prefix + "Name"
+            )
+            .value
+            .trim();
+
+    const type =
+        document
+            .getElementById(
+                prefix + "Type"
+            )
+            .value;
+
+    const entry =
+        document
+            .getElementById(
+                prefix + "Entry"
+            )
+            .value
+            .trim();
+
+    const stopLoss =
+        document
+            .getElementById(
+                prefix + "SL"
+            )
+            .value
+            .trim();
+
+    const target1 =
+        document
+            .getElementById(
+                prefix + "Target1"
+            )
+            .value
+            .trim();
+
+    const target2 =
+        document
+            .getElementById(
+                prefix + "Target2"
+            )
+            .value
+            .trim();
+
+    const target3 =
+        document
+            .getElementById(
+                prefix + "Target3"
+            )
+            .value
+            .trim();
+
+    const risk =
+        document
+            .getElementById(
+                prefix + "Risk"
+            )
+            .value;
+
+    const note =
+        document
+            .getElementById(
+                prefix + "Note"
+            )
+            .value
+            .trim();
+
+    const active =
+        document
+            .getElementById(
+                prefix + "Active"
+            )
+            .checked;
+
+
+    if (!symbol) {
+
+        showStatus(
+            "Please enter symbol.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (!entry) {
+
+        showStatus(
+            "Please enter Entry Price.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const data =
+            await apiRequest(
+                "/api/admin/signals",
+                {
+
+                    method: "POST",
+
+                    body:
+                        JSON.stringify({
+
+                            symbol,
+
+                            name,
+
+                            type,
+
+                            entry,
+
+                            stopLoss,
+
+                            target1,
+
+                            target2,
+
+                            target3,
+
+                            risk,
+
+                            note,
+
+                            active
+
+                        })
+
+                }
+            );
+
+        showStatus(
+            data.message ||
+            "Signal saved successfully."
+        );
+
+        clearSignalForm(
+            category
+        );
+
+        loadSignals();
+
+    } catch (error) {
+
+        showStatus(
+            "Signal save error: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   CLEAR SIGNAL FORM
+========================================== */
+
+function clearSignalForm(
+    prefix
+) {
+
+    const fields = [
+
+        "Symbol",
+        "Name",
+        "Entry",
+        "SL",
+        "Target1",
+        "Target2",
+        "Target3",
+        "Note"
+
+    ];
+
+    fields.forEach(
+        field => {
+
+            const element =
+                document.getElementById(
+                    prefix + field
+                );
+
+            if (element) {
+                element.value = "";
+            }
+
+        }
+    );
+
+    const active =
+        document.getElementById(
+            prefix + "Active"
+        );
+
+    if (active) {
+        active.checked = true;
+    }
+
+}
+
+
+/* ==========================================
+   LOAD SIGNALS
+========================================== */
+
+async function loadSignals() {
+
+    try {
+
+        const data =
+            await apiRequest(
+                "/api/admin/signals"
+            );
+
+        const signals =
+            data.signals || [];
+
+        const table =
+            document.getElementById(
+                "signalTable"
+            );
+
+
+        if (!signals.length) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="11" class="empty">
+                        No premium signals found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        table.innerHTML =
+            signals.map(
+                signal => `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                signal.symbol || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                signal.name || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                signal.type || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                signal.entry || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                signal.stopLoss || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                signal.target1 || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                signal.target2 || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                signal.target3 || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                signal.risk || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${
+                                signal.active
+                                    ? "✅"
+                                    : "❌"
+                            }
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="delete-btn"
+                                onclick="deleteSignal('${signal._id}')"
+                            >
+                                Delete
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `
+            ).join("");
+
+
+    } catch (error) {
+
+        showStatus(
+            "Signal loading error: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   DELETE SIGNAL
+========================================== */
+
+async function deleteSignal(
+    id
+) {
+
+    if (
+        !confirm(
+            "Delete this premium signal?"
+        )
+    ) {
+        return;
+    }
+
+    try {
+
+        const data =
+            await apiRequest(
+                "/api/admin/signals/" +
+                encodeURIComponent(id),
+                {
+                    method: "DELETE"
+                }
+            );
+
+        showStatus(
+            data.message ||
+            "Signal deleted."
+        );
+
+        loadSignals();
+
+    } catch (error) {
+
+        showStatus(
+            "Delete error: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   UTILITIES
+========================================== */
+
+function formatDate(
+    value
+) {
+
+    if (!value) {
+        return "-";
+    }
+
+    const date =
+        new Date(value);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return "-";
+    }
+
+    return date.toLocaleString(
+        "en-IN",
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    );
+
+}
+
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* ==========================================
+   LOAD EVERYTHING
+========================================== */
+
+function loadAll() {
+
+    loadStats();
+
+    loadPayments();
+
+    loadSignals();
+
+}
+
+
+/* ==========================================
+   AUTO LOGIN
+========================================== */
+
+if (adminPassword) {
+
+    showAdminPanel();
+
+}
+
+
+/* ==========================================
+   ENTER KEY LOGIN
+========================================== */
+
+document
+    .getElementById(
+        "adminPassword"
+    )
+    .addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                adminLogin();
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+</html>
