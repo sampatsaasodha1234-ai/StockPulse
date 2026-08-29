@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Stock Detail | StockPulse</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="logo">📈 Stock<span>Pulse</span></div>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="index.html#market">Markets</a>
+    <a href="index.html#crypto">Crypto</a>
+  </nav>
+
+  <button class="login-btn" onclick="history.back()">← Back</button>
+</header>
+
+
+<section class="hero" style="padding-top:140px">
+
+  <div class="hero-left">
+
+    <span class="badge" id="detailSymbol">
+      RELIANCE • NSE
+    </span>
+
+    <h1 id="detailName">
+      Reliance Industries
+    </h1>
+
+    <h2 id="detailPrice"
+        style="font-size:56px;margin:20px 0">
+      ₹1,520.40
+    </h2>
+
+    <h3 id="detailChange" class="green">
+      +3.25%
+    </h3>
+
+    <div class="hero-buttons">
+
+      <a href="#" class="btn-primary" id="detailAdvice">
+        BUY
+      </a>
+
+      <a href="#" class="btn-outline" id="detailTimeframe">
+        Short Term
+      </a>
+
+    </div>
+
+  </div>
+
+
+  <div class="hero-card">
+
+    <div class="card-top">
+      <span>Live Chart</span>
+      <b>1H</b>
+    </div>
+
+    <div class="chart">
+
+      <div class="line l1"></div>
+      <div class="line l2"></div>
+      <div class="line l3"></div>
+      <div class="line l4"></div>
+
+      <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+
+        <polyline
+          fill="none"
+          stroke="#00F5A0"
+          stroke-width="4"
+          points="
+          0,135
+          20,120
+          40,128
+          60,110
+          80,118
+          100,95
+          120,100
+          140,75
+          160,82
+          180,58
+          200,64
+          220,42
+          240,55
+          260,28
+          290,35
+          320,20"/>
+
+      </svg>
+
+    </div>
+
+    <div class="market-status">
+      <span>Trend</span>
+      <strong class="green">Bullish</strong>
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="market">
+
+  <div class="title">
+    <p>TRADE SETUP</p>
+    <h2>Entry • Target • Stoploss</h2>
+  </div>
+
+  <div class="grid">
+
+    <div class="box">
+      <h4>ENTRY</h4>
+      <h2 id="detailEntry">₹1515</h2>
+    </div>
+
+    <div class="box">
+      <h4>TARGET 1</h4>
+      <h2 id="detailTarget1">₹1560</h2>
+    </div>
+
+    <div class="box">
+      <h4>TARGET 2</h4>
+      <h2 id="detailTarget2">₹1590</h2>
+    </div>
+
+    <div class="box">
+      <h4>STOP LOSS</h4>
+      <h2 id="detailStopLoss">₹1490</h2>
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="advisor">
+
+  <div class="title">
+    <p>RISK ANALYSIS</p>
+    <h2>Market Outlook</h2>
+  </div>
+
+  <div class="signal-grid">
+
+    <div class="signal buy">
+      <h3>Trend</h3>
+      <h2>Bullish</h2>
+      <p>Strong upward momentum</p>
+    </div>
+
+    <div class="signal buy">
+      <h3>Risk</h3>
+      <h2 id="detailRisk">Medium</h2>
+      <p>Use proper position sizing</p>
+    </div>
+
+    <div class="signal sell">
+      <h3>Strategy</h3>
+      <h2>Strict SL</h2>
+      <p>Always follow stop loss</p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="contact">
+
+  <h2>Premium Market Signals</h2>
+
+  <p>
+    Join WhatsApp to receive daily stock and crypto analysis.
+  </p>
+
+  <div class="hero-buttons">
+    <a href="#" class="btn-primary">Join WhatsApp</a>
+    <a href="index.html" class="btn-outline">Back Home</a>
+  </div>
+
+</section>
+
+<footer>
+  © 2026 StockPulse • Sampat Singh Sodha
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+</html>
