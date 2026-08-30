@@ -1,2031 +1,695 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
+  <title>StockPulse | Crypto & Stock Market Advisor</title>
 
->
+  <meta name="description"
+    content="StockPulse - Live stock, index and crypto market data with market analysis.">
 
-  <title>
-    StockPulse | Crypto & Stock Market Advisor
-  </title>
+  <link rel="stylesheet" href="style.css">
 
-<meta
-name="description"
-content="StockPulse - Live stock, index and crypto market data with market analysis."
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
->
-
- 
-
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
-
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  >
-
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-    crossorigin
-  >
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet"
-  >
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
 </head>
 
 <body>
 
-<!-- =====================================================
-     NAVBAR
-===================================================== -->
+  <!-- ================= NAVBAR ================= -->
 
-<header class="navbar">
+  <header class="navbar">
 
-  <div class="logo">
-    📈 Stock<span>Pulse</span>
-  </div>
+    <div class="logo">
+      📈 Stock<span>Pulse</span>
+    </div>
 
-  <nav>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#market">Markets</a>
+      <a href="#crypto">Crypto</a>
+      <a href="#contact">Contact</a>
+    </nav>
 
-```
-<a href="#home">Home</a>
+    <div class="market-search">
 
-<a href="#market">Markets</a>
+      <input type="text"
+        id="marketSearch"
+        placeholder="Search stock, crypto..."
+        autocomplete="off">
 
-<a href="#crypto">Crypto</a>
+      <button id="marketSearchBtn" type="button">
+        🔍
+      </button>
 
-<a href="#advisor">Signals</a>
+      <div id="searchResults" class="search-results"></div>
 
-<a href="#contact">Contact</a>
-```
+    </div>
 
-  </nav>
+    <button id="themeToggle"
+      class="theme-toggle"
+      type="button">
+      🌙
+    </button>
 
-  <div class="market-search">
+  </header>
 
-```
-<input
-  type="text"
-  id="marketSearch"
-  placeholder="Search stock, crypto..."
-  autocomplete="off"
->
+  <!-- ================= DASHBOARD ================= -->
 
-<button
-  id="marketSearchBtn"
-  type="button"
->
-  🔍
-</button>
+  <main id="dashboard">
 
-<div
-  id="searchResults"
-  class="search-results"
-></div>
-```
+    <!-- ================= HERO ================= -->
 
-  </div>
+    <section class="hero" id="home">
 
-<button
-id="themeToggle"
-class="theme-toggle"
-type="button"
+      <div class="hero-left">
 
->
+        <span class="badge">
+          ● LIVE MARKET ADVISORY
+        </span>
 
-```
-🌙
-```
+        <h1>
+          Trade Smarter.<br>
+          Invest With <span>Confidence.</span>
+        </h1>
 
-  </button>
+        <p>
+          Professional Stock & Crypto market insights with BUY • SELL • HOLD
+          signals, technical analysis and structured trading setups.
+        </p>
 
-<button
-class="login-btn"
-id="premiumBtn"
-type="button"
+        <div class="hero-buttons">
+          <a href="#market" class="btn-primary">
+            Explore Markets
+          </a>
 
->
+          <a href="#contact" class="btn-outline">
+            Contact
+          </a>
+        </div>
 
-```
-🔐 Premium
-```
+        <div class="analyst">
 
-  </button>
+          <div class="avatar">
+            SS
+          </div>
 
-</header>
+          <div>
+            <small>MARKET ADVISOR</small>
+            <h3>Sampat Singh Sodha</h3>
+          </div>
 
-<!-- =====================================================
-     DASHBOARD
-===================================================== -->
+        </div>
 
-<main id="dashboard">
+      </div>
 
-<!-- =====================================================
-     HERO
-===================================================== -->
+      <!-- ========= HERO NIFTY CARD ========= -->
 
-<section
-  class="hero"
-  id="home"
->
+      <div class="hero-card" id="heroNiftyCard">
 
-  <div class="hero-left">
+        <div class="card-top">
+          <span>NIFTY 50</span>
+          <b>LIVE</b>
+        </div>
 
-```
-<span class="badge">
-  ● LIVE MARKET ADVISORY
-</span>
+        <h2 id="heroNiftyPrice">Loading...</h2>
 
+        <h4 class="green" id="heroNiftyChange">
+          LIVE MARKET
+        </h4>
 
-<h1>
+        <div class="hero-chart">
 
-  Trade Smarter.<br>
+          <div class="chart-grid"></div>
 
-  Invest With
-  <span>
-    Confidence.
-  </span>
+          <svg viewBox="0 0 320 160" preserveAspectRatio="none">
+            <polyline fill="none"
+              stroke="#00F5A0"
+              stroke-width="4"
+              points="0,130 25,125 50,115 75,120 100,90 125,105 150,75 175,82 200,65 225,72 250,42 275,55 320,30" />
+          </svg>
 
-</h1>
+        </div>
 
+        <div class="market-status">
+          <span>Market Status</span>
 
-<p>
+          <strong class="green" id="heroNiftyStatus">
+            CHECKING...
+          </strong>
+        </div>
 
-  Professional Stock & Crypto market insights with
-  BUY • SELL • HOLD signals, technical analysis
-  and structured trading setups.
+      </div>
 
-</p>
+    </section>
 
+    <!-- ================= MARKET ================= -->
 
-<div class="hero-buttons">
+    <section class="market section" id="market">
 
+      <div class="title">
+        <p>LIVE MARKET</p>
 
-  <a
-    href="#market"
-    class="btn-primary"
-  >
-    Explore Markets
-  </a>
+        <h2>Today's Indices</h2>
 
+        <span class="section-subtitle">
+          Click any card to view detailed market analysis
+        </span>
+      </div>
 
-  <a
-    href="#contact"
-    class="btn-outline"
-  >
-    Contact
-  </a>
+      <div class="grid">
 
+        <!-- NIFTY -->
 
-</div>
+        <article class="box market-card"
+          data-symbol="NIFTY50"
+          tabindex="0">
 
+          <div class="card-header">
+            <div>
+              <h4>NIFTY 50</h4>
+              <small>NSE INDEX</small>
+            </div>
 
-<div class="analyst">
+            <span class="signal-badge buy-badge">LIVE</span>
+          </div>
 
+          <h2 id="niftyPrice">Loading...</h2>
 
-  <div class="avatar">
-    SS
-  </div>
+          <span class="green" id="niftyStatus">LIVE</span>
 
+          <div class="mini-chart">
+            <svg viewBox="0 0 300 80">
+              <polyline
+                points="0,65 35,60 65,63 100,45 130,52 160,32 195,38 225,22 260,28 300,12"
+                fill="none"
+                stroke="#00F5A0"
+                stroke-width="3" />
+            </svg>
+          </div>
 
-  <div>
+          <div class="card-footer">
+            <span>NSE</span>
+            <strong>View Analysis →</strong>
+          </div>
 
-    <small>
-      MARKET ADVISOR
-    </small>
+        </article>
 
-    <h3>
-      Sampat Singh Sodha
-    </h3>
+        <!-- BANKNIFTY -->
 
-  </div>
+        <article class="box market-card"
+          data-symbol="BANKNIFTY"
+          tabindex="0">
 
+          <div class="card-header">
+            <div>
+              <h4>BANKNIFTY</h4>
+              <small>NSE INDEX</small>
+            </div>
 
-</div>
-```
+            <span class="signal-badge buy-badge">LIVE</span>
+          </div>
 
-  </div>
+          <h2 id="bankniftyPrice">Loading...</h2>
 
-  <!-- =================================================
-       HERO NIFTY CARD
-  ================================================== -->
+          <span class="green" id="bankniftyStatus">LIVE</span>
 
-  <div
-    class="hero-card"
-    id="heroNiftyCard"
-  >
+          <div class="mini-chart">
+            <svg viewBox="0 0 300 80">
+              <polyline
+                points="0,60 35,55 70,62 100,42 130,48 165,35 200,40 235,20 270,30 300,15"
+                fill="none"
+                stroke="#00F5A0"
+                stroke-width="3" />
+            </svg>
+          </div>
 
-```
-<div class="card-top">
+          <div class="card-footer">
+            <span>NSE</span>
+            <strong>View Analysis →</strong>
+          </div>
 
-  <span>
-    NIFTY 50
-  </span>
+        </article>
 
-  <b>
-    LIVE
-  </b>
+        <!-- SENSEX -->
 
-</div>
+        <article class="box market-card"
+          data-symbol="SENSEX"
+          tabindex="0">
 
+          <div class="card-header">
+            <div>
+              <h4>SENSEX</h4>
+              <small>BSE INDEX</small>
+            </div>
 
-<h2 id="heroNiftyPrice">
-  Loading...
-</h2>
+            <span class="signal-badge buy-badge">LIVE</span>
+          </div>
 
+          <h2 id="sensexPrice">Loading...</h2>
 
-<h4
-  class="green"
-  id="heroNiftyChange"
->
-  LIVE MARKET
-</h4>
+          <span class="green" id="sensexStatus">LIVE</span>
 
+          <div class="mini-chart">
+            <svg viewBox="0 0 300 80">
+              <polyline
+                points="0,58 40,62 70,50 105,54 140,40 175,45 210,30 245,34 270,20 300,25"
+                fill="none"
+                stroke="#00F5A0"
+                stroke-width="3" />
+            </svg>
+          </div>
 
-<div class="hero-chart">
+          <div class="card-footer">
+            <span>BSE</span>
+            <strong>View Analysis →</strong>
+          </div>
 
-  <div class="chart-grid"></div>
+        </article>
 
+        <!-- NIFTY IT -->
 
-  <svg
-    viewBox="0 0 320 160"
-    preserveAspectRatio="none"
-  >
+        <article class="box market-card"
+          data-symbol="NIFTYIT"
+          tabindex="0">
 
-    <polyline
-      fill="none"
-      stroke="#00F5A0"
-      stroke-width="4"
-      points="
-      0,130
-      25,125
-      50,115
-      75,120
-      100,90
-      125,105
-      150,75
-      175,82
-      200,65
-      225,72
-      250,42
-      275,55
-      320,30
-      "
-    />
+          <div class="card-header">
+            <div>
+              <h4>NIFTY IT</h4>
+              <small>NSE INDEX</small>
+            </div>
 
-  </svg>
+            <span class="signal-badge sell-badge">LIVE</span>
+          </div>
 
-</div>
+          <h2 id="niftyitPrice">Loading...</h2>
 
+          <span class="green" id="niftyitStatus">LIVE</span>
 
-<div class="market-status">
+          <div class="mini-chart red-chart">
+            <svg viewBox="0 0 300 80">
+              <polyline
+                points="0,20 40,30 70,25 105,42 140,35 175,52 210,48 245,62 270,55 300,70"
+                fill="none"
+                stroke="#ff5d6c"
+                stroke-width="3" />
+            </svg>
+          </div>
 
-  <span>
-    Market Status
-  </span>
+          <div class="card-footer">
+            <span>NSE</span>
+            <strong>View Analysis →</strong>
+          </div>
 
-  <strong
-    class="green"
-    id="heroNiftyStatus"
-  >
-    CHECKING...
-  </strong>
+        </article>
 
-</div>
-```
+      </div>
 
-  </div>
+    </section>
+    <!-- ================= CRYPTO ================= -->
 
-</section>
-
-<!-- =====================================================
-     MARKET
-===================================================== -->
-
-<section
-  class="market section"
-  id="market"
->
+<section class="crypto section" id="crypto">
 
   <div class="title">
-
-```
-<p>
-  LIVE MARKET
-</p>
-
-<h2>
-  Today's Indices
-</h2>
-
-<span class="section-subtitle">
-  Click any card to view detailed market analysis
-</span>
-```
-
+    <p>CRYPTO MARKET</p>
+    <h2>Top Crypto Assets</h2>
+    <span class="section-subtitle">
+      Select an asset for detailed analysis
+    </span>
   </div>
 
   <div class="grid">
 
-```
-<!-- NIFTY -->
+    <!-- BTC -->
+    <article class="coin crypto-card" data-symbol="BTC" tabindex="0">
+      <div class="card-header">
+        <div>
+          <h3>₿ Bitcoin</h3>
+          <small>BTC • CRYPTO</small>
+        </div>
+        <span class="signal-badge buy-badge">LIVE</span>
+      </div>
 
-<article
-  class="box market-card"
-  data-symbol="NIFTY50"
-  tabindex="0"
->
+      <h2 data-crypto-price="BTC">Loading...</h2>
+      <span class="green">LIVE</span>
 
-  <div class="card-header">
+      <div class="mini-chart">
+        <svg viewBox="0 0 300 80">
+          <polyline points="0,65 30,55 65,60 95,40 130,48 165,30 200,35 230,20 265,25 300,10"
+            fill="none" stroke="#00F5A0" stroke-width="3"/>
+        </svg>
+      </div>
 
-    <div>
+      <div class="card-footer">
+        <span>BTC</span>
+        <strong>View Analysis →</strong>
+      </div>
+    </article>
 
-      <h4>
-        NIFTY 50
-      </h4>
+    <!-- ETH -->
+    <article class="coin crypto-card" data-symbol="ETH" tabindex="0">
+      <div class="card-header">
+        <div>
+          <h3>Ξ Ethereum</h3>
+          <small>ETH • CRYPTO</small>
+        </div>
+        <span class="signal-badge buy-badge">LIVE</span>
+      </div>
 
-      <small>
-        NSE INDEX
-      </small>
+      <h2 data-crypto-price="ETH">Loading...</h2>
+      <span class="green">LIVE</span>
 
-    </div>
+      <div class="mini-chart">
+        <svg viewBox="0 0 300 80">
+          <polyline points="0,60 35,50 70,55 105,42 135,48 170,30 200,38 235,25 270,32 300,15"
+            fill="none" stroke="#00F5A0" stroke-width="3"/>
+        </svg>
+      </div>
 
-    <span class="signal-badge buy-badge">
-      LIVE
-    </span>
+      <div class="card-footer">
+        <span>ETH</span>
+        <strong>View Analysis →</strong>
+      </div>
+    </article>
 
-  </div>
+    <!-- SOL -->
+    <article class="coin crypto-card" data-symbol="SOL" tabindex="0">
+      <div class="card-header">
+        <div>
+          <h3>◎ Solana</h3>
+          <small>SOL • CRYPTO</small>
+        </div>
+        <span class="signal-badge sell-badge">LIVE</span>
+      </div>
 
+      <h2 data-crypto-price="SOL">Loading...</h2>
+      <span class="green">LIVE</span>
 
-  <h2 id="niftyPrice">
-    Loading...
-  </h2>
+      <div class="mini-chart red-chart">
+        <svg viewBox="0 0 300 80">
+          <polyline points="0,20 35,30 70,25 105,38 140,35 175,50 210,42 245,58 270,55 300,70"
+            fill="none" stroke="#ff5d6c" stroke-width="3"/>
+        </svg>
+      </div>
 
+      <div class="card-footer">
+        <span>SOL</span>
+        <strong>View Analysis →</strong>
+      </div>
+    </article>
 
-  <span
-    class="green"
-    id="niftyStatus"
-  >
-    LIVE
-  </span>
+    <!-- XRP -->
+    <article class="coin crypto-card" data-symbol="XRP" tabindex="0">
+      <div class="card-header">
+        <div>
+          <h3>✕ XRP</h3>
+          <small>XRP • CRYPTO</small>
+        </div>
+        <span class="signal-badge buy-badge">LIVE</span>
+      </div>
 
+      <h2 data-crypto-price="XRP">Loading...</h2>
+      <span class="green">LIVE</span>
 
-  <div class="mini-chart">
+      <div class="mini-chart">
+        <svg viewBox="0 0 300 80">
+          <polyline points="0,60 35,52 70,58 105,40 140,45 175,30 210,35 245,18 270,25 300,10"
+            fill="none" stroke="#00F5A0" stroke-width="3"/>
+        </svg>
+      </div>
 
-    <svg viewBox="0 0 300 80">
-
-      <polyline
-        points="0,65 35,60 65,63 100,45 130,52 160,32 195,38 225,22 260,28 300,12"
-        fill="none"
-        stroke="#00F5A0"
-        stroke-width="3"
-      />
-
-    </svg>
-
-  </div>
-
-
-  <div class="card-footer">
-
-    <span>
-      NSE
-    </span>
-
-    <strong>
-      View Analysis →
-    </strong>
-
-  </div>
-
-</article>
-
-
-
-<!-- BANKNIFTY -->
-
-<article
-  class="box market-card"
-  data-symbol="BANKNIFTY"
-  tabindex="0"
->
-
-  <div class="card-header">
-
-    <div>
-
-      <h4>
-        BANKNIFTY
-      </h4>
-
-      <small>
-        NSE INDEX
-      </small>
-
-    </div>
-
-    <span class="signal-badge buy-badge">
-      LIVE
-    </span>
-
-  </div>
-
-
-  <h2 id="bankniftyPrice">
-    Loading...
-  </h2>
-
-
-  <span
-    class="green"
-    id="bankniftyStatus"
-  >
-    LIVE
-  </span>
-
-
-  <div class="mini-chart">
-
-    <svg viewBox="0 0 300 80">
-
-      <polyline
-        points="0,60 35,55 70,62 100,42 130,48 165,35 200,40 235,20 270,30 300,15"
-        fill="none"
-        stroke="#00F5A0"
-        stroke-width="3"
-      />
-
-    </svg>
+      <div class="card-footer">
+        <span>XRP</span>
+        <strong>View Analysis →</strong>
+      </div>
+    </article>
 
   </div>
-
-
-  <div class="card-footer">
-
-    <span>
-      NSE
-    </span>
-
-    <strong>
-      View Analysis →
-    </strong>
-
-  </div>
-
-</article>
-
-
-
-<!-- SENSEX -->
-
-<article
-  class="box market-card"
-  data-symbol="SENSEX"
-  tabindex="0"
->
-
-  <div class="card-header">
-
-    <div>
-
-      <h4>
-        SENSEX
-      </h4>
-
-      <small>
-        BSE INDEX
-      </small>
-
-    </div>
-
-    <span class="signal-badge buy-badge">
-      LIVE
-    </span>
-
-  </div>
-
-
-  <h2 id="sensexPrice">
-    Loading...
-  </h2>
-
-
-  <span
-    class="green"
-    id="sensexStatus"
-  >
-    LIVE
-  </span>
-
-
-  <div class="mini-chart">
-
-    <svg viewBox="0 0 300 80">
-
-      <polyline
-        points="0,58 40,62 70,50 105,54 140,40 175,45 210,30 245,34 270,20 300,25"
-        fill="none"
-        stroke="#00F5A0"
-        stroke-width="3"
-      />
-
-    </svg>
-
-  </div>
-
-
-  <div class="card-footer">
-
-    <span>
-      BSE
-    </span>
-
-    <strong>
-      View Analysis →
-    </strong>
-
-  </div>
-
-</article>
-
-
-
-<!-- NIFTY IT -->
-
-<article
-  class="box market-card"
-  data-symbol="NIFTYIT"
-  tabindex="0"
->
-
-  <div class="card-header">
-
-    <div>
-
-      <h4>
-        NIFTY IT
-      </h4>
-
-      <small>
-        NSE INDEX
-      </small>
-
-    </div>
-
-    <span class="signal-badge sell-badge">
-      LIVE
-    </span>
-
-  </div>
-
-
-  <h2 id="niftyitPrice">
-    Loading...
-  </h2>
-
-
-  <span
-    class="green"
-    id="niftyitStatus"
-  >
-    LIVE
-  </span>
-
-
-  <div class="mini-chart red-chart">
-
-    <svg viewBox="0 0 300 80">
-
-      <polyline
-        points="0,20 40,30 70,25 105,42 140,35 175,52 210,48 245,62 270,55 300,70"
-        fill="none"
-        stroke="#ff5d6c"
-        stroke-width="3"
-      />
-
-    </svg>
-
-  </div>
-
-
-  <div class="card-footer">
-
-    <span>
-      NSE
-    </span>
-
-    <strong>
-      View Analysis →
-    </strong>
-
-  </div>
-
-</article>
-```
-
-  </div>
-
 </section>
+<!-- ================= FREE DAILY SIGNALS ================= -->
 
-<!-- =====================================================
-     CRYPTO
-===================================================== -->
-
-<section
-  class="crypto section"
-  id="crypto"
->
+<section class="advisor section" id="advisor">
 
   <div class="title">
-
-```
-<p>
-  CRYPTO MARKET
-</p>
-
-<h2>
-  Top Crypto Assets
-</h2>
-
-<span class="section-subtitle">
-  Select an asset for detailed analysis
-</span>
-```
-
-  </div>
-
-  <div class="grid">
-
-```
-<!-- BTC -->
-
-<article
-  class="coin crypto-card"
-  data-symbol="BTC"
-  tabindex="0"
->
-
-  <div class="card-header">
-
-    <div>
-
-      <h3>
-        ₿ Bitcoin
-      </h3>
-
-      <small>
-        BTC • CRYPTO
-      </small>
-
-    </div>
-
-    <span class="signal-badge buy-badge">
-      LIVE
+    <p>FREE DAILY SIGNALS</p>
+    <h2>Today's Stock Recommendations</h2>
+    <span class="section-subtitle">
+      Daily updated by Admin Panel
     </span>
-
-  </div>
-
-
-  <h2 data-crypto-price="BTC">
-    Loading...
-  </h2>
-
-
-  <span class="green">
-    LIVE
-  </span>
-
-
-  <div class="mini-chart">
-
-    <svg viewBox="0 0 300 80">
-
-      <polyline
-        points="0,65 30,55 65,60 95,40 130,48 165,30 200,35 230,20 265,25 300,10"
-        fill="none"
-        stroke="#00F5A0"
-        stroke-width="3"
-      />
-
-    </svg>
-
-  </div>
-
-
-  <div class="card-footer">
-
-    <span>
-      BTC
-    </span>
-
-    <strong>
-      View Analysis →
-    </strong>
-
-  </div>
-
-</article>
-
-
-
-<!-- ETH -->
-
-<article
-  class="coin crypto-card"
-  data-symbol="ETH"
-  tabindex="0"
->
-
-  <div class="card-header">
-
-    <div>
-
-      <h3>
-        Ξ Ethereum
-      </h3>
-
-      <small>
-        ETH • CRYPTO
-      </small>
-
-    </div>
-
-    <span class="signal-badge buy-badge">
-      LIVE
-    </span>
-
-  </div>
-
-
-  <h2 data-crypto-price="ETH">
-    Loading...
-  </h2>
-
-
-  <span class="green">
-    LIVE
-  </span>
-
-
-  <div class="mini-chart">
-
-    <svg viewBox="0 0 300 80">
-
-      <polyline
-        points="0,60 35,50 70,55 105,42 135,48 170,30 200,38 235,25 270,32 300,15"
-        fill="none"
-        stroke="#00F5A0"
-        stroke-width="3"
-      />
-
-    </svg>
-
-  </div>
-
-
-  <div class="card-footer">
-
-    <span>
-      ETH
-    </span>
-
-    <strong>
-      View Analysis →
-    </strong>
-
-  </div>
-
-</article>
-
-
-
-<!-- SOL -->
-
-<article
-  class="coin crypto-card"
-  data-symbol="SOL"
-  tabindex="0"
->
-
-  <div class="card-header">
-
-    <div>
-
-      <h3>
-        ◎ Solana
-      </h3>
-
-      <small>
-        SOL • CRYPTO
-      </small>
-
-    </div>
-
-    <span class="signal-badge sell-badge">
-      LIVE
-    </span>
-
-  </div>
-
-
-  <h2 data-crypto-price="SOL">
-    Loading...
-  </h2>
-
-
-  <span class="green">
-    LIVE
-  </span>
-
-
-  <div class="mini-chart red-chart">
-
-    <svg viewBox="0 0 300 80">
-
-      <polyline
-        points="0,20 35,30 70,25 105,38 140,35 175,50 210,42 245,58 270,55 300,70"
-        fill="none"
-        stroke="#ff5d6c"
-        stroke-width="3"
-      />
-
-    </svg>
-
-  </div>
-
-
-  <div class="card-footer">
-
-    <span>
-      SOL
-    </span>
-
-    <strong>
-      View Analysis →
-    </strong>
-
-  </div>
-
-</article>
-
-
-
-<!-- XRP -->
-
-<article
-  class="coin crypto-card"
-  data-symbol="XRP"
-  tabindex="0"
->
-
-  <div class="card-header">
-
-    <div>
-
-      <h3>
-        ✕ XRP
-      </h3>
-
-      <small>
-        XRP • CRYPTO
-      </small>
-
-    </div>
-
-    <span class="signal-badge buy-badge">
-      LIVE
-    </span>
-
-  </div>
-
-
-  <h2 data-crypto-price="XRP">
-    Loading...
-  </h2>
-
-
-  <span class="green">
-    LIVE
-  </span>
-
-
-  <div class="mini-chart">
-
-    <svg viewBox="0 0 300 80">
-
-      <polyline
-        points="0,60 35,52 70,58 105,40 140,45 175,30 210,35 245,18 270,25 300,10"
-        fill="none"
-        stroke="#00F5A0"
-        stroke-width="3"
-      />
-
-    </svg>
-
-  </div>
-
-
-  <div class="card-footer">
-
-    <span>
-      XRP
-    </span>
-
-    <strong>
-      View Analysis →
-    </strong>
-
-  </div>
-
-</article>
-```
-
-  </div>
-
-</section>
-
-<!-- =====================================================
-     PREMIUM SIGNALS
-===================================================== -->
-
-<section
-  class="advisor section"
-  id="advisor"
->
-
-  <div class="title">
-
-```
-<p>
-  PREMIUM SIGNALS
-</p>
-
-<h2>
-  Today's Recommendation
-</h2>
-
-<span class="section-subtitle">
-  Daily updated market setup
-</span>
-```
-
   </div>
 
   <div class="signal-grid">
 
-```
-<!-- RELIANCE PREMIUM SIGNAL -->
-
-<article
-  class="signal signal-card buy signal-stock"
-  id="dailySignal"
->
-
-  <div class="signal-top">
-
-    <div class="signal-market">
-
-      <div class="signal-icon">
-        🏛️
+    <!-- Indian Stock -->
+    <article class="signal signal-card buy">
+      <div class="signal-top">
+        <div class="signal-market">
+          <div class="signal-icon">🏛️</div>
+          <span class="signal-label">INDIAN STOCK</span>
+        </div>
+        <span id="stockSide" class="signal-badge buy-badge">BUY</span>
       </div>
 
-      <div>
+      <h2 id="stockName">RELIANCE</h2>
+      <p id="stockSetup">Bullish setup</p>
 
-        <span class="signal-label">
-          SHARE MARKET
-        </span>
+      <div class="signal-levels">
+        <p>🎯 Entry : <span id="stockEntry">₹0</span></p>
+        <p>✅ Target : <span id="stockTarget">₹0</span></p>
+        <p>🔴 Stop Loss : <span id="stockSL">₹0</span></p>
+      </div>
+    </article>
 
+    <!-- Crypto -->
+    <article class="signal signal-card buy">
+      <div class="signal-top">
+        <div class="signal-market">
+          <div class="signal-icon">₿</div>
+          <span class="signal-label">CRYPTO</span>
+        </div>
+        <span id="cryptoSide" class="signal-badge buy-badge">BUY</span>
       </div>
 
-    </div>
+      <h2 id="cryptoName">BTC/USDT</h2>
+      <p id="cryptoSetup">Momentum breakout</p>
 
+      <div class="signal-levels">
+        <p>🎯 Entry : <span id="cryptoEntry">$0</span></p>
+        <p>✅ Target : <span id="cryptoTarget">$0</span></p>
+        <p>🔴 Stop Loss : <span id="cryptoSL">$0</span></p>
+      </div>
+    </article>
 
-    <span
-      class="signal-badge buy-badge"
-      id="signalSide"
-    >
-      BUY
-    </span>
-
-  </div>
-
-
-  <h2 id="signalStock">
-    RELIANCE INDUSTRIES
-  </h2>
-
-
-  <p id="signalSetup">
-    Bullish setup with positive momentum.
-  </p>
-
-
-  <div class="signal-levels">
-
-    <p>
-      🎯
-      <strong>
-        Entry:
-      </strong>
-
-      <span id="entryPrice">
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      ✅
-      <strong>
-        Target 1:
-      </strong>
-
-      <span id="target1Price">
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      🚀
-      <strong>
-        Target 2:
-      </strong>
-
-      <span id="target2Price">
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      🔴
-      <strong>
-        Stop Loss:
-      </strong>
-
-      <span id="stopPrice">
-        Premium
-      </span>
-    </p>
-
-  </div>
-
-
-  <div class="signal-info">
-
-    <p>
-      ⚠️
-      <strong>
-        Risk:
-      </strong>
-
-      <span id="riskText">
-        Medium
-      </span>
-    </p>
-
-
-    <p>
-      ⏳
-      <strong>
-        Timeframe:
-      </strong>
-
-      <span id="timeframeText">
-        Short Term
-      </span>
-    </p>
-
-
-    <p>
-      🏛️
-      <strong>
-        Market:
-      </strong>
-
-      <span id="marketText">
-        NSE
-      </span>
-    </p>
-
-  </div>
-
-
-  <div class="signal-view">
-    View Full Analysis →
-  </div>
-
-</article>
-
-
-
-<!-- BITCOIN PREMIUM SIGNAL -->
-
-<article
-  class="signal signal-card buy signal-crypto"
-  id="bitcoinSignal"
->
-
-  <div class="signal-top">
-
-    <div class="signal-market">
-
-      <div class="signal-icon crypto-icon">
-        ₿
+    <!-- Gold -->
+    <article class="signal signal-card hold">
+      <div class="signal-top">
+        <div class="signal-market">
+          <div class="signal-icon">🪙</div>
+          <span class="signal-label">GOLD COMMODITY</span>
+        </div>
+        <span id="goldSide" class="signal-badge hold-badge">HOLD</span>
       </div>
 
-      <div>
+      <h2 id="goldName">XAU/USD</h2>
+      <p id="goldSetup">Range trading</p>
 
-        <span class="signal-label">
-          CRYPTO MARKET
-        </span>
+      <div class="signal-levels">
+        <p>🎯 Entry : <span id="goldEntry">$0</span></p>
+        <p>✅ Target : <span id="goldTarget">$0</span></p>
+        <p>🔴 Stop Loss : <span id="goldSL">$0</span></p>
+      </div>
+    </article>
 
+    <!-- Intraday -->
+    <article class="signal signal-card buy">
+      <div class="signal-top">
+        <div class="signal-market">
+          <div class="signal-icon">⚡</div>
+          <span class="signal-label">INTRADAY</span>
+        </div>
+        <span id="intradaySide" class="signal-badge buy-badge">BUY</span>
       </div>
 
-    </div>
+      <h2 id="intradayName">TATASTEEL</h2>
+      <p id="intradaySetup">Scalp opportunity</p>
 
-
-    <span class="signal-badge buy-badge">
-      BUY
-    </span>
-
-  </div>
-
-
-  <h2>
-    BITCOIN (BTC/USDT)
-  </h2>
-
-
-  <p>
-    Bullish trend with strong buying pressure.
-  </p>
-
-
-  <div class="signal-levels">
-
-    <p>
-      🎯
-      <strong>
-        Entry:
-      </strong>
-
-      <span>
-        LIVE
-      </span>
-    </p>
-
-
-    <p>
-      ✅
-      <strong>
-        Target 1:
-      </strong>
-
-      <span>
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      🚀
-      <strong>
-        Target 2:
-      </strong>
-
-      <span>
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      🔴
-      <strong>
-        Stop Loss:
-      </strong>
-
-      <span>
-        Premium
-      </span>
-    </p>
-
-  </div>
-
-
-  <div class="signal-info">
-
-    <p>
-      ⚠️
-      <strong>
-        Risk:
-      </strong>
-
-      <span>
-        High
-      </span>
-    </p>
-
-
-    <p>
-      ⏳
-      <strong>
-        Timeframe:
-      </strong>
-
-      <span>
-        Short Term
-      </span>
-    </p>
-
-
-    <p>
-      🌐
-      <strong>
-        Market:
-      </strong>
-
-      <span>
-        Delta Exchange
-      </span>
-    </p>
-
-  </div>
-
-
-  <div class="signal-view">
-    View Full Analysis →
-  </div>
-
-</article>
-
-
-
-<!-- GOLD PREMIUM SIGNAL -->
-
-<article
-  class="signal signal-card hold signal-gold"
-  id="goldSignal"
->
-
-  <div class="signal-top">
-
-    <div class="signal-market">
-
-      <div class="signal-icon gold-icon">
-        🪙
+      <div class="signal-levels">
+        <p>🎯 Entry : <span id="intradayEntry">₹0</span></p>
+        <p>✅ Target : <span id="intradayTarget">₹0</span></p>
+        <p>🔴 Stop Loss : <span id="intradaySL">₹0</span></p>
       </div>
-
-      <div>
-
-        <span class="signal-label">
-          COMMODITY MARKET
-        </span>
-
-      </div>
-
-    </div>
-
-
-    <span class="signal-badge hold-badge">
-      HOLD
-    </span>
-
-  </div>
-
-
-  <h2>
-    GOLD (XAU/USD)
-  </h2>
-
-
-  <p>
-    Commodity analysis will be updated separately.
-  </p>
-
-
-  <div class="signal-levels">
-
-    <p>
-      🎯
-      <strong>
-        Entry:
-      </strong>
-
-      <span>
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      ✅
-      <strong>
-        Target 1:
-      </strong>
-
-      <span>
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      🚀
-      <strong>
-        Target 2:
-      </strong>
-
-      <span>
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      🔴
-      <strong>
-        Stop Loss:
-      </strong>
-
-      <span>
-        Premium
-      </span>
-    </p>
-
-  </div>
-
-
-  <div class="signal-info">
-
-    <p>
-      ⚠️
-      <strong>
-        Risk:
-      </strong>
-
-      <span>
-        Medium
-      </span>
-    </p>
-
-
-    <p>
-      ⏳
-      <strong>
-        Timeframe:
-      </strong>
-
-      <span>
-        Short Term
-      </span>
-    </p>
-
-
-    <p>
-      🌐
-      <strong>
-        Market:
-      </strong>
-
-      <span>
-        COMEX
-      </span>
-    </p>
-
-  </div>
-
-
-  <div class="signal-view">
-    View Full Analysis →
-  </div>
-
-</article>
-
-
-
-<!-- INTRADAY PREMIUM SIGNAL -->
-
-<article
-  class="signal signal-card buy signal-intraday"
-  id="intradaySignal"
->
-
-  <div class="signal-top">
-
-    <div class="signal-market">
-
-      <div class="signal-icon">
-        ⚡
-      </div>
-
-      <div>
-
-        <span class="signal-label">
-          INTRADAY MARKET
-        </span>
-
-      </div>
-
-    </div>
-
-
-    <span
-      class="signal-badge buy-badge"
-      id="intradaySide"
-    >
-      BUY
-    </span>
-
-  </div>
-
-
-  <h2 id="intradayStock">
-    INTRADAY STOCK
-  </h2>
-
-
-  <p id="intradaySetup">
-    Intraday momentum setup based on
-    current market conditions.
-  </p>
-
-
-  <div class="signal-levels">
-
-    <p>
-      🎯
-      <strong>
-        Entry:
-      </strong>
-
-      <span id="intradayEntry">
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      ✅
-      <strong>
-        Target 1:
-      </strong>
-
-      <span id="intradayTarget1">
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      🚀
-      <strong>
-        Target 2:
-      </strong>
-
-      <span id="intradayTarget2">
-        Premium
-      </span>
-    </p>
-
-
-    <p>
-      🔴
-      <strong>
-        Stop Loss:
-      </strong>
-
-      <span id="intradayStop">
-        Premium
-      </span>
-    </p>
-
-  </div>
-
-
-  <div class="signal-info">
-
-    <p>
-      ⚠️
-      <strong>
-        Risk:
-      </strong>
-
-      <span id="intradayRisk">
-        Medium
-      </span>
-    </p>
-
-
-    <p>
-      ⏳
-      <strong>
-        Timeframe:
-      </strong>
-
-      <span id="intradayTimeframe">
-        Intraday
-      </span>
-    </p>
-
-
-    <p>
-      🏛️
-      <strong>
-        Market:
-      </strong>
-
-      <span id="intradayMarket">
-        NSE
-      </span>
-    </p>
-
-  </div>
-
-
-  <div class="signal-view">
-    View Full Analysis →
-  </div>
-
-</article>
-```
+    </article>
 
   </div>
 
 </section>
+<!-- ================= CONTACT ================= -->
 
-<!-- =====================================================
-     PREMIUM MEMBERS
-===================================================== -->
+<section class="contact" id="contact">
 
-<section class="premium-section">
-
-  <div class="premium-box">
-
-```
-<span class="premium-tag">
-  PREMIUM MEMBERS
-</span>
-
-
-<h2>
-  🔐 Daily Market Insights
-</h2>
-
-
-<p>
-
-  Access structured market setups,
-  stock ideas, index analysis and
-  crypto insights.
-
-</p>
-
-
-<button
-  class="btn-primary"
-  id="premiumBtnBottom"
-  type="button"
->
-  Login / Subscribe →
-</button>
-```
-
-  </div>
-
-</section>
-
-<!-- =====================================================
-     CONTACT
-===================================================== -->
-
-<section
-  class="contact"
-  id="contact"
->
-
-  <h2>
-    Let's Talk Trading
-  </h2>
+  <h2>Let's Talk Trading</h2>
 
   <p>
-    WhatsApp for premium market membership
-    and daily stock & crypto analysis.
+    Contact us for market updates, support and collaboration.
   </p>
 
   <div class="contact-buttons">
 
-```
-<!-- PREMIUM PAYMENT -->
+    <a href="https://wa.me/918769860087" target="_blank"
+       rel="noopener" class="btn-primary">
+      💬 WhatsApp
+    </a>
 
-<a
-  href="payment.html"
-  target="_blank"
-  rel="noopener"
-  class="btn-primary"
->
-  💳 Premium Payment
-</a>
+    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=sampatsaasodha1234@gmail.com"
+       target="_blank" rel="noopener" class="btn-outline">
+      ✉️ Email
+    </a>
 
+    <a href="https://instagram.com/stockpulse007"
+       target="_blank" rel="noopener" class="btn-outline">
+      📸 Instagram
+    </a>
 
-<!-- WHATSAPP -->
-
-<a
-  href="https://wa.me/918769860087"
-  target="_blank"
-  rel="noopener"
-  class="btn-primary"
->
-  💬 WhatsApp
-</a>
-
-
-<!-- EMAIL -->
-
-<a
-  href="https://mail.google.com/mail/?view=cm&fs=1&to=sampatsaasodha1234@gmail.com"
-  target="_blank"
-  rel="noopener"
-  class="btn-outline"
->
-  ✉️ Email
-</a>
-
-
-<!-- INSTAGRAM -->
-
-<a
-  href="https://instagram.com/stockpulse007"
-  target="_blank"
-  rel="noopener"
-  class="btn-outline"
->
-  📸 Instagram
-</a>
-
-
-<!-- TELEGRAM -->
-
-<a
-  href="https://t.me/stockpulse006"
-  target="_blank"
-  rel="noopener"
-  class="btn-outline"
->
-  ✈️ Telegram
-</a>
-```
+    <a href="https://t.me/stockpulse006"
+       target="_blank" rel="noopener" class="btn-outline">
+      ✈️ Telegram
+    </a>
 
   </div>
 
 </section>
 
 <footer>
-
-© 2026 StockPulse
-• Created by Sampat Singh Sodha
-
+  © 2026 StockPulse • Created by Sampat Singh Sodha
 </footer>
+<!-- ================= DETAIL VIEW ================= -->
 
 </main>
 
-<!-- =====================================================
-     DETAIL VIEW
-===================================================== -->
-
-<section
-  id="detailView"
-  class="detail-view"
-  hidden
->
+<section id="detailView" class="detail-view" hidden>
 
   <div class="detail-container">
 
-```
-<!-- BACK -->
-
-<button
-  id="backDashboard"
-  class="back-btn"
-  type="button"
->
-  ← Back to Dashboard
-</button>
-
-
-
-<!-- DETAIL HEADER -->
-
-<div class="detail-header">
-
-
-  <div>
-
-    <div class="detail-symbol">
-
-      <span id="detailType">
-        STOCK
-      </span>
-
-      <span id="detailSymbol">
-        RELIANCE
-      </span>
-
-    </div>
-
-
-    <h1 id="detailName">
-      Reliance Industries
-    </h1>
-
-
-    <p id="detailExchange">
-      RELIANCE • NSE
-    </p>
-
-  </div>
-
-
-
-  <div class="detail-price-box">
-
-    <h2 id="detailPrice">
-      Loading...
-    </h2>
-
-    <span
-      id="detailChange"
-      class="green"
-    >
-      LIVE
-    </span>
-
-  </div>
-
-
-</div>
-
-
-
-<!-- TIMEFRAME -->
-
-<div class="timeframe-bar">
-
-
-  <button data-timeframe="1m">
-    1m
-  </button>
-
-
-  <button data-timeframe="5m">
-    5m
-  </button>
-
-
-  <button data-timeframe="15m">
-    15m
-  </button>
-
-
-  <button data-timeframe="1h">
-    1h
-  </button>
-
-
-  <button data-timeframe="4h">
-    4h
-  </button>
-
-
-  <button
-    data-timeframe="1D"
-    class="active"
-  >
-    1D
-  </button>
-
-
-  <button data-timeframe="1W">
-    1W
-  </button>
-
-
-  <button data-timeframe="1M">
-    1M
-  </button>
-
-
-</div>
-
-
-
-<!-- REAL MARKET CHART -->
-
-<div class="detail-chart-card">
-
-
-  <div class="chart-toolbar">
-
-
-    <div>
-
-      <strong id="chartTitle">
-        RELIANCE • Real Market Chart
-      </strong>
-
-      <span>
-        REAL MARKET DATA
-      </span>
-
-    </div>
-
-
-    <span class="chart-live">
-      ● LIVE
-    </span>
-
-
-  </div>
-
-
-
-  <div
-    id="tradingview-chart"
-    class="tradingview-chart-container"
-  ></div>
-
-
-</div>
-
-
-
-<!-- ANALYSIS -->
-
-<div class="analysis-grid">
-
-
-  <!-- SIGNAL -->
-
-  <div class="signal-summary">
-
-
-    <div class="analysis-title">
-
-      <span>
-        MARKET SIGNAL
-      </span>
-
-      <strong
-        id="detailAdvice"
-        class="buy-text"
-      >
-        BUY
-      </strong>
-
-    </div>
-
-
-    <p id="detailSummary">
-      Bullish setup with positive momentum.
-    </p>
-
-
-    <button
-      id="watchlistBtn"
-      class="watchlist-btn"
-      type="button"
-    >
-      ☆ Add to Watchlist
+    <button id="backDashboard" class="back-btn" type="button">
+      ← Back to Dashboard
     </button>
 
+    <div class="detail-header">
 
-  </div>
+      <div>
+        <div class="detail-symbol">
+          <span id="detailType">STOCK</span>
+          <span id="detailSymbol">RELIANCE</span>
+        </div>
 
+        <h1 id="detailName">Reliance Industries</h1>
+        <p id="detailExchange">RELIANCE • NSE</p>
+      </div>
 
-
-  <!-- SETUP INFORMATION -->
-
-  <div class="risk-card">
-
-
-    <h3>
-      Setup Information
-    </h3>
-
-
-    <div class="info-row">
-
-      <span>
-        Risk
-      </span>
-
-      <strong id="riskLevel">
-        Medium
-      </strong>
+      <div class="detail-price-box">
+        <h2 id="detailPrice">Loading...</h2>
+        <span id="detailChange" class="green">LIVE</span>
+      </div>
 
     </div>
 
+    <!-- Timeframe -->
 
-    <div class="info-row">
+    <div class="timeframe-bar">
+      <button data-timeframe="1m">1m</button>
+      <button data-timeframe="5m">5m</button>
+      <button data-timeframe="15m">15m</button>
+      <button data-timeframe="1h">1h</button>
+      <button data-timeframe="4h">4h</button>
+      <button data-timeframe="1D" class="active">1D</button>
+      <button data-timeframe="1W">1W</button>
+      <button data-timeframe="1M">1M</button>
+    </div>
 
-      <span>
-        Timeframe
-      </span>
+    <!-- Chart -->
 
-      <strong id="setupTimeframe">
-        Short Term
-      </strong>
+    <div class="detail-chart-card">
+
+      <div class="chart-toolbar">
+        <div>
+          <strong id="chartTitle">RELIANCE • Real Market Chart</strong>
+          <span>REAL MARKET DATA</span>
+        </div>
+
+        <span class="chart-live">● LIVE</span>
+      </div>
+
+      <div id="tradingview-chart"
+        class="tradingview-chart-container"></div>
 
     </div>
 
+    <!-- Analysis -->
 
-    <div class="info-row">
+    <div class="analysis-grid">
 
-      <span>
-        Market
-      </span>
+      <div class="signal-summary">
 
-      <strong id="setupMarket">
-        NSE
-      </strong>
+        <div class="analysis-title">
+          <span>MARKET SIGNAL</span>
+          <strong id="detailAdvice" class="buy-text">BUY</strong>
+        </div>
+
+        <p id="detailSummary">
+          Bullish setup with positive momentum.
+        </p>
+
+        <button id="watchlistBtn"
+          class="watchlist-btn"
+          type="button">
+          ☆ Add to Watchlist
+        </button>
+
+      </div>
+
+      <div class="risk-card">
+
+        <h3>Setup Information</h3>
+
+        <div class="info-row">
+          <span>Risk</span>
+          <strong id="riskLevel">Medium</strong>
+        </div>
+
+        <div class="info-row">
+          <span>Timeframe</span>
+          <strong id="setupTimeframe">Short Term</strong>
+        </div>
+
+        <div class="info-row">
+          <span>Market</span>
+          <strong id="setupMarket">NSE</strong>
+        </div>
+
+      </div>
 
     </div>
 
+    <!-- Disclaimer -->
 
-  </div>
-
-
-</div>
-
-
-
-<!-- DISCLAIMER -->
-
-<div class="disclaimer">
-
-  ⚠️ This is demo market information for
-  educational purposes only. It is not financial advice.
-  Prices and setups may change with market conditions.
-
-</div>
-```
+    <div class="disclaimer">
+      ⚠️ This is demo market information for educational purposes only.
+      It is not financial advice. Prices and setups may change with market
+      conditions.
+    </div>
 
   </div>
 
 </section>
 
-<!-- =====================================================
-     SCRIPT
-===================================================== -->
+<!-- ================= SCRIPT ================= -->
 
 <script src="script.js"></script>
 
-<!-- =====================================================
-     PREMIUM BUTTON
-===================================================== -->
-
-<script>
-
-document.addEventListener(
-  "click",
-  function (e) {
-
-    const premiumButton =
-      e.target.closest(
-        "#premiumBtn, #premiumBtnBottom"
-      );
-
-    if (!premiumButton) {
-      return;
-    }
-
-    e.preventDefault();
-
-    window.location.href =
-      "payment.html";
-
-  },
-  true
-);
-
-</script>
-
 </body>
-
 </html>
