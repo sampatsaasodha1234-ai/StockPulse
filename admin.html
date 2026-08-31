@@ -1,5 +1,5 @@
+```html
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -444,6 +444,7 @@ select option{
     margin-top:4px;
     color:#64748b;
     font-size:11px;
+    line-height:1.7;
 }
 
 .delete-btn{
@@ -456,7 +457,7 @@ select option{
     font-size:11px;
 }
 
-/* STATUS MESSAGE */
+/* STATUS */
 
 .save-status{
     position:fixed;
@@ -548,16 +549,12 @@ select option{
     }
 }
 </style>
-
 </head>
 
 <body>
 
-<!-- LOGIN -->
-
 <div id="loginOverlay" class="login-overlay">
 
-```
 <div class="login-box">
 
     <div class="login-icon">🔐</div>
@@ -574,28 +571,20 @@ select option{
         autocomplete="current-password"
     >
 
-    <button
-        id="loginButton"
-        class="login-btn"
-        type="button"
-    >
+    <button id="loginButton" class="login-btn" type="button">
         🔓 Login
     </button>
 
     <div id="loginError" class="login-error"></div>
 
 </div>
-```
 
 </div>
 
 <div class="admin-container">
 
-<!-- HEADER -->
-
 <header class="admin-header">
 
-```
 <div class="brand">
 
     <div class="brand-icon">📈</div>
@@ -611,24 +600,16 @@ select option{
 
     <div class="admin-badge">● ADMIN PANEL</div>
 
-    <button
-        class="logout-btn"
-        id="logoutButton"
-        type="button"
-    >
+    <button class="logout-btn" id="logoutButton" type="button">
         Logout
     </button>
 
 </div>
-```
 
 </header>
 
-<!-- WELCOME -->
-
 <div class="welcome">
 
-```
 <h2>
     Welcome,
     <span>Sampat Singh Sodha</span>
@@ -637,33 +618,25 @@ select option{
 <p>
     Manage today's free market recommendations from one place.
 </p>
-```
 
 </div>
 
-<!-- SERVER STATUS -->
-
 <div class="server-status">
 
-```
 <div id="statusDot" class="status-dot"></div>
 
 <span id="serverStatusText">
     Checking StockPulse server...
 </span>
-```
 
 </div>
 
-<!-- FOUR CARDS -->
-
 <div class="signals-grid">
 
-<!-- INDIAN STOCK -->
+<!-- STOCK -->
 
 <div class="signal-admin-card">
 
-```
 <div class="signal-card-title">
 
     <div class="signal-card-icon">🇮🇳</div>
@@ -676,92 +649,49 @@ select option{
 </div>
 
 <div class="form-group">
-
-    <label class="card-label">Stock Name</label>
-
-    <input
-        id="stockName"
-        type="text"
-        placeholder="RELIANCE"
-    >
-
+<label class="card-label">Stock Name</label>
+<input id="stockName" type="text" placeholder="RELIANCE">
 </div>
 
 <div class="form-row">
 
-    <div class="form-group">
+<div class="form-group">
+<label class="card-label">Signal</label>
+<select id="stockSide">
+<option value="BUY">BUY</option>
+<option value="SELL">SELL</option>
+</select>
+</div>
 
-        <label class="card-label">Signal</label>
-
-        <select id="stockSide">
-            <option value="BUY">BUY</option>
-            <option value="SELL">SELL</option>
-        </select>
-
-    </div>
-
-    <div class="form-group">
-
-        <label class="card-label">Entry</label>
-
-        <input
-            id="stockEntry"
-            type="text"
-            placeholder="1515"
-        >
-
-    </div>
+<div class="form-group">
+<label class="card-label">Entry</label>
+<input id="stockEntry" type="text" placeholder="1515">
+</div>
 
 </div>
 
 <div class="form-group">
-
-    <label class="card-label">Setup / Note</label>
-
-    <input
-        id="stockSetup"
-        type="text"
-        placeholder="Bullish setup with positive momentum"
-    >
-
+<label class="card-label">Setup / Note</label>
+<input id="stockSetup" type="text" placeholder="Bullish setup with positive momentum">
 </div>
 
 <div class="form-row">
 
-    <div class="form-group">
+<div class="form-group">
+<label class="card-label">Target</label>
+<input id="stockTarget" type="text" placeholder="1560">
+</div>
 
-        <label class="card-label">Target</label>
-
-        <input
-            id="stockTarget"
-            type="text"
-            placeholder="1560"
-        >
-
-    </div>
-
-    <div class="form-group">
-
-        <label class="card-label">Stop Loss</label>
-
-        <input
-            id="stockSL"
-            type="text"
-            placeholder="1490"
-        >
-
-    </div>
+<div class="form-group">
+<label class="card-label">Stop Loss</label>
+<input id="stockSL" type="text" placeholder="1490">
+</div>
 
 </div>
 
-<button
-    class="save-btn"
-    type="button"
-    onclick="saveSignal('stock', this)"
->
-    💾 Save Indian Stock
+<button class="save-btn" type="button" onclick="saveSignal('stock',this)">
+💾 Save Indian Stock
 </button>
-```
 
 </div>
 
@@ -769,7 +699,6 @@ select option{
 
 <div class="signal-admin-card">
 
-```
 <div class="signal-card-title">
 
     <div class="signal-card-icon">₿</div>
@@ -782,92 +711,49 @@ select option{
 </div>
 
 <div class="form-group">
-
-    <label class="card-label">Crypto Name</label>
-
-    <input
-        id="cryptoName"
-        type="text"
-        placeholder="BTC"
-    >
-
+<label class="card-label">Crypto Name</label>
+<input id="cryptoName" type="text" placeholder="BTC">
 </div>
 
 <div class="form-row">
 
-    <div class="form-group">
+<div class="form-group">
+<label class="card-label">Signal</label>
+<select id="cryptoSide">
+<option value="BUY">BUY</option>
+<option value="SELL">SELL</option>
+</select>
+</div>
 
-        <label class="card-label">Signal</label>
-
-        <select id="cryptoSide">
-            <option value="BUY">BUY</option>
-            <option value="SELL">SELL</option>
-        </select>
-
-    </div>
-
-    <div class="form-group">
-
-        <label class="card-label">Entry</label>
-
-        <input
-            id="cryptoEntry"
-            type="text"
-            placeholder="67450"
-        >
-
-    </div>
+<div class="form-group">
+<label class="card-label">Entry</label>
+<input id="cryptoEntry" type="text" placeholder="67450">
+</div>
 
 </div>
 
 <div class="form-group">
-
-    <label class="card-label">Setup / Note</label>
-
-    <input
-        id="cryptoSetup"
-        type="text"
-        placeholder="Strong bullish momentum"
-    >
-
+<label class="card-label">Setup / Note</label>
+<input id="cryptoSetup" type="text" placeholder="Strong bullish momentum">
 </div>
 
 <div class="form-row">
 
-    <div class="form-group">
+<div class="form-group">
+<label class="card-label">Target</label>
+<input id="cryptoTarget" type="text" placeholder="69800">
+</div>
 
-        <label class="card-label">Target</label>
-
-        <input
-            id="cryptoTarget"
-            type="text"
-            placeholder="69800"
-        >
-
-    </div>
-
-    <div class="form-group">
-
-        <label class="card-label">Stop Loss</label>
-
-        <input
-            id="cryptoSL"
-            type="text"
-            placeholder="64800"
-        >
-
-    </div>
+<div class="form-group">
+<label class="card-label">Stop Loss</label>
+<input id="cryptoSL" type="text" placeholder="64800">
+</div>
 
 </div>
 
-<button
-    class="save-btn"
-    type="button"
-    onclick="saveSignal('crypto', this)"
->
-    💾 Save Crypto
+<button class="save-btn" type="button" onclick="saveSignal('crypto',this)">
+💾 Save Crypto
 </button>
-```
 
 </div>
 
@@ -875,7 +761,6 @@ select option{
 
 <div class="signal-admin-card">
 
-```
 <div class="signal-card-title">
 
     <div class="signal-card-icon">🪙</div>
@@ -888,92 +773,49 @@ select option{
 </div>
 
 <div class="form-group">
-
-    <label class="card-label">Gold Name</label>
-
-    <input
-        id="goldName"
-        type="text"
-        placeholder="GOLD"
-    >
-
+<label class="card-label">Gold Name</label>
+<input id="goldName" type="text" placeholder="GOLD">
 </div>
 
 <div class="form-row">
 
-    <div class="form-group">
+<div class="form-group">
+<label class="card-label">Signal</label>
+<select id="goldSide">
+<option value="BUY">BUY</option>
+<option value="SELL">SELL</option>
+</select>
+</div>
 
-        <label class="card-label">Signal</label>
-
-        <select id="goldSide">
-            <option value="BUY">BUY</option>
-            <option value="SELL">SELL</option>
-        </select>
-
-    </div>
-
-    <div class="form-group">
-
-        <label class="card-label">Entry</label>
-
-        <input
-            id="goldEntry"
-            type="text"
-            placeholder="2332"
-        >
-
-    </div>
+<div class="form-group">
+<label class="card-label">Entry</label>
+<input id="goldEntry" type="text" placeholder="2332">
+</div>
 
 </div>
 
 <div class="form-group">
-
-    <label class="card-label">Setup / Note</label>
-
-    <input
-        id="goldSetup"
-        type="text"
-        placeholder="Bullish gold setup"
-    >
-
+<label class="card-label">Setup / Note</label>
+<input id="goldSetup" type="text" placeholder="Bullish gold setup">
 </div>
 
 <div class="form-row">
 
-    <div class="form-group">
+<div class="form-group">
+<label class="card-label">Target</label>
+<input id="goldTarget" type="text" placeholder="2365">
+</div>
 
-        <label class="card-label">Target</label>
-
-        <input
-            id="goldTarget"
-            type="text"
-            placeholder="2365"
-        >
-
-    </div>
-
-    <div class="form-group">
-
-        <label class="card-label">Stop Loss</label>
-
-        <input
-            id="goldSL"
-            type="text"
-            placeholder="2290"
-        >
-
-    </div>
+<div class="form-group">
+<label class="card-label">Stop Loss</label>
+<input id="goldSL" type="text" placeholder="2290">
+</div>
 
 </div>
 
-<button
-    class="save-btn"
-    type="button"
-    onclick="saveSignal('gold', this)"
->
-    💾 Save Gold
+<button class="save-btn" type="button" onclick="saveSignal('gold',this)">
+💾 Save Gold
 </button>
-```
 
 </div>
 
@@ -981,7 +823,6 @@ select option{
 
 <div class="signal-admin-card">
 
-```
 <div class="signal-card-title">
 
     <div class="signal-card-icon">⚡</div>
@@ -994,129 +835,78 @@ select option{
 </div>
 
 <div class="form-group">
-
-    <label class="card-label">Stock Name</label>
-
-    <input
-        id="intradayName"
-        type="text"
-        placeholder="TATASTEEL"
-    >
-
+<label class="card-label">Stock Name</label>
+<input id="intradayName" type="text" placeholder="TATASTEEL">
 </div>
 
 <div class="form-row">
 
-    <div class="form-group">
+<div class="form-group">
+<label class="card-label">Signal</label>
+<select id="intradaySide">
+<option value="BUY">BUY</option>
+<option value="SELL">SELL</option>
+</select>
+</div>
 
-        <label class="card-label">Signal</label>
-
-        <select id="intradaySide">
-            <option value="BUY">BUY</option>
-            <option value="SELL">SELL</option>
-        </select>
-
-    </div>
-
-    <div class="form-group">
-
-        <label class="card-label">Entry</label>
-
-        <input
-            id="intradayEntry"
-            type="text"
-            placeholder="150"
-        >
-
-    </div>
+<div class="form-group">
+<label class="card-label">Entry</label>
+<input id="intradayEntry" type="text" placeholder="150">
+</div>
 
 </div>
 
 <div class="form-group">
-
-    <label class="card-label">Setup / Note</label>
-
-    <input
-        id="intradaySetup"
-        type="text"
-        placeholder="Intraday momentum setup"
-    >
-
+<label class="card-label">Setup / Note</label>
+<input id="intradaySetup" type="text" placeholder="Intraday momentum setup">
 </div>
 
 <div class="form-row">
 
-    <div class="form-group">
+<div class="form-group">
+<label class="card-label">Target</label>
+<input id="intradayTarget" type="text" placeholder="155">
+</div>
 
-        <label class="card-label">Target</label>
-
-        <input
-            id="intradayTarget"
-            type="text"
-            placeholder="155"
-        >
-
-    </div>
-
-    <div class="form-group">
-
-        <label class="card-label">Stop Loss</label>
-
-        <input
-            id="intradaySL"
-            type="text"
-            placeholder="147"
-        >
-
-    </div>
+<div class="form-group">
+<label class="card-label">Stop Loss</label>
+<input id="intradaySL" type="text" placeholder="147">
+</div>
 
 </div>
 
-<button
-    class="save-btn"
-    type="button"
-    onclick="saveSignal('intraday', this)"
->
-    💾 Save Intraday
+<button class="save-btn" type="button" onclick="saveSignal('intraday',this)">
+💾 Save Intraday
 </button>
-```
 
 </div>
 
 </div>
-
-<!-- SAVED SIGNALS -->
 
 <div class="saved-section">
 
-```
 <div class="saved-header">
 
-    <h3>📋 Saved Signals</h3>
+<h3>📋 Saved Signals</h3>
 
-    <button
-        class="refresh-btn"
-        type="button"
-        onclick="loadSignals()"
-    >
-        🔄 Refresh
-    </button>
+<button class="refresh-btn" type="button" onclick="loadSignals()">
+🔄 Refresh
+</button>
 
 </div>
 
 <div id="signalList" class="signal-list">
-    <div style="color:#64748b;font-size:12px;">
-        Login to load signals.
-    </div>
+<div style="color:#64748b;font-size:12px;">
+Login to load signals.
 </div>
-```
+</div>
 
 </div>
 
 <footer class="admin-footer">
-    StockPulse Admin Panel •
-    <strong>Sampat Singh Sodha</strong>
-    • 2026
+StockPulse Admin Panel •
+<strong>Sampat Singh Sodha</strong>
+• 2026
 </footer>
 
 </div>
@@ -1125,47 +915,34 @@ select option{
 
 <script>
 
-/* =====================================================
-   IMPORTANT: RAILWAY SERVER URL
-===================================================== */
-
-const API_BASE = "https://stockpulse-production-0709.up.railway.app";
-
-
-/* =====================================================
-   ADMIN PASSWORD
-===================================================== */
+const API_BASE =
+"https://stockpulse-production-0709.up.railway.app";
 
 let adminPassword =
-    sessionStorage.getItem("stockpulse_admin_password") || "";
+sessionStorage.getItem("stockpulse_admin_password") || "";
 
 
-/* =====================================================
-   STATUS MESSAGE
-===================================================== */
+/* STATUS */
 
-function showStatus(message, error = false){
+function showStatus(message,error=false){
 
     const status =
         document.getElementById("saveStatus");
 
     status.textContent = message;
 
-    status.classList.toggle("error", error);
+    status.classList.toggle("error",error);
 
     status.classList.add("show");
 
-    setTimeout(function(){
-
+    setTimeout(()=>{
         status.classList.remove("show");
-
     },3500);
+
 }
 
 
-/* =====================================================
-   AUTH HEADERS
-===================================================== */
+/* HEADERS */
 
 function authHeaders(){
 
@@ -1177,9 +954,7 @@ function authHeaders(){
 }
 
 
-/* =====================================================
-   LOGIN
-===================================================== */
+/* LOGIN */
 
 async function adminLogin(){
 
@@ -1189,62 +964,44 @@ async function adminLogin(){
     const errorBox =
         document.getElementById("loginError");
 
-    const loginButton =
+    const button =
         document.getElementById("loginButton");
 
     const password =
         passwordInput.value.trim();
 
-    errorBox.textContent = "";
+    errorBox.textContent="";
 
     if(!password){
 
         errorBox.textContent =
-            "Please enter admin password.";
+        "Please enter admin password.";
 
         return;
+
     }
 
-    loginButton.disabled = true;
-    loginButton.textContent = "⏳ Checking...";
+    button.disabled=true;
+    button.textContent="⏳ Checking...";
 
     try{
 
         const response =
-            await fetch(
-                API_BASE + "/api/admin/login",
-                {
-                    method:"POST",
-
-                    headers:{
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:JSON.stringify({
-                        password:password
-                    })
-                }
-            );
-
-        let result = {};
-
-        try{
-            result = await response.json();
-        }catch{
-            result = {};
-        }
-
-        console.log(
-            "ADMIN LOGIN:",
-            response.status,
-            result
+        await fetch(
+            API_BASE+"/api/admin/login",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({password})
+            }
         );
 
-        if(
-            !response.ok ||
-            !result.success
-        ){
+        const result =
+        await response.json().catch(()=>({}));
+
+        if(!response.ok || !result.success){
 
             throw new Error(
                 result.error ||
@@ -1254,7 +1011,7 @@ async function adminLogin(){
 
         }
 
-        adminPassword = password;
+        adminPassword=password;
 
         sessionStorage.setItem(
             "stockpulse_admin_password",
@@ -1263,40 +1020,29 @@ async function adminLogin(){
 
         document.getElementById(
             "loginOverlay"
-        ).style.display = "none";
+        ).style.display="none";
 
-        showStatus(
-            "✅ Admin login successful"
-        );
+        showStatus("✅ Admin login successful");
 
         await checkServer();
-
         await loadSignals();
 
     }catch(error){
 
-        console.error(
-            "ADMIN LOGIN ERROR:",
-            error
-        );
-
         errorBox.textContent =
-            error.message ||
-            "Login failed.";
+        error.message || "Login failed.";
 
     }finally{
 
-        loginButton.disabled = false;
-        loginButton.textContent = "🔓 Login";
+        button.disabled=false;
+        button.textContent="🔓 Login";
 
     }
 
 }
 
 
-/* =====================================================
-   LOGOUT
-===================================================== */
+/* LOGOUT */
 
 function logoutAdmin(){
 
@@ -1304,16 +1050,14 @@ function logoutAdmin(){
         "stockpulse_admin_password"
     );
 
-    adminPassword = "";
+    adminPassword="";
 
     location.reload();
 
 }
 
 
-/* =====================================================
-   CHECK EXISTING LOGIN
-===================================================== */
+/* EXISTING LOGIN */
 
 async function checkExistingLogin(){
 
@@ -1326,28 +1070,21 @@ async function checkExistingLogin(){
     try{
 
         const response =
-            await fetch(
-                API_BASE + "/api/admin/status",
-                {
-                    method:"GET",
-
-                    headers:{
-                        "x-admin-password":
-                            adminPassword
-                    }
+        await fetch(
+            API_BASE+"/api/admin/status",
+            {
+                headers:{
+                    "x-admin-password":
+                    adminPassword
                 }
-            );
-
-        console.log(
-            "AUTH STATUS:",
-            response.status
+            }
         );
 
         if(response.ok){
 
             document.getElementById(
                 "loginOverlay"
-            ).style.display = "none";
+            ).style.display="none";
 
             return true;
 
@@ -1355,10 +1092,7 @@ async function checkExistingLogin(){
 
     }catch(error){
 
-        console.error(
-            "AUTH CHECK ERROR:",
-            error
-        );
+        console.error(error);
 
     }
 
@@ -1366,31 +1100,27 @@ async function checkExistingLogin(){
         "stockpulse_admin_password"
     );
 
-    adminPassword = "";
+    adminPassword="";
 
     return false;
 
 }
 
 
-/* =====================================================
-   SERVER STATUS
-===================================================== */
+/* SERVER */
 
 async function checkServer(){
 
     const dot =
-        document.getElementById("statusDot");
+    document.getElementById("statusDot");
 
     const text =
-        document.getElementById("serverStatusText");
+    document.getElementById("serverStatusText");
 
     try{
 
         const response =
-            await fetch(
-                API_BASE + "/api/health"
-            );
+        await fetch(API_BASE+"/api/health");
 
         if(response.ok){
 
@@ -1398,77 +1128,56 @@ async function checkServer(){
             dot.classList.remove("offline");
 
             text.textContent =
-                "StockPulse server is online";
+            "StockPulse server is online";
 
         }else{
 
-            throw new Error(
-                "HTTP " + response.status
-            );
+            throw new Error();
 
         }
 
-    }catch(error){
-
-        console.error(
-            "SERVER STATUS ERROR:",
-            error
-        );
+    }catch{
 
         dot.classList.remove("online");
         dot.classList.add("offline");
 
         text.textContent =
-            "Server connection problem";
+        "Server connection problem";
 
     }
 
 }
 
 
-/* =====================================================
-   CATEGORY
-===================================================== */
+/* CATEGORY */
 
 function getCategory(type){
 
-    const categories = {
-
+    return {
         stock:"stocks",
         crypto:"crypto",
         gold:"commodity",
         intraday:"intraday"
-
-    };
-
-    return categories[type] || "";
+    }[type] || "";
 
 }
 
 
-/* =====================================================
-   TYPE NAME
-===================================================== */
+/* TYPE */
 
 function getTypeName(type){
 
-    const names = {
-
+    return {
         stock:"Indian Stock",
         crypto:"Crypto",
         gold:"Gold Commodity",
         intraday:"Intraday"
-
-    };
-
-    return names[type] || type;
+    }[type] || type;
 
 }
 
 
-/* =====================================================
-   SAVE SIGNAL
-===================================================== */
+/* SAVE */
 
 async function saveSignal(type,button){
 
@@ -1483,80 +1192,64 @@ async function saveSignal(type,button){
 
     }
 
-    button.disabled = true;
+    button.disabled=true;
 
     const originalText =
-        button.textContent;
+    button.textContent;
 
-    button.textContent =
-        "⏳ Saving...";
+    button.textContent="⏳ Saving...";
 
     try{
 
-        const category =
-            getCategory(type);
-
         const name =
-            document.getElementById(
-                type + "Name"
-            ).value.trim();
+        document.getElementById(
+            type+"Name"
+        ).value.trim();
 
         const side =
-            document.getElementById(
-                type + "Side"
-            ).value;
+        document.getElementById(
+            type+"Side"
+        ).value;
 
         const entry =
-            document.getElementById(
-                type + "Entry"
-            ).value.trim();
+        document.getElementById(
+            type+"Entry"
+        ).value.trim();
 
         const setup =
-            document.getElementById(
-                type + "Setup"
-            ).value.trim();
+        document.getElementById(
+            type+"Setup"
+        ).value.trim();
 
         const target =
-            document.getElementById(
-                type + "Target"
-            ).value.trim();
+        document.getElementById(
+            type+"Target"
+        ).value.trim();
 
         const sl =
-            document.getElementById(
-                type + "SL"
-            ).value.trim();
+        document.getElementById(
+            type+"SL"
+        ).value.trim();
 
-        if(!name){
-            throw new Error(
-                "Please enter name/symbol"
-            );
-        }
+        if(!name)
+            throw new Error("Please enter name/symbol");
 
-        if(!entry){
-            throw new Error(
-                "Please enter Entry"
-            );
-        }
+        if(!entry)
+            throw new Error("Please enter Entry");
 
-        if(!target){
-            throw new Error(
-                "Please enter Target"
-            );
-        }
+        if(!target)
+            throw new Error("Please enter Target");
 
-        if(!sl){
-            throw new Error(
-                "Please enter Stop Loss"
-            );
-        }
+        if(!sl)
+            throw new Error("Please enter Stop Loss");
 
-        const data = {
+        const data={
 
-            category:category,
+            category:getCategory(type),
 
-            symbol:name,
+            symbol:name.toUpperCase(),
 
-            name:name,
+            name:name.toUpperCase(),
 
             type:side,
 
@@ -1578,61 +1271,27 @@ async function saveSignal(type,button){
 
         };
 
-        console.log(
-            "SENDING SIGNAL:",
-            data
-        );
-
         const response =
-            await fetch(
-                API_BASE +
-                "/api/admin/signals",
-                {
-                    method:"POST",
-
-                    headers:
-                        authHeaders(),
-
-                    body:
-                        JSON.stringify(data)
-                }
-            );
-
-        let result = {};
-
-        try{
-            result = await response.json();
-        }catch{
-            result = {};
-        }
-
-        console.log(
-            "SIGNAL RESPONSE:",
-            response.status,
-            result
+        await fetch(
+            API_BASE+"/api/admin/signals",
+            {
+                method:"POST",
+                headers:authHeaders(),
+                body:JSON.stringify(data)
+            }
         );
 
-        if(response.status === 401){
+        const result =
+        await response.json().catch(()=>({}));
+
+        if(response.status===401){
 
             logoutAdmin();
-
             return;
 
         }
 
-        if(response.status === 503){
-
-            throw new Error(
-                result.error ||
-                "MongoDB is not connected"
-            );
-
-        }
-
-        if(
-            !response.ok ||
-            !result.success
-        ){
+        if(!response.ok || !result.success){
 
             throw new Error(
                 result.error ||
@@ -1643,8 +1302,8 @@ async function saveSignal(type,button){
         }
 
         showStatus(
-            "✅ " +
-            getTypeName(type) +
+            "✅ "+
+            getTypeName(type)+
             " saved successfully"
         );
 
@@ -1654,134 +1313,88 @@ async function saveSignal(type,button){
 
     }catch(error){
 
-        console.error(
-            "SAVE SIGNAL ERROR:",
-            error
-        );
+        console.error(error);
 
         showStatus(
-            "❌ " + error.message,
+            "❌ "+error.message,
             true
         );
 
     }finally{
 
-        button.disabled = false;
-
-        button.textContent =
-            originalText;
+        button.disabled=false;
+        button.textContent=originalText;
 
     }
 
 }
 
 
-/* =====================================================
-   CLEAR FORM
-===================================================== */
+/* CLEAR */
 
 function clearForm(type){
 
-    const ids = [
+    [
+        type+"Name",
+        type+"Entry",
+        type+"Setup",
+        type+"Target",
+        type+"SL"
+    ].forEach(id=>{
 
-        type + "Name",
-        type + "Entry",
-        type + "Setup",
-        type + "Target",
-        type + "SL"
+        const el =
+        document.getElementById(id);
 
-    ];
-
-    ids.forEach(function(id){
-
-        const element =
-            document.getElementById(id);
-
-        if(element){
-
-            element.value = "";
-
-        }
+        if(el) el.value="";
 
     });
-
-    const side =
-        document.getElementById(
-            type + "Side"
-        );
-
-    if(side){
-
-        side.value = "BUY";
-
-    }
 
 }
 
 
-/* =====================================================
-   LOAD SIGNALS
-===================================================== */
+/* LOAD */
 
 async function loadSignals(){
 
     const list =
-        document.getElementById("signalList");
+    document.getElementById("signalList");
 
     if(!adminPassword){
 
         list.innerHTML =
-            '<div style="color:#64748b;font-size:12px;">Login to load signals.</div>';
+        '<div style="color:#64748b;font-size:12px;">Login to load signals.</div>';
 
         return;
 
     }
 
     list.innerHTML =
-        '<div style="color:#64748b;font-size:12px;">Loading signals...</div>';
+    '<div style="color:#64748b;font-size:12px;">Loading signals...</div>';
 
     try{
 
         const response =
-            await fetch(
-                API_BASE +
-                "/api/admin/signals",
-                {
-                    method:"GET",
-
-                    headers:{
-                        "x-admin-password":
-                            adminPassword
-                    }
+        await fetch(
+            API_BASE+"/api/admin/signals",
+            {
+                headers:{
+                    "x-admin-password":
+                    adminPassword
                 }
-            );
-
-        let result = {};
-
-        try{
-            result = await response.json();
-        }catch{
-            result = {};
-        }
-
-        console.log(
-            "LOAD SIGNALS:",
-            response.status,
-            result
+            }
         );
 
-        if(response.status === 401){
+        const result =
+        await response.json().catch(()=>({}));
+
+        if(response.status===401){
 
             logoutAdmin();
-
             return;
 
         }
 
-        if(
-            !response.ok ||
-            !result.success
-        ){
+        if(!response.ok || !result.success){
 
             throw new Error(
                 result.error ||
@@ -1791,113 +1404,107 @@ async function loadSignals(){
         }
 
         const signals =
-            Array.isArray(result.signals)
-                ? result.signals
-                : [];
+        Array.isArray(result.signals)
+        ? result.signals
+        : [];
 
         if(!signals.length){
 
             list.innerHTML =
-                '<div style="color:#64748b;font-size:12px;">No signals saved yet.</div>';
+            '<div style="color:#64748b;font-size:12px;">No signals saved yet.</div>';
 
             return;
 
         }
 
         list.innerHTML =
-            signals.map(function(signal){
+        signals.map(signal=>{
 
-                const date =
-                    signal.updatedAt
-                        ? new Date(
-                            signal.updatedAt
-                        ).toLocaleString(
-                            "en-IN"
-                        )
-                        : "-";
+            const date =
+            signal.updatedAt
+            ? new Date(
+                signal.updatedAt
+              ).toLocaleString("en-IN")
+            : "-";
 
-                return `
+            return `
 
-                    <div class="saved-signal">
+            <div class="saved-signal">
 
-                        <div class="saved-signal-main">
+                <div class="saved-signal-main">
 
-                            <strong>
-                                ${escapeHtml(
-                                    signal.symbol ||
-                                    signal.name ||
-                                    "-"
-                                )}
-                                •
-                                ${escapeHtml(
-                                    signal.type ||
-                                    "-"
-                                )}
-                            </strong>
+                    <strong>
+                        ${escapeHtml(
+                            signal.symbol ||
+                            signal.name ||
+                            "-"
+                        )}
+                        •
+                        ${escapeHtml(
+                            signal.type || "-"
+                        )}
+                    </strong>
 
-                            <small>
-                                ${escapeHtml(
-                                    signal.category ||
-                                    "-"
-                                )}
-                                |
-                                Entry:
-                                ${escapeHtml(
-                                    signal.entry ||
-                                    "-"
-                                )}
-                                |
-                                Target:
-                                ${escapeHtml(
-                                    signal.target1 ||
-                                    "-"
-                                )}
-                                |
-                                SL:
-                                ${escapeHtml(
-                                    signal.stopLoss ||
-                                    "-"
-                                )}
-                                |
-                                ${escapeHtml(date)}
-                            </small>
+                    <small>
 
-                        </div>
+                        ${escapeHtml(
+                            signal.category || "-"
+                        )}
 
-                        <button
-                            class="delete-btn"
-                            type="button"
-                            onclick="deleteSignal('${escapeHtml(signal._id)}')"
-                        >
-                            🗑 Delete
-                        </button>
+                        |
+                        Entry:
+                        ${escapeHtml(
+                            signal.entry || "-"
+                        )}
 
-                    </div>
+                        |
+                        Target:
+                        ${escapeHtml(
+                            signal.target1 || "-"
+                        )}
 
-                `;
+                        |
+                        SL:
+                        ${escapeHtml(
+                            signal.stopLoss || "-"
+                        )}
 
-            }).join("");
+                        |
+                        ${escapeHtml(date)}
+
+                    </small>
+
+                </div>
+
+                <button
+                    class="delete-btn"
+                    type="button"
+                    onclick="deleteSignal('${escapeHtml(signal.id)}')"
+                >
+                    🗑 Delete
+                </button>
+
+            </div>
+
+            `;
+
+        }).join("");
 
     }catch(error){
 
-        console.error(
-            "LOAD SIGNALS ERROR:",
-            error
-        );
+        console.error(error);
 
         list.innerHTML =
-            '<div style="color:#ff7373;font-size:12px;">❌ ' +
-            escapeHtml(error.message) +
-            '</div>';
+        '<div style="color:#ff7373;font-size:12px;">❌ '+
+        escapeHtml(error.message)+
+        '</div>';
 
     }
 
 }
 
 
-/* =====================================================
-   DELETE SIGNAL
-===================================================== */
+/* DELETE */
 
 async function deleteSignal(id){
 
@@ -1921,40 +1528,30 @@ async function deleteSignal(id){
     try{
 
         const response =
-            await fetch(
-                API_BASE +
-                "/api/admin/signals/" +
-                encodeURIComponent(id),
-                {
-                    method:"DELETE",
-
-                    headers:{
-                        "x-admin-password":
-                            adminPassword
-                    }
+        await fetch(
+            API_BASE+
+            "/api/admin/signals/"+
+            encodeURIComponent(id),
+            {
+                method:"DELETE",
+                headers:{
+                    "x-admin-password":
+                    adminPassword
                 }
-            );
+            }
+        );
 
-        let result = {};
+        const result =
+        await response.json().catch(()=>({}));
 
-        try{
-            result = await response.json();
-        }catch{
-            result = {};
-        }
-
-        if(response.status === 401){
+        if(response.status===401){
 
             logoutAdmin();
-
             return;
 
         }
 
-        if(
-            !response.ok ||
-            !result.success
-        ){
+        if(!response.ok || !result.success){
 
             throw new Error(
                 result.error ||
@@ -1963,21 +1560,14 @@ async function deleteSignal(id){
 
         }
 
-        showStatus(
-            "✅ Signal deleted"
-        );
+        showStatus("✅ Signal deleted");
 
         await loadSignals();
 
     }catch(error){
 
-        console.error(
-            "DELETE ERROR:",
-            error
-        );
-
         showStatus(
-            "❌ " + error.message,
+            "❌ "+error.message,
             true
         );
 
@@ -1986,9 +1576,7 @@ async function deleteSignal(id){
 }
 
 
-/* =====================================================
-   HTML ESCAPE
-===================================================== */
+/* ESCAPE */
 
 function escapeHtml(value){
 
@@ -2002,68 +1590,63 @@ function escapeHtml(value){
 }
 
 
-/* =====================================================
-   EVENTS
-===================================================== */
+/* EVENTS */
 
 document.addEventListener(
-    "DOMContentLoaded",
-    async function(){
+"DOMContentLoaded",
+async function(){
+
+    document.getElementById(
+        "loginButton"
+    ).addEventListener(
+        "click",
+        adminLogin
+    );
+
+    document.getElementById(
+        "logoutButton"
+    ).addEventListener(
+        "click",
+        logoutAdmin
+    );
+
+    document.getElementById(
+        "adminPassword"
+    ).addEventListener(
+        "keydown",
+        event=>{
+
+            if(event.key==="Enter"){
+                adminLogin();
+            }
+
+        }
+    );
+
+    const loggedIn =
+    await checkExistingLogin();
+
+    if(loggedIn){
+
+        await checkServer();
+        await loadSignals();
+
+    }else{
 
         document.getElementById(
-            "loginButton"
-        ).addEventListener(
-            "click",
-            adminLogin
-        );
-
-        document.getElementById(
-            "logoutButton"
-        ).addEventListener(
-            "click",
-            logoutAdmin
-        );
+            "loginOverlay"
+        ).style.display="flex";
 
         document.getElementById(
             "adminPassword"
-        ).addEventListener(
-            "keydown",
-            function(event){
-
-                if(event.key === "Enter"){
-
-                    adminLogin();
-
-                }
-
-            }
-        );
-
-        const loggedIn =
-            await checkExistingLogin();
-
-        if(loggedIn){
-
-            await checkServer();
-
-            await loadSignals();
-
-        }else{
-
-            document.getElementById(
-                "loginOverlay"
-            ).style.display = "flex";
-
-            document.getElementById(
-                "adminPassword"
-            ).focus();
-
-        }
+        ).focus();
 
     }
-);
+
+});
 
 </script>
 
 </body>
 </html>
+```

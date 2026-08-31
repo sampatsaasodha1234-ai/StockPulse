@@ -1,12 +1,11 @@
 // ======================================================
-// STOCKPULSE - COMPLETE SERVER
-// Upstox + Delta Exchange + Razorpay + MongoDB
+// STOCKPULSE - SERVER
+// Upstox + Delta Exchange + Razorpay
+// MongoDB REMOVED
 // Live Prices + Real Candles
 // Dynamic NSE Search
 // Premium Payments
-// Customer Records
-// Admin Dashboard
-// Premium Signals - 4 Categories
+// Admin Login
 // ======================================================
 
 "use strict";
@@ -18,7 +17,6 @@ const cors = require("cors");
 const crypto = require("crypto");
 const path = require("path");
 const Razorpay = require("razorpay");
-const mongoose = require("mongoose");
 
 const app = express();
 
@@ -47,9 +45,6 @@ const RAZORPAY_KEY_SECRET =
 const ADMIN_PASSWORD =
     process.env.ADMIN_PASSWORD || "";
 
-const MONGODB_URI =
-    process.env.MONGODB_URI || "";
-
 // ======================================================
 // CONFIGURATION STATUS
 // ======================================================
@@ -61,9 +56,11 @@ console.log("==========================================");
 
 console.log(
     "UPSTOX: " +
-    (UPSTOX_ACCESS_TOKEN
-        ? "Configured"
-        : "NOT CONFIGURED")
+    (
+        UPSTOX_ACCESS_TOKEN
+            ? "Configured"
+            : "NOT CONFIGURED"
+    )
 );
 
 console.log(
@@ -86,335 +83,10 @@ console.log(
 );
 
 console.log(
-    "MONGODB: " +
-    (
-        MONGODB_URI
-            ? "Configured"
-            : "NOT CONFIGURED"
-    )
+    "MONGODB: REMOVED"
 );
 
 console.log("==========================================");
-
-// ======================================================
-// MONGODB CONNECTION
-// ======================================================
-
-let mongoConnected = false;
-
-async function connectMongoDB() {
-
-    if (!MONGODB_URI) {
-
-        console.warn("");
-        console.warn(
-            "MONGODB_URI is not configured."
-        );
-
-        return false;
-    }
-
-    try {
-
-        console.log("");
-        console.log(
-            "MongoDB: Connecting..."
-        );
-
-        await mongoose.connect(
-            MONGODB_URI.trim()
-        );
-
-        mongoConnected = true;
-
-        console.log("");
-        console.log(
-            "=========================================="
-        );
-
-        console.log(
-            "MONGODB CONNECTED SUCCESSFULLY"
-        );
-
-        console.log(
-            "=========================================="
-        );
-
-        console.log(
-            "Database:",
-            mongoose.connection.name || "-"
-        );
-
-        console.log(
-            "Host:",
-            mongoose.connection.host || "-"
-        );
-
-        console.log(
-            "Ready State:",
-            mongoose.connection.readyState
-        );
-
-        return true;
-
-    } catch (error) {
-
-        mongoConnected = false;
-
-        console.error("");
-        console.error(
-            "=========================================="
-        );
-
-        console.error(
-            "MONGODB CONNECTION ERROR"
-        );
-
-        console.error(
-            "=========================================="
-        );
-
-        console.error(
-            "Name:",
-            error.name || "Unknown"
-        );
-
-        console.error(
-            "Code:",
-            error.code || "N/A"
-        );
-
-        console.error(
-            "Message:",
-            error.message || "Unknown error"
-        );
-
-        console.error(
-            "=========================================="
-        );
-
-        return false;
-    }
-}
-
-// ======================================================
-// MONGODB EVENTS
-// ======================================================
-
-mongoose.connection.on(
-    "connected",
-    () => {
-
-        mongoConnected = true;
-
-        console.log(
-            "MongoDB event: connected"
-        );
-    }
-);
-
-mongoose.connection.on(
-    "disconnected",
-    () => {
-
-        mongoConnected = false;
-
-        console.warn(
-            "MongoDB disconnected"
-        );
-    }
-);
-
-mongoose.connection.on(
-    "error",
-    error => {
-
-        mongoConnected = false;
-
-        console.error(
-            "MongoDB event error:",
-            error.message
-        );
-    }
-);
-
-// ======================================================
-// PAYMENT SCHEMA
-// ======================================================
-
-const paymentSchema =
-    new mongoose.Schema(
-        {
-
-            customerName: {
-                type: String,
-                default: "Not Provided"
-            },
-
-            customerEmail: {
-                type: String,
-                default: "Not Provided"
-            },
-
-            customerPhone: {
-                type: String,
-                default: "Not Provided"
-            },
-
-            paymentId: {
-                type: String,
-                required: true,
-                unique: true
-            },
-
-            orderId: {
-                type: String,
-                default: ""
-            },
-
-            amount: {
-                type: Number,
-                default: 0
-            },
-
-            currency: {
-                type: String,
-                default: "INR"
-            },
-
-            status: {
-                type: String,
-                default: "SUCCESS"
-            },
-
-            method: {
-                type: String,
-                default: ""
-            },
-
-            premium: {
-                type: Boolean,
-                default: true
-            },
-
-            premiumStartDate: {
-                type: Date,
-                default: Date.now
-            },
-
-            premiumExpiry: {
-                type: Date
-            },
-
-            paymentDate: {
-                type: Date,
-                default: Date.now
-            }
-
-        },
-        {
-            timestamps: true
-        }
-    );
-
-const Payment =
-    mongoose.model(
-        "Payment",
-        paymentSchema
-    );
-
-// ======================================================
-// PREMIUM SIGNAL SCHEMA
-// ======================================================
-
-const signalSchema =
-    new mongoose.Schema(
-        {
-
-            category: {
-                type: String,
-                enum: [
-                    "stocks",
-                    "crypto",
-                    "commodity",
-                    "intraday"
-                ],
-                required: true,
-                lowercase: true
-            },
-
-            symbol: {
-                type: String,
-                required: true,
-                uppercase: true,
-                trim: true
-            },
-
-            name: {
-                type: String,
-                default: ""
-            },
-
-            type: {
-                type: String,
-                enum: [
-                    "BUY",
-                    "SELL"
-                ],
-                default: "BUY"
-            },
-
-            entry: {
-                type: String,
-                default: ""
-            },
-
-            stopLoss: {
-                type: String,
-                default: ""
-            },
-
-            target1: {
-                type: String,
-                default: ""
-            },
-
-            target2: {
-                type: String,
-                default: ""
-            },
-
-            target3: {
-                type: String,
-                default: ""
-            },
-
-            risk: {
-                type: String,
-                default: "Medium"
-            },
-
-            note: {
-                type: String,
-                default: ""
-            },
-
-            active: {
-                type: Boolean,
-                default: true
-            }
-
-        },
-        {
-            timestamps: true
-        }
-    );
-
-const Signal =
-    mongoose.model(
-        "Signal",
-        signalSchema
-    );
 
 // ======================================================
 // UPSTOX
@@ -426,7 +98,6 @@ const UPSTOX_API =
 function upstoxHeaders() {
 
     return {
-
         Accept:
             "application/json",
 
@@ -434,7 +105,8 @@ function upstoxHeaders() {
             "application/json",
 
         Authorization:
-            "Bearer " + UPSTOX_ACCESS_TOKEN
+            "Bearer " +
+            UPSTOX_ACCESS_TOKEN
     };
 }
 
@@ -483,6 +155,10 @@ async function upstoxFetch(url) {
 
     return data;
 }
+
+// ======================================================
+// UPSTOX LTP
+// ======================================================
 
 async function getUpstoxData(
     instrumentKey
@@ -591,7 +267,8 @@ async function sendIndexPrice(
     } catch (error) {
 
         console.error(
-            name + " ERROR:",
+            name +
+            " ERROR:",
             error.message
         );
 
@@ -2213,6 +1890,10 @@ function createPremiumToken(
     );
 }
 
+// ======================================================
+// VERIFY PREMIUM TOKEN
+// ======================================================
+
 function verifyPremiumToken(
     token
 ) {
@@ -2422,13 +2103,7 @@ app.post(
 
                 razorpay_payment_id,
 
-                razorpay_signature,
-
-                customerName,
-
-                customerEmail,
-
-                customerPhone
+                razorpay_signature
 
             } = req.body;
 
@@ -2533,79 +2208,16 @@ app.post(
                 6
             );
 
-            let paymentRecord =
-                await Payment.findOne({
-
-                    paymentId:
-                        razorpay_payment_id
-                });
-
-            if (!paymentRecord) {
-
-                paymentRecord =
-                    await Payment.create({
-
-                        customerName:
-                            customerName ||
-                            "Not Provided",
-
-                        customerEmail:
-                            customerEmail ||
-                            paymentDetails?.email ||
-                            "Not Provided",
-
-                        customerPhone:
-                            customerPhone ||
-                            paymentDetails?.contact ||
-                            "Not Provided",
-
-                        paymentId:
-                            razorpay_payment_id,
-
-                        orderId:
-                            razorpay_order_id,
-
-                        amount:
-                            paymentDetails?.amount ??
-                            PREMIUM_AMOUNT,
-
-                        currency:
-                            paymentDetails?.currency ??
-                            PREMIUM_CURRENCY,
-
-                        status:
-                            "SUCCESS",
-
-                        method:
-                            paymentDetails?.method ||
-                            "",
-
-                        premium:
-                            true,
-
-                        premiumStartDate,
-
-                        premiumExpiry,
-
-                        paymentDate:
-                            paymentDetails?.created_at
-                                ? new Date(
-                                    paymentDetails.created_at *
-                                    1000
-                                )
-                                : new Date()
-                    });
-
-                console.log(
-                    "PAYMENT SAVED TO MONGODB"
-                );
-            }
-
             const premiumToken =
                 createPremiumToken(
                     razorpay_payment_id,
-                    paymentRecord.premiumExpiry
+                    premiumExpiry
                 );
+
+            console.log(
+                "PAYMENT VERIFIED:",
+                razorpay_payment_id
+            );
 
             res.json({
 
@@ -2619,8 +2231,7 @@ app.post(
                 paymentId:
                     razorpay_payment_id,
 
-                premiumExpiry:
-                    paymentRecord.premiumExpiry,
+                premiumExpiry,
 
                 premiumToken
             });
@@ -2649,38 +2260,41 @@ app.post(
 // ADMIN AUTH
 // ======================================================
 
-function verifyAdmin(req, res, next) {
+function verifyAdmin(
+    req,
+    res,
+    next
+) {
 
     const headerPassword =
         String(
-            req.headers["x-admin-password"] || ""
+            req.headers["x-admin-password"] ||
+            ""
         ).trim();
 
     const authorization =
         String(
-            req.headers.authorization || ""
+            req.headers.authorization ||
+            ""
         ).trim();
 
-    let password = headerPassword;
+    let password =
+        headerPassword;
 
-    // Support: Authorization: Bearer <password>
     if (
         !password &&
-        authorization.toLowerCase().startsWith("bearer ")
+        authorization
+            .toLowerCase()
+            .startsWith("bearer ")
     ) {
+
         password =
             authorization
                 .slice(7)
                 .trim();
     }
 
-    if (
-        !ADMIN_PASSWORD
-    ) {
-
-        console.error(
-            "ADMIN AUTH ERROR: ADMIN_PASSWORD is not configured"
-        );
+    if (!ADMIN_PASSWORD) {
 
         return res.status(500).json({
 
@@ -2693,14 +2307,9 @@ function verifyAdmin(req, res, next) {
 
     if (
         !password ||
-        password !== ADMIN_PASSWORD
+        password !==
+            ADMIN_PASSWORD
     ) {
-
-        console.warn(
-            "ADMIN AUTH FAILED:",
-            req.method,
-            req.originalUrl
-        );
 
         return res.status(401).json({
 
@@ -2714,7 +2323,6 @@ function verifyAdmin(req, res, next) {
     next();
 }
 
-
 // ======================================================
 // ADMIN LOGIN
 // ======================================================
@@ -2727,12 +2335,11 @@ app.post(
 
             const password =
                 String(
-                    req.body?.password || ""
+                    req.body?.password ||
+                    ""
                 ).trim();
 
-            if (
-                !ADMIN_PASSWORD
-            ) {
+            if (!ADMIN_PASSWORD) {
 
                 return res.status(500).json({
 
@@ -2745,7 +2352,8 @@ app.post(
 
             if (
                 !password ||
-                password !== ADMIN_PASSWORD
+                password !==
+                    ADMIN_PASSWORD
             ) {
 
                 return res.status(401).json({
@@ -2764,8 +2372,6 @@ app.post(
                 message:
                     "Admin login successful",
 
-                // Admin HTML can use this value
-                // as x-admin-password
                 adminPassword:
                     password
             });
@@ -2788,12 +2394,8 @@ app.post(
     }
 );
 
-
 // ======================================================
 // ADMIN STATUS
-// ======================================================
-// Admin HTML mein agar /api/admin/status call ho
-// to 404 nahi aayega.
 // ======================================================
 
 app.get(
@@ -2805,18 +2407,23 @@ app.get(
 
             success: true,
 
-            authenticated: true,
+            authenticated:
+                true,
 
             mongoConnected:
-                mongoConnected,
+                false,
 
             message:
                 "Admin authentication successful"
         });
     }
 );
+
 // ======================================================
-// ADMIN DASHBOARD STATS
+// ADMIN STATS
+// ======================================================
+// MongoDB removed.
+// Payment/customer database statistics unavailable.
 // ======================================================
 
 app.get(
@@ -2824,188 +2431,42 @@ app.get(
     verifyAdmin,
     async (req, res) => {
 
-        try {
+        res.json({
 
-            if (!mongoConnected) {
+            success: true,
 
-                return res.status(503).json({
+            stats: {
 
-                    success: false,
+                totalCustomers:
+                    0,
 
-                    error:
-                        "MongoDB is not connected"
-                });
-            }
+                totalPayments:
+                    0,
 
-            const totalPayments =
-                await Payment.countDocuments();
+                successfulPayments:
+                    0,
 
-            const successfulPayments =
-                await Payment.countDocuments({
+                totalRevenue:
+                    0,
 
-                    status:
-                        "SUCCESS"
-                });
+                activePremium:
+                    0,
 
-            const customerPhones =
-                await Payment.distinct(
+                totalSignals:
+                    0,
 
-                    "customerPhone",
+                activeSignals:
+                    0
+            },
 
-                    {
-                        status:
-                            "SUCCESS"
-                    }
-                );
-
-            const customerEmails =
-                await Payment.distinct(
-
-                    "customerEmail",
-
-                    {
-                        status:
-                            "SUCCESS"
-                    }
-                );
-
-            const customers =
-                new Set();
-
-            customerPhones.forEach(
-                phone => {
-
-                    if (
-                        phone &&
-                        phone !==
-                            "Not Provided"
-                    ) {
-
-                        customers.add(
-                            "phone:" +
-                            phone
-                        );
-                    }
-                }
-            );
-
-            customerEmails.forEach(
-                email => {
-
-                    if (
-                        email &&
-                        email !==
-                            "Not Provided"
-                    ) {
-
-                        customers.add(
-                            "email:" +
-                            email
-                        );
-                    }
-                }
-            );
-
-            const activePremium =
-                await Payment.countDocuments({
-
-                    premium:
-                        true,
-
-                    premiumExpiry: {
-                        $gt:
-                            new Date()
-                    },
-
-                    status:
-                        "SUCCESS"
-                });
-
-            const revenueResult =
-                await Payment.aggregate([
-
-                    {
-                        $match: {
-
-                            status:
-                                "SUCCESS"
-                        }
-                    },
-
-                    {
-                        $group: {
-
-                            _id:
-                                null,
-
-                            total: {
-
-                                $sum:
-                                    "$amount"
-                            }
-                        }
-                    }
-                ]);
-
-            const totalRevenuePaise =
-                revenueResult[0]?.total ||
-                0;
-
-            const totalSignals =
-                await Signal.countDocuments();
-
-            const activeSignals =
-                await Signal.countDocuments({
-
-                    active:
-                        true
-                });
-
-            res.json({
-
-                success: true,
-
-                stats: {
-
-                    totalCustomers:
-                        customers.size,
-
-                    totalPayments,
-
-                    successfulPayments,
-
-                    totalRevenue:
-                        totalRevenuePaise /
-                        100,
-
-                    activePremium,
-
-                    totalSignals,
-
-                    activeSignals
-                }
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ADMIN STATS ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    error.message
-            });
-        }
+            message:
+                "MongoDB removed. Database statistics are disabled."
+        });
     }
 );
 
 // ======================================================
-// ADMIN CUSTOMER RECORDS
+// ADMIN CUSTOMERS
 // ======================================================
 
 app.get(
@@ -3013,161 +2474,23 @@ app.get(
     verifyAdmin,
     async (req, res) => {
 
-        try {
+        res.json({
 
-            if (!mongoConnected) {
+            success: true,
 
-                return res.status(503).json({
+            count:
+                0,
 
-                    success: false,
+            customers: [],
 
-                    error:
-                        "MongoDB is not connected"
-                });
-            }
-
-            const payments =
-                await Payment.find({
-
-                    status:
-                        "SUCCESS"
-
-                })
-                    .sort({
-
-                        paymentDate:
-                            -1
-
-                    })
-                    .lean();
-
-            const customerMap =
-                new Map();
-
-            for (
-                const payment of payments
-            ) {
-
-                const phone =
-                    String(
-                        payment.customerPhone ||
-                        ""
-                    ).trim();
-
-                const email =
-                    String(
-                        payment.customerEmail ||
-                        ""
-                    )
-                        .trim()
-                        .toLowerCase();
-
-                const key =
-                    phone &&
-                    phone !==
-                        "Not Provided"
-
-                        ? "phone:" +
-                          phone
-
-                        : email &&
-                          email !==
-                              "not provided"
-
-                            ? "email:" +
-                              email
-
-                            : "payment:" +
-                              payment.paymentId;
-
-                if (
-                    !customerMap.has(
-                        key
-                    )
-                ) {
-
-                    customerMap.set(
-                        key,
-                        {
-
-                            customerName:
-                                payment.customerName ||
-                                "Not Provided",
-
-                            customerEmail:
-                                payment.customerEmail ||
-                                "Not Provided",
-
-                            customerPhone:
-                                payment.customerPhone ||
-                                "Not Provided",
-
-                            premium:
-                                payment.premium ===
-                                true,
-
-                            premiumStartDate:
-                                payment.premiumStartDate ||
-                                null,
-
-                            premiumExpiry:
-                                payment.premiumExpiry ||
-                                null,
-
-                            paymentId:
-                                payment.paymentId,
-
-                            amount:
-                                payment.amount ||
-                                0,
-
-                            paymentDate:
-                                payment.paymentDate ||
-                                payment.createdAt,
-
-                            status:
-                                payment.status ||
-                                "SUCCESS"
-                        }
-                    );
-                }
-            }
-
-            const customers =
-                Array.from(
-                    customerMap.values()
-                );
-
-            res.json({
-
-                success: true,
-
-                count:
-                    customers.length,
-
-                customers
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ADMIN CUSTOMERS ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    error.message
-            });
-        }
+            message:
+                "Customer database is disabled because MongoDB was removed."
+        });
     }
 );
 
 // ======================================================
-// ADMIN PAYMENT RECORDS
+// ADMIN PAYMENTS
 // ======================================================
 
 app.get(
@@ -3175,61 +2498,33 @@ app.get(
     verifyAdmin,
     async (req, res) => {
 
-        try {
+        res.json({
 
-            if (!mongoConnected) {
+            success: true,
 
-                return res.status(503).json({
+            count:
+                0,
 
-                    success: false,
+            payments: [],
 
-                    error:
-                        "MongoDB is not connected"
-                });
-            }
-
-            const payments =
-                await Payment.find()
-
-                    .sort({
-
-                        createdAt:
-                            -1
-
-                    })
-
-                    .lean();
-
-            res.json({
-
-                success: true,
-
-                count:
-                    payments.length,
-
-                payments
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ADMIN PAYMENTS ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    error.message
-            });
-        }
+            message:
+                "Payment database is disabled because MongoDB was removed."
+        });
     }
 );
 
 // ======================================================
-// ADMIN PREMIUM SIGNALS
+// ADMIN SIGNALS
+// ======================================================
+// Signals are kept temporarily in memory.
+// IMPORTANT:
+// Server restart/redeploy will clear them.
+// ======================================================
+
+let signals = [];
+
+// ======================================================
+// GET ADMIN SIGNALS
 // ======================================================
 
 app.get(
@@ -3237,59 +2532,16 @@ app.get(
     verifyAdmin,
     async (req, res) => {
 
-        try {
+        res.json({
 
-            if (!mongoConnected) {
+            success: true,
 
-                return res.status(503).json({
+            count:
+                signals.length,
 
-                    success: false,
-
-                    error:
-                        "MongoDB is not connected"
-                });
-            }
-
-            const signals =
-                await Signal.find()
-
-                    .sort({
-
-                        category:
-                            1,
-
-                        updatedAt:
-                            -1
-
-                    })
-
-                    .lean();
-
-            res.json({
-
-                success: true,
-
-                count:
-                    signals.length,
-
+            signals:
                 signals
-            });
-
-        } catch (error) {
-
-            console.error(
-                "GET ADMIN SIGNALS ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    error.message
-            });
-        }
+        });
     }
 );
 
@@ -3303,17 +2555,6 @@ app.post(
     async (req, res) => {
 
         try {
-
-            if (!mongoConnected) {
-
-                return res.status(503).json({
-
-                    success: false,
-
-                    error:
-                        "MongoDB is not connected"
-                });
-            }
 
             const {
 
@@ -3418,123 +2659,81 @@ app.post(
                 });
             }
 
-            let signal;
+            const signalData = {
 
-            if (id) {
+                id:
+                    id ||
+                    crypto.randomUUID(),
 
-                signal =
-                    await Signal.findByIdAndUpdate(
+                category:
+                    cleanCategory,
 
-                        id,
+                symbol:
+                    cleanSymbol,
 
-                        {
+                name:
+                    name ||
+                    cleanSymbol,
 
-                            category:
-                                cleanCategory,
+                type:
+                    cleanType,
 
-                            symbol:
-                                cleanSymbol,
+                entry:
+                    entry ||
+                    "",
 
-                            name:
-                                name ||
-                                cleanSymbol,
+                stopLoss:
+                    stopLoss ||
+                    "",
 
-                            type:
-                                cleanType,
+                target1:
+                    target1 ||
+                    "",
 
-                            entry:
-                                entry ||
-                                "",
+                target2:
+                    target2 ||
+                    "",
 
-                            stopLoss:
-                                stopLoss ||
-                                "",
+                target3:
+                    target3 ||
+                    "",
 
-                            target1:
-                                target1 ||
-                                "",
+                risk:
+                    risk ||
+                    "Medium",
 
-                            target2:
-                                target2 ||
-                                "",
+                note:
+                    note ||
+                    "",
 
-                            target3:
-                                target3 ||
-                                "",
+                active:
+                    active !== false,
 
-                            risk:
-                                risk ||
-                                "Medium",
+                updatedAt:
+                    new Date().toISOString()
+            };
 
-                            note:
-                                note ||
-                                "",
+            const existingIndex =
+                signals.findIndex(
+                    item =>
+                        item.id ===
+                        signalData.id
+                );
 
-                            active:
-                                active !==
-                                false
-                        },
+            if (
+                existingIndex >= 0
+            ) {
 
-                        {
-
-                            new:
-                                true,
-
-                            runValidators:
-                                true
-                        }
-                    );
+                signals[
+                    existingIndex
+                ] =
+                    signalData;
 
             } else {
 
-                signal =
-                    await Signal.create({
-
-                        category:
-                            cleanCategory,
-
-                        symbol:
-                            cleanSymbol,
-
-                        name:
-                            name ||
-                            cleanSymbol,
-
-                        type:
-                            cleanType,
-
-                        entry:
-                            entry ||
-                            "",
-
-                        stopLoss:
-                            stopLoss ||
-                            "",
-
-                        target1:
-                            target1 ||
-                            "",
-
-                        target2:
-                            target2 ||
-                            "",
-
-                        target3:
-                            target3 ||
-                            "",
-
-                        risk:
-                            risk ||
-                            "Medium",
-
-                        note:
-                            note ||
-                            "",
-
-                        active:
-                            active !==
-                            false
-                    });
+                signals.push(
+                    signalData
+                );
             }
 
             res.json({
@@ -3544,7 +2743,8 @@ app.post(
                 message:
                     "Premium signal saved successfully",
 
-                signal
+                signal:
+                    signalData
             });
 
         } catch (error) {
@@ -3576,20 +2776,29 @@ app.delete(
 
         try {
 
-            if (!mongoConnected) {
+            const oldLength =
+                signals.length;
 
-                return res.status(503).json({
+            signals =
+                signals.filter(
+                    item =>
+                        item.id !==
+                        req.params.id
+                );
+
+            if (
+                signals.length ===
+                oldLength
+            ) {
+
+                return res.status(404).json({
 
                     success: false,
 
                     error:
-                        "MongoDB is not connected"
+                        "Signal not found"
                 });
             }
-
-            await Signal.findByIdAndDelete(
-                req.params.id
-            );
 
             res.json({
 
@@ -3620,10 +2829,6 @@ app.delete(
 // ======================================================
 // PUBLIC SIGNAL API
 // ======================================================
-// Website par active signals publicly available hain.
-// Admin panel se add/update kiye gaye signals yahan milenge.
-// Premium token ki requirement hata di gayi hai.
-// ======================================================
 
 app.get(
     "/api/signals",
@@ -3631,44 +2836,22 @@ app.get(
 
         try {
 
-            if (!mongoConnected) {
-
-                return res.status(503).json({
-
-                    success: false,
-
-                    error:
-                        "MongoDB is not connected"
-                });
-            }
-
-            const signals =
-                await Signal.find({
-
-                    active:
+            const activeSignals =
+                signals.filter(
+                    signal =>
+                        signal.active ===
                         true
-
-                })
-                    .sort({
-
-                        category:
-                            1,
-
-                        updatedAt:
-                            -1
-
-                    })
-                    .lean();
+                );
 
             res.json({
 
                 success: true,
 
                 count:
-                    signals.length,
+                    activeSignals.length,
 
-                signals
-
+                signals:
+                    activeSignals
             });
 
         } catch (error) {
@@ -3688,8 +2871,6 @@ app.get(
         }
     }
 );
-
-
 
 // ======================================================
 // ADMIN PAGE
@@ -3727,9 +2908,7 @@ app.get(
                 "StockPulse API Server is running",
 
             database:
-                mongoConnected
-                    ? "MongoDB Connected"
-                    : "MongoDB Not Connected",
+                "MongoDB Removed",
 
             chartEngine:
                 "TradingView Lightweight Charts",
@@ -3743,14 +2922,14 @@ app.get(
             payment:
                 "Razorpay",
 
-            databaseEngine:
-                "MongoDB",
-
             premiumPrice:
                 "2000 INR",
 
             premiumDuration:
                 "6 Months",
+
+            signalsStorage:
+                "Temporary Memory",
 
             signalCategories: [
 
@@ -3821,7 +3000,7 @@ app.get(
 // START SERVER
 // ======================================================
 
-async function startServer() {
+function startServer() {
 
     console.log("");
 
@@ -3830,38 +3009,48 @@ async function startServer() {
     );
 
     console.log(
-        "MongoDB: Connecting..."
+        "STOCKPULSE SERVER STARTING"
     );
 
     console.log(
         "=========================================="
     );
 
-    const connected =
-        await connectMongoDB();
+    console.log(
+        "MongoDB: REMOVED"
+    );
 
-    if (!connected) {
+    console.log(
+        "Upstox: " +
+        (
+            UPSTOX_ACCESS_TOKEN
+                ? "READY"
+                : "NOT CONFIGURED"
+        )
+    );
 
-        console.error("");
-        console.error(
-            "MongoDB connection failed."
-        );
+    console.log(
+        "Razorpay: " +
+        (
+            razorpay
+                ? "READY"
+                : "NOT CONFIGURED"
+        )
+    );
 
-        console.error(
-            "Server will NOT start."
-        );
-
-        console.error(
-            "Please check MONGODB_URI in .env"
-        );
-
-        process.exit(1);
-    }
+    console.log(
+        "Admin: " +
+        (
+            ADMIN_PASSWORD
+                ? "READY"
+                : "NOT CONFIGURED"
+        )
+    );
 
     app.listen(
-    PORT,
-    "0.0.0.0",
-    () => {
+        PORT,
+        "0.0.0.0",
+        () => {
 
             console.log("");
 
@@ -3878,12 +3067,12 @@ async function startServer() {
             );
 
             console.log(
-                "http://localhost:" +
+                "Port:",
                 PORT
             );
 
             console.log(
-                "MongoDB: CONNECTED"
+                "MongoDB: REMOVED"
             );
 
             console.log(
@@ -3919,11 +3108,12 @@ async function startServer() {
             );
 
             console.log(
-                "RAZORPAY: ENABLED"
-            );
-
-            console.log(
-                "MONGODB: ENABLED"
+                "RAZORPAY: " +
+                (
+                    razorpay
+                        ? "ENABLED"
+                        : "DISABLED"
+                )
             );
 
             console.log(
@@ -3931,39 +3121,19 @@ async function startServer() {
             );
 
             console.log(
-                "INDIAN STOCKS SIGNALS"
+                "ADMIN PANEL: ENABLED"
             );
 
             console.log(
-                "CRYPTO SIGNALS"
+                "CUSTOMER DATABASE: DISABLED"
             );
 
             console.log(
-                "COMMODITY SIGNALS"
-            );
-
-            console.log(
-                "INTRADAY SIGNALS"
-            );
-
-            console.log(
-                "CUSTOMER RECORDS: ENABLED"
-            );
-
-            console.log(
-                "PAYMENT RECORDS: ENABLED"
-            );
-
-            console.log(
-                "DASHBOARD STATS: ENABLED"
+                "PAYMENT DATABASE: DISABLED"
             );
 
             console.log(
                 "PREMIUM: 2000 INR / 6 MONTHS"
-            );
-
-            console.log(
-                "ADMIN PANEL: ENABLED"
             );
 
             console.log(
@@ -3977,30 +3147,4 @@ async function startServer() {
 // RUN SERVER
 // ======================================================
 
-startServer().catch(
-    error => {
-
-        console.error("");
-        console.error(
-            "=========================================="
-        );
-
-        console.error(
-            "STOCKPULSE STARTUP FAILED"
-        );
-
-        console.error(
-            "=========================================="
-        );
-
-        console.error(
-            error.message
-        );
-
-        console.error(
-            "=========================================="
-        );
-
-        process.exit(1);
-    }
-);
+startServer();
