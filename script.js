@@ -1,18 +1,19 @@
 /* =========================================================
    STOCKPULSE - COMPLETE LIVE MARKET SCRIPT
-   ---------------------------------------------------------
-   FIXED:
-   - DOM loading issue
+   =========================================================
+   FEATURES:
    - Live NIFTY / BANKNIFTY / SENSEX / NIFTY IT
-   - Crypto prices
+   - Live Crypto prices
    - Stock search
    - Real candlestick charts
    - IST chart time
    - Premium signals
+   - Entry / SL / Target 1 / Target 2 / Target 3
+   - Risk / Exchange / Setup
    - Watchlist
    - Premium buttons
-   - Duplicate premium API calls removed
-   - Better API error handling
+   - Better API handling
+   - Railway API support
 ========================================================= */
 
 "use strict";
@@ -95,6 +96,33 @@ function formatCryptoPrice(value) {
     }
 
     return num.toFixed(4);
+}
+
+
+/* =========================================================
+   SAFE VALUE HELPER
+========================================================= */
+
+function getSignalValue(signal, keys) {
+
+    if (!signal || !Array.isArray(keys)) {
+        return null;
+    }
+
+    for (const key of keys) {
+
+        const value = signal[key];
+
+        if (
+            value !== undefined &&
+            value !== null &&
+            String(value).trim() !== ""
+        ) {
+            return value;
+        }
+    }
+
+    return null;
 }
 
 
@@ -227,6 +255,7 @@ function setupTheme() {
             light ? "☀️" : "🌙";
 
     };
+
 }
 
 
@@ -264,7 +293,8 @@ async function updateHeroNifty() {
 
         if (
             price !== undefined &&
-            price !== null
+            price !== null &&
+            priceElement
         ) {
 
             priceElement.textContent =
@@ -295,6 +325,7 @@ async function updateHeroNifty() {
         );
 
     }
+
 }
 
 
@@ -313,6 +344,7 @@ function getCardPriceElement(card) {
             ".price, .market-price, .current-price"
         )
     );
+
 }
 
 
@@ -404,6 +436,7 @@ async function updateIndex(
         );
 
     }
+
 }
 
 
@@ -493,6 +526,7 @@ async function updateCryptoPrice(symbol) {
         );
 
     }
+
 }
 
 
@@ -605,6 +639,10 @@ const localAssets = [
 ];
 
 
+/* =========================================================
+   SEARCH STOCKS
+========================================================= */
+
 async function searchStocks(query) {
 
     const searchResults =
@@ -629,6 +667,7 @@ async function searchStocks(query) {
         );
 
         return;
+
     }
 
 
@@ -720,6 +759,7 @@ async function searchStocks(query) {
         );
 
         return;
+
     }
 
 
@@ -799,7 +839,9 @@ async function searchStocks(query) {
 
 
                     if (input) {
+
                         input.value = "";
+
                     }
 
                 }
@@ -1027,8 +1069,7 @@ function setupMarketCards() {
                 event => {
 
                     if (
-                        event.key ===
-                            "Enter" ||
+                        event.key === "Enter" ||
                         event.key === " "
                     ) {
 
@@ -1116,6 +1157,7 @@ function normalizeTimeframe(timeframe) {
 
 
     return map[tf] || "1d";
+
 }
 
 
@@ -2724,21 +2766,45 @@ function setupWatchlist() {
 
 function normalizeSignalType(signal) {
 
+    const rawType =
+        getSignalValue(
+            signal,
+            [
+                "type",
+                "signal",
+                "action",
+                "recommendation",
+                "side",
+                "direction"
+            ]
+        );
+
+
     const type =
         String(
-            signal?.type || "BUY"
+            rawType || "BUY"
         )
         .toUpperCase()
         .trim();
 
 
-    if (type === "SELL") {
+    if (
+        type.includes("SELL") ||
+        type.includes("SHORT")
+    ) {
+
         return "SELL";
+
     }
 
 
-    if (type === "HOLD") {
+    if (
+        type.includes("HOLD") ||
+        type.includes("WAIT")
+    ) {
+
         return "HOLD";
+
     }
 
 
@@ -2804,6 +2870,158 @@ function setSignalBadge(
 
 
 /* =========================================================
+   GET NORMALIZED SIGNAL DATA
+   ---------------------------------------------------------
+   IMPORTANT:
+   Supports different backend field names.
+========================================================= */
+
+function normalizeSignal(signal) {
+
+    if (!signal) {
+        return null;
+    }
+
+
+    const normalized = {
+
+        symbol:
+            getSignalValue(
+                signal,
+                [
+                    "symbol",
+                    "stock",
+                    "ticker",
+                    "instrument",
+                    "scrip"
+                ]
+            ),
+
+        name:
+            getSignalValue(
+                signal,
+                [
+                    "name",
+                    "stockName",
+                    "companyName",
+                    "title"
+                ]
+            ),
+
+        type:
+            normalizeSignalType(
+                signal
+            ),
+
+        note:
+            getSignalValue(
+                signal,
+                [
+                    "note",
+                    "setup",
+                    "reason",
+                    "description",
+                    "comment",
+                    "analysis",
+                    "message"
+                ]
+            ),
+
+        entry:
+            getSignalValue(
+                signal,
+                [
+                    "entry",
+                    "entryPrice",
+                    "entry_price",
+                    "buyPrice",
+                    "buy_price",
+                    "entryLevel"
+                ]
+            ),
+
+        target1:
+            getSignalValue(
+                signal,
+                [
+                    "target1",
+                    "target_1",
+                    "targetOne",
+                    "target",
+                    "targetPrice",
+                    "target_price",
+                    "tp1",
+                    "tp_1"
+                ]
+            ),
+
+        target2:
+            getSignalValue(
+                signal,
+                [
+                    "target2",
+                    "target_2",
+                    "targetTwo",
+                    "tp2",
+                    "tp_2"
+                ]
+            ),
+
+        target3:
+            getSignalValue(
+                signal,
+                [
+                    "target3",
+                    "target_3",
+                    "targetThree",
+                    "tp3",
+                    "tp_3"
+                ]
+            ),
+
+        stopLoss:
+            getSignalValue(
+                signal,
+                [
+                    "stopLoss",
+                    "stop_loss",
+                    "stoploss",
+                    "sl",
+                    "stop",
+                    "stopPrice",
+                    "stop_price"
+                ]
+            ),
+
+        risk:
+            getSignalValue(
+                signal,
+                [
+                    "risk",
+                    "riskLevel",
+                    "risk_level"
+                ]
+            ),
+
+        exchange:
+            getSignalValue(
+                signal,
+                [
+                    "exchange",
+                    "market",
+                    "segment"
+                ]
+            )
+
+    };
+
+
+    return normalized;
+
+}
+
+
+/* =========================================================
    UPDATE STOCK SIGNAL
 ========================================================= */
 
@@ -2816,10 +3034,15 @@ function updateStockSignalCard(signal) {
     if (!card) return;
 
 
+    const normalized =
+        normalizeSignal(signal);
+
+
+    if (!normalized) return;
+
+
     const side =
-        normalizeSignalType(
-            signal
-        );
+        normalized.type;
 
 
     applySignalCardStyle(
@@ -2837,8 +3060,8 @@ function updateStockSignalCard(signal) {
     if ($("signalStock")) {
 
         $("signalStock").textContent =
-            signal.name ||
-            signal.symbol ||
+            normalized.name ||
+            normalized.symbol ||
             "Stock Signal";
 
     }
@@ -2847,7 +3070,7 @@ function updateStockSignalCard(signal) {
     if ($("signalSetup")) {
 
         $("signalSetup").textContent =
-            signal.note ||
+            normalized.note ||
             "Updated market setup.";
 
     }
@@ -2856,7 +3079,7 @@ function updateStockSignalCard(signal) {
     if ($("entryPrice")) {
 
         $("entryPrice").textContent =
-            signal.entry ??
+            normalized.entry ??
             "--";
 
     }
@@ -2865,7 +3088,7 @@ function updateStockSignalCard(signal) {
     if ($("target1Price")) {
 
         $("target1Price").textContent =
-            signal.target1 ??
+            normalized.target1 ??
             "--";
 
     }
@@ -2874,7 +3097,7 @@ function updateStockSignalCard(signal) {
     if ($("target2Price")) {
 
         $("target2Price").textContent =
-            signal.target2 ??
+            normalized.target2 ??
             "--";
 
     }
@@ -2883,7 +3106,7 @@ function updateStockSignalCard(signal) {
     if ($("stopPrice")) {
 
         $("stopPrice").textContent =
-            signal.stopLoss ??
+            normalized.stopLoss ??
             "--";
 
     }
@@ -2892,7 +3115,7 @@ function updateStockSignalCard(signal) {
     if ($("riskText")) {
 
         $("riskText").textContent =
-            signal.risk ||
+            normalized.risk ||
             "Medium";
 
     }
@@ -2901,7 +3124,7 @@ function updateStockSignalCard(signal) {
     if ($("marketText")) {
 
         $("marketText").textContent =
-            signal.exchange ||
+            normalized.exchange ||
             "NSE";
 
     }
@@ -2922,10 +3145,15 @@ function updateCryptoSignalCard(signal) {
     if (!card) return;
 
 
+    const normalized =
+        normalizeSignal(signal);
+
+
+    if (!normalized) return;
+
+
     const side =
-        normalizeSignalType(
-            signal
-        );
+        normalized.type;
 
 
     applySignalCardStyle(
@@ -2949,8 +3177,8 @@ function updateCryptoSignalCard(signal) {
     if (title) {
 
         title.textContent =
-            signal.name ||
-            signal.symbol ||
+            normalized.name ||
+            normalized.symbol ||
             "CRYPTO";
 
     }
@@ -2965,7 +3193,7 @@ function updateCryptoSignalCard(signal) {
     if (paragraphs.length) {
 
         paragraphs[0].textContent =
-            signal.note ||
+            normalized.note ||
             "Updated crypto market setup.";
 
     }
@@ -2980,16 +3208,16 @@ function updateCryptoSignalCard(signal) {
     if (levelSpans.length >= 4) {
 
         levelSpans[0].textContent =
-            signal.entry ?? "--";
+            normalized.entry ?? "--";
 
         levelSpans[1].textContent =
-            signal.target1 ?? "--";
+            normalized.target1 ?? "--";
 
         levelSpans[2].textContent =
-            signal.target2 ?? "--";
+            normalized.target2 ?? "--";
 
         levelSpans[3].textContent =
-            signal.stopLoss ?? "--";
+            normalized.stopLoss ?? "--";
 
     }
 
@@ -3003,14 +3231,14 @@ function updateCryptoSignalCard(signal) {
     if (infoSpans.length >= 3) {
 
         infoSpans[0].textContent =
-            signal.risk ||
+            normalized.risk ||
             "Medium";
 
         infoSpans[1].textContent =
             "Short Term";
 
         infoSpans[2].textContent =
-            signal.exchange ||
+            normalized.exchange ||
             "CRYPTO";
 
     }
@@ -3031,10 +3259,15 @@ function updateGoldSignalCard(signal) {
     if (!card) return;
 
 
+    const normalized =
+        normalizeSignal(signal);
+
+
+    if (!normalized) return;
+
+
     const side =
-        normalizeSignalType(
-            signal
-        );
+        normalized.type;
 
 
     applySignalCardStyle(
@@ -3058,8 +3291,8 @@ function updateGoldSignalCard(signal) {
     if (title) {
 
         title.textContent =
-            signal.name ||
-            signal.symbol ||
+            normalized.name ||
+            normalized.symbol ||
             "GOLD";
 
     }
@@ -3074,7 +3307,7 @@ function updateGoldSignalCard(signal) {
     if (paragraphs.length) {
 
         paragraphs[0].textContent =
-            signal.note ||
+            normalized.note ||
             "Updated gold market setup.";
 
     }
@@ -3089,16 +3322,16 @@ function updateGoldSignalCard(signal) {
     if (levelSpans.length >= 4) {
 
         levelSpans[0].textContent =
-            signal.entry ?? "--";
+            normalized.entry ?? "--";
 
         levelSpans[1].textContent =
-            signal.target1 ?? "--";
+            normalized.target1 ?? "--";
 
         levelSpans[2].textContent =
-            signal.target2 ?? "--";
+            normalized.target2 ?? "--";
 
         levelSpans[3].textContent =
-            signal.stopLoss ?? "--";
+            normalized.stopLoss ?? "--";
 
     }
 
@@ -3112,14 +3345,14 @@ function updateGoldSignalCard(signal) {
     if (infoSpans.length >= 3) {
 
         infoSpans[0].textContent =
-            signal.risk ||
+            normalized.risk ||
             "Medium";
 
         infoSpans[1].textContent =
             "Short Term";
 
         infoSpans[2].textContent =
-            signal.exchange ||
+            normalized.exchange ||
             "COMMODITY";
 
     }
@@ -3244,10 +3477,19 @@ function renderTodaySignals(signals) {
         signals
             .map(signal => {
 
-                const side =
-                    normalizeSignalType(
+                const normalized =
+                    normalizeSignal(
                         signal
                     );
+
+
+                if (!normalized) {
+                    return "";
+                }
+
+
+                const side =
+                    normalized.type;
 
 
                 const sideClass =
@@ -3256,6 +3498,51 @@ function renderTodaySignals(signals) {
                         : side === "SELL"
                             ? "sell"
                             : "hold";
+
+
+                const symbol =
+                    normalized.symbol ||
+                    "MARKET";
+
+
+                const name =
+                    normalized.name ||
+                    "";
+
+
+                const entry =
+                    normalized.entry ??
+                    "--";
+
+
+                const stopLoss =
+                    normalized.stopLoss ??
+                    "--";
+
+
+                const target1 =
+                    normalized.target1 ??
+                    "--";
+
+
+                const target2 =
+                    normalized.target2 ??
+                    "--";
+
+
+                const target3 =
+                    normalized.target3 ??
+                    "--";
+
+
+                const risk =
+                    normalized.risk ||
+                    "Medium";
+
+
+                const exchange =
+                    normalized.exchange ||
+                    "NSE";
 
 
                 return `
@@ -3286,8 +3573,7 @@ function renderTodaySignals(signals) {
                                     font-size:20px;
                                 ">
                                     ${escapeHTML(
-                                        signal.symbol ||
-                                        "MARKET"
+                                        symbol
                                     )}
                                 </h3>
 
@@ -3297,8 +3583,7 @@ function renderTodaySignals(signals) {
                                     font-size:13px;
                                 ">
                                     ${escapeHTML(
-                                        signal.name ||
-                                        ""
+                                        name
                                     )}
                                 </p>
 
@@ -3323,7 +3608,7 @@ function renderTodaySignals(signals) {
 
 
                         ${
-                            signal.note
+                            normalized.note
                                 ? `
 
                                     <p style="
@@ -3332,7 +3617,7 @@ function renderTodaySignals(signals) {
                                         line-height:1.5;
                                     ">
                                         ${escapeHTML(
-                                            signal.note
+                                            normalized.note
                                         )}
                                     </p>
 
@@ -3369,8 +3654,7 @@ function renderTodaySignals(signals) {
 
                                 <strong>
                                     ${escapeHTML(
-                                        signal.entry ??
-                                        "--"
+                                        entry
                                     )}
                                 </strong>
 
@@ -3393,8 +3677,7 @@ function renderTodaySignals(signals) {
 
                                 <strong>
                                     ${escapeHTML(
-                                        signal.stopLoss ??
-                                        "--"
+                                        stopLoss
                                     )}
                                 </strong>
 
@@ -3417,8 +3700,7 @@ function renderTodaySignals(signals) {
 
                                 <strong>
                                     ${escapeHTML(
-                                        signal.target1 ??
-                                        "--"
+                                        target1
                                     )}
                                 </strong>
 
@@ -3441,8 +3723,7 @@ function renderTodaySignals(signals) {
 
                                 <strong>
                                     ${escapeHTML(
-                                        signal.target2 ??
-                                        "--"
+                                        target2
                                     )}
                                 </strong>
 
@@ -3465,8 +3746,7 @@ function renderTodaySignals(signals) {
 
                                 <strong>
                                     ${escapeHTML(
-                                        signal.target3 ??
-                                        "--"
+                                        target3
                                     )}
                                 </strong>
 
@@ -3490,8 +3770,7 @@ function renderTodaySignals(signals) {
                                 Risk:
                                 <strong style="color:#fff;">
                                     ${escapeHTML(
-                                        signal.risk ||
-                                        "Medium"
+                                        risk
                                     )}
                                 </strong>
                             </span>
@@ -3501,8 +3780,7 @@ function renderTodaySignals(signals) {
                                 Exchange:
                                 <strong style="color:#fff;">
                                     ${escapeHTML(
-                                        signal.exchange ||
-                                        "NSE"
+                                        exchange
                                     )}
                                 </strong>
                             </span>
@@ -3529,8 +3807,6 @@ function renderTodaySignals(signals) {
 
 /* =========================================================
    LOAD PREMIUM SIGNALS
-   ---------------------------------------------------------
-   SINGLE FUNCTION
 ========================================================= */
 
 async function loadSignals() {
@@ -3592,11 +3868,15 @@ async function loadSignals() {
         }
 
 
+        console.log(
+            "📡 Signals API response:",
+            data
+        );
+
+
         if (
             response.status === 401 ||
-            response.status === 403 ||
-            !response.ok ||
-            !data.success
+            response.status === 403
         ) {
 
             localStorage.removeItem(
@@ -3616,15 +3896,85 @@ async function loadSignals() {
         }
 
 
+        if (!response.ok) {
+
+            throw new Error(
+                data?.error ||
+                data?.message ||
+                `Signals API error ${response.status}`
+            );
+
+        }
+
+
+        if (
+            data &&
+            data.success === false
+        ) {
+
+            throw new Error(
+                data.error ||
+                data.message ||
+                "Signals API failed"
+            );
+
+        }
+
+
         showPremiumContent();
 
 
-        const signals =
+        /*
+           Backend can return:
+
+           {
+             success: true,
+             signals: [...]
+           }
+
+           OR
+
+           {
+             success: true,
+             data: [...]
+           }
+        */
+
+        let signals = [];
+
+
+        if (
             Array.isArray(
-                data.signals
+                data?.signals
             )
-                ? data.signals
-                : [];
+        ) {
+
+            signals =
+                data.signals;
+
+        }
+
+        else if (
+            Array.isArray(
+                data?.data
+            )
+        ) {
+
+            signals =
+                data.data;
+
+        }
+
+        else if (
+            Array.isArray(
+                data?.recommendations
+            )
+        ) {
+
+            signals =
+                data.recommendations;
+
+        }
 
 
         renderTodaySignals(
@@ -3648,16 +3998,25 @@ async function loadSignals() {
                 if (!signal) return;
 
 
+                const normalized =
+                    normalizeSignal(
+                        signal
+                    );
+
+
+                if (!normalized) return;
+
+
                 const symbol =
                     String(
-                        signal.symbol || ""
+                        normalized.symbol || ""
                     )
                     .toUpperCase();
 
 
                 const name =
                     String(
-                        signal.name || ""
+                        normalized.name || ""
                     )
                     .toUpperCase();
 
@@ -3671,6 +4030,7 @@ async function loadSignals() {
                     name.includes("BITCOIN") ||
                     name.includes("ETHEREUM") ||
                     name.includes("SOLANA") ||
+                    name.includes("RIPPLE") ||
                     name.includes("XRP");
 
 
@@ -3745,14 +4105,14 @@ async function loadSignals() {
 
 
         console.log(
-            "📡 Premium signals loaded:",
+            "✅ Premium signals loaded:",
             signals.length
         );
 
     } catch (error) {
 
         console.error(
-            "Signal load error:",
+            "❌ Signal load error:",
             error.message
         );
 
@@ -3880,8 +4240,9 @@ function startLiveUpdates() {
 
 
                     /*
-                       Premium signals are refreshed
-                       only if a token exists.
+                       Refresh premium signals
+                       every 5 seconds only if
+                       premium token exists.
                     */
 
                     if (
@@ -3941,7 +4302,6 @@ async function initStockPulse() {
 
 
         /*
-           IMPORTANT:
            Dashboard prices load immediately.
         */
 
@@ -3949,7 +4309,7 @@ async function initStockPulse() {
 
 
         /*
-           Premium only loads once.
+           Premium signals load once.
         */
 
         await loadSignals();
@@ -3971,8 +4331,8 @@ async function initStockPulse() {
 
 
         /*
-           Even if one API fails,
-           website should NOT remain stuck.
+           Even if API fails,
+           website should continue working.
         */
 
         startLiveUpdates();
