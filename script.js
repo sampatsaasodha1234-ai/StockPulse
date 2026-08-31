@@ -1,5 +1,5 @@
 /* =========================================================
-   STOCKPULSE - COMPLETE LIVE MARKET SCRIPT
+   STOCKPULSE - COMPLETE FREE LIVE MARKET SCRIPT
    =========================================================
    FEATURES:
    - Live NIFTY / BANKNIFTY / SENSEX / NIFTY IT
@@ -7,13 +7,14 @@
    - Stock search
    - Real candlestick charts
    - IST chart time
-   - Premium signals
+   - FREE Today Recommendations
    - Entry / SL / Target 1 / Target 2 / Target 3
    - Risk / Exchange / Setup
    - Watchlist
-   - Premium buttons
-   - Better API handling
    - Railway API support
+   - Automatic signal refresh
+   - NO PAYMENT
+   - NO PREMIUM LOCK
 ========================================================= */
 
 "use strict";
@@ -196,6 +197,7 @@ async function apiFetch(url, options = {}) {
         throw error;
 
     }
+
 }
 
 
@@ -2870,10 +2872,7 @@ function setSignalBadge(
 
 
 /* =========================================================
-   GET NORMALIZED SIGNAL DATA
-   ---------------------------------------------------------
-   IMPORTANT:
-   Supports different backend field names.
+   NORMALIZE SIGNAL
 ========================================================= */
 
 function normalizeSignal(signal) {
@@ -3361,20 +3360,7 @@ function updateGoldSignalCard(signal) {
 
 
 /* =========================================================
-   PREMIUM TOKEN
-========================================================= */
-
-function getPremiumToken() {
-
-    return localStorage.getItem(
-        "stockpulsePremiumToken"
-    );
-
-}
-
-
-/* =========================================================
-   PREMIUM LOCK
+   FREE SIGNAL DISPLAY
 ========================================================= */
 
 function showPremiumLock() {
@@ -3386,10 +3372,16 @@ function showPremiumLock() {
         $("premiumLock");
 
 
+    /*
+       Old function name kept for
+       compatibility with existing HTML.
+       Website is completely FREE.
+    */
+
     if (recommendation) {
 
         recommendation.style.display =
-            "none";
+            "block";
 
     }
 
@@ -3397,16 +3389,12 @@ function showPremiumLock() {
     if (lock) {
 
         lock.style.display =
-            "block";
+            "none";
 
     }
 
 }
 
-
-/* =========================================================
-   PREMIUM CONTENT
-========================================================= */
 
 function showPremiumContent() {
 
@@ -3806,52 +3794,31 @@ function renderTodaySignals(signals) {
 
 
 /* =========================================================
-   LOAD PREMIUM SIGNALS
+   LOAD SIGNALS - FREE
 ========================================================= */
 
 async function loadSignals() {
 
-    const token =
-        getPremiumToken();
-
-
-    if (!token) {
-
-        showPremiumLock();
-
-        return;
-
-    }
-
-
     try {
+
+        /*
+           IMPORTANT:
+           No token.
+           No Authorization header.
+           No payment check.
+        */
 
         const response =
             await fetch(
                 `${API_BASE}/api/signals`,
                 {
-
-                    method:
-                        "GET",
-
-                    cache:
-                        "no-store",
-
-                    headers: {
-
-                        Authorization:
-                            `Bearer ${token}`,
-
-                        "Content-Type":
-                            "application/json"
-
-                    }
-
+                    method: "GET",
+                    cache: "no-store"
                 }
             );
 
 
-        let data;
+        let data = null;
 
 
         try {
@@ -3862,7 +3829,7 @@ async function loadSignals() {
         } catch {
 
             throw new Error(
-                "Invalid server response"
+                `Invalid server response (${response.status})`
             );
 
         }
@@ -3872,28 +3839,6 @@ async function loadSignals() {
             "📡 Signals API response:",
             data
         );
-
-
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            localStorage.removeItem(
-                "stockpulsePremiumToken"
-            );
-
-
-            localStorage.removeItem(
-                "stockpulsePremium"
-            );
-
-
-            showPremiumLock();
-
-            return;
-
-        }
 
 
         if (!response.ok) {
@@ -3925,18 +3870,25 @@ async function loadSignals() {
 
 
         /*
-           Backend can return:
+           Supported backend responses:
 
            {
-             success: true,
-             signals: [...]
+               success: true,
+               signals: [...]
            }
 
            OR
 
            {
-             success: true,
-             data: [...]
+               success: true,
+               data: [...]
+           }
+
+           OR
+
+           {
+               success: true,
+               recommendations: [...]
            }
         */
 
@@ -3975,6 +3927,12 @@ async function loadSignals() {
                 data.recommendations;
 
         }
+
+
+        console.log(
+            "📊 Normalized signals:",
+            signals
+        );
 
 
         renderTodaySignals(
@@ -4105,7 +4063,7 @@ async function loadSignals() {
 
 
         console.log(
-            "✅ Premium signals loaded:",
+            "✅ Free signals loaded:",
             signals.length
         );
 
@@ -4116,13 +4074,23 @@ async function loadSignals() {
             error.message
         );
 
+
+        showPremiumContent();
+
+
+        renderTodaySignals([]);
+
+
     }
 
 }
 
 
 /* =========================================================
-   PREMIUM BUTTONS
+   OLD PREMIUM BUTTONS
+   ---------------------------------------------------------
+   Payment removed.
+   Buttons no longer redirect to payment.html.
 ========================================================= */
 
 function setupPremiumButtons() {
@@ -4147,8 +4115,23 @@ function setupPremiumButtons() {
                     event.preventDefault();
 
 
-                    window.location.href =
-                        "payment.html";
+                    const recommendation =
+                        $("todayRecommendation");
+
+
+                    if (recommendation) {
+
+                        recommendation.scrollIntoView({
+
+                            behavior:
+                                "smooth",
+
+                            block:
+                                "start"
+
+                        });
+
+                    }
 
                 };
 
@@ -4222,8 +4205,16 @@ function startLiveUpdates() {
 
                 try {
 
+                    /*
+                       Live market prices
+                    */
+
                     await updateDashboardPrices();
 
+
+                    /*
+                       Detail page live price
+                    */
 
                     const detail =
                         $("detailView");
@@ -4240,18 +4231,15 @@ function startLiveUpdates() {
 
 
                     /*
-                       Refresh premium signals
-                       every 5 seconds only if
-                       premium token exists.
+                       FREE TODAY SIGNALS
+
+                       No premium token.
+                       No payment.
+                       Refresh every 5 seconds.
                     */
 
-                    if (
-                        getPremiumToken()
-                    ) {
+                    await loadSignals();
 
-                        await loadSignals();
-
-                    }
 
                 } catch (error) {
 
@@ -4276,7 +4264,7 @@ function startLiveUpdates() {
 async function initStockPulse() {
 
     console.log(
-        "🚀 StockPulse frontend starting..."
+        "🚀 StockPulse FREE frontend starting..."
     );
 
 
@@ -4309,17 +4297,21 @@ async function initStockPulse() {
 
 
         /*
-           Premium signals load once.
+           FREE signals load immediately.
         */
 
         await loadSignals();
 
 
+        /*
+           Start automatic updates.
+        */
+
         startLiveUpdates();
 
 
         console.log(
-            "✅ StockPulse frontend ready"
+            "✅ StockPulse FREE frontend ready"
         );
 
     } catch (error) {
@@ -4331,8 +4323,8 @@ async function initStockPulse() {
 
 
         /*
-           Even if API fails,
-           website should continue working.
+           Website continues working
+           even if API temporarily fails.
         */
 
         startLiveUpdates();
