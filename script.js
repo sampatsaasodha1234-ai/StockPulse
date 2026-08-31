@@ -1,23 +1,22 @@
-```javascript
 /* =========================================================
    STOCKPULSE - COMPLETE LIVE MARKET SCRIPT
    ---------------------------------------------------------
-   LIVE:
-   - Hero NIFTY 50
-   - NIFTY 50
-   - BANKNIFTY
-   - SENSEX
-   - NIFTY IT
-   - Crypto
-   - Stock Search
-   - Real Candlestick Charts
-   - IST Chart Time
-   - Today Recommendation / Signals
-   - MongoDB Entry / SL / Targets
+   FIXED:
+   - DOM loading issue
+   - Live NIFTY / BANKNIFTY / SENSEX / NIFTY IT
+   - Crypto prices
+   - Stock search
+   - Real candlestick charts
+   - IST chart time
+   - Premium signals
    - Watchlist
+   - Premium buttons
+   - Duplicate premium API calls removed
+   - Better API error handling
 ========================================================= */
 
 "use strict";
+
 
 /* =========================================================
    CONFIG
@@ -26,7 +25,9 @@
 const API_BASE =
     "https://stockpulse-production-0709.up.railway.app";
 
-const INDIA_TIMEZONE = "Asia/Kolkata";
+const INDIA_TIMEZONE =
+    "Asia/Kolkata";
+
 
 let currentAsset = {
     symbol: "NIFTY50",
@@ -81,10 +82,12 @@ function formatCryptoPrice(value) {
     }
 
     if (num >= 1000) {
+
         return num.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
+
     }
 
     if (num >= 1) {
@@ -101,24 +104,70 @@ function formatCryptoPrice(value) {
 
 async function apiFetch(url, options = {}) {
 
-    const response = await fetch(url, options);
-
-    let data;
-
     try {
-        data = await response.json();
-    } catch {
-        throw new Error("Server returned invalid response");
-    }
 
-    if (!response.ok || data.success === false) {
-        throw new Error(
-            data.error ||
-            `API error ${response.status}`
+        const response =
+            await fetch(url, {
+                ...options,
+                cache: "no-store"
+            });
+
+
+        let data = null;
+
+
+        try {
+
+            data =
+                await response.json();
+
+        } catch {
+
+            throw new Error(
+                `Invalid server response (${response.status})`
+            );
+
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data?.error ||
+                data?.message ||
+                `API error ${response.status}`
+            );
+
+        }
+
+
+        if (
+            data &&
+            data.success === false
+        ) {
+
+            throw new Error(
+                data.error ||
+                data.message ||
+                "API request failed"
+            );
+
+        }
+
+
+        return data;
+
+    } catch (error) {
+
+        console.error(
+            "API request failed:",
+            url,
+            error
         );
-    }
 
-    return data;
+        throw error;
+
+    }
 }
 
 
@@ -128,39 +177,56 @@ async function apiFetch(url, options = {}) {
 
 function setupTheme() {
 
-    const button = $("themeToggle");
+    const button =
+        $("themeToggle");
 
     if (!button) return;
 
+
     const savedTheme =
-        localStorage.getItem("stockpulse-theme");
+        localStorage.getItem(
+            "stockpulse-theme"
+        );
+
 
     if (savedTheme === "light") {
 
-        document.body.classList.add("light-mode");
+        document.body.classList.add(
+            "light-mode"
+        );
 
         button.textContent = "☀️";
 
     } else {
 
         button.textContent = "🌙";
+
     }
 
-    button.addEventListener("click", () => {
 
-        document.body.classList.toggle("light-mode");
+    button.onclick = () => {
+
+        document.body.classList.toggle(
+            "light-mode"
+        );
+
 
         const light =
-            document.body.classList.contains("light-mode");
+            document.body.classList.contains(
+                "light-mode"
+            );
+
 
         localStorage.setItem(
             "stockpulse-theme",
             light ? "light" : "dark"
         );
 
+
         button.textContent =
             light ? "☀️" : "🌙";
-    });
+
+    };
 }
 
 
@@ -177,32 +243,48 @@ async function updateHeroNifty() {
                 `${API_BASE}/api/nifty`
             );
 
+
         const heroCard =
-            document.querySelector(".hero-card");
+            document.querySelector(
+                ".hero-card"
+            );
+
 
         if (!heroCard) return;
+
 
         const priceElement =
             heroCard.querySelector("h2");
 
+
+        const price =
+            data?.price ??
+            data?.data?.price;
+
+
         if (
-            priceElement &&
-            data.price !== undefined &&
-            data.price !== null
+            price !== undefined &&
+            price !== null
         ) {
 
             priceElement.textContent =
                 "₹" +
-                formatIndianNumber(data.price);
+                formatIndianNumber(price);
+
         }
+
 
         const status =
             heroCard.querySelector(
                 ".market-status strong"
             );
 
+
         if (status) {
-            status.textContent = "OPEN";
+
+            status.textContent =
+                "OPEN";
+
         }
 
     } catch (error) {
@@ -211,26 +293,25 @@ async function updateHeroNifty() {
             "Hero NIFTY error:",
             error.message
         );
+
     }
 }
 
 
 /* =========================================================
-   FIND MARKET CARD PRICE ELEMENT
+   FIND CARD PRICE ELEMENT
 ========================================================= */
 
 function getCardPriceElement(card) {
 
     if (!card) return null;
 
-    const h2 = card.querySelector("h2");
 
-    if (h2) {
-        return h2;
-    }
-
-    return card.querySelector(
-        ".price, .market-price, .current-price"
+    return (
+        card.querySelector("h2") ||
+        card.querySelector(
+            ".price, .market-price, .current-price"
+        )
     );
 }
 
@@ -252,8 +333,10 @@ async function updateIndex(
                 `${API_BASE}${endpoint}`
             );
 
+
         let element =
             document.querySelector(selector);
+
 
         if (!element) {
 
@@ -266,8 +349,10 @@ async function updateIndex(
 
             };
 
+
             const symbol =
                 symbolMap[name];
+
 
             if (symbol) {
 
@@ -276,12 +361,14 @@ async function updateIndex(
                         `[data-symbol="${symbol}"]`
                     );
 
-                if (card) {
-                    element =
-                        getCardPriceElement(card);
-                }
+
+                element =
+                    getCardPriceElement(card);
+
             }
+
         }
+
 
         if (!element) {
 
@@ -290,15 +377,23 @@ async function updateIndex(
             );
 
             return;
+
         }
 
+
+        const price =
+            data?.price ??
+            data?.data?.price;
+
+
         if (
-            data.price !== undefined &&
-            data.price !== null
+            price !== undefined &&
+            price !== null
         ) {
 
             element.textContent =
-                formatIndianNumber(data.price);
+                formatIndianNumber(price);
+
         }
 
     } catch (error) {
@@ -307,6 +402,7 @@ async function updateIndex(
             `${name} price error:`,
             error.message
         );
+
     }
 }
 
@@ -346,6 +442,7 @@ async function updateAllIndexPrices() {
         )
 
     ]);
+
 }
 
 
@@ -362,21 +459,30 @@ async function updateCryptoPrice(symbol) {
                 `${API_BASE}/api/crypto?symbol=${encodeURIComponent(symbol)}`
             );
 
+
         const element =
             document.querySelector(
                 `[data-crypto-price="${symbol}"]`
             );
 
+
         if (!element) return;
 
+
+        const price =
+            data?.price ??
+            data?.data?.price;
+
+
         if (
-            data.price !== undefined &&
-            data.price !== null
+            price !== undefined &&
+            price !== null
         ) {
 
             element.textContent =
                 "$" +
-                formatCryptoPrice(data.price);
+                formatCryptoPrice(price);
+
         }
 
     } catch (error) {
@@ -386,14 +492,6 @@ async function updateCryptoPrice(symbol) {
             error.message
         );
 
-        const element =
-            document.querySelector(
-                `[data-crypto-price="${symbol}"]`
-            );
-
-        if (element) {
-            element.textContent = "Unavailable";
-        }
     }
 }
 
@@ -408,6 +506,7 @@ async function updateAllCryptoPrices() {
         updateCryptoPrice("XRP")
 
     ]);
+
 }
 
 
@@ -423,17 +522,13 @@ async function updateDashboardPrices() {
         updateAllCryptoPrices()
 
     ]);
+
 }
 
 
 /* =========================================================
    SEARCH
 ========================================================= */
-
-const searchInput = $("marketSearch");
-const searchButton = $("marketSearchBtn");
-const searchResults = $("searchResults");
-
 
 const localAssets = [
 
@@ -512,30 +607,43 @@ const localAssets = [
 
 async function searchStocks(query) {
 
+    const searchResults =
+        $("searchResults");
+
+
     if (!searchResults) return;
+
 
     query =
         String(query || "")
             .trim()
             .toUpperCase();
 
+
     if (!query) {
 
         searchResults.innerHTML = "";
 
-        searchResults.classList.remove("show");
+        searchResults.classList.remove(
+            "show"
+        );
 
         return;
     }
 
+
     let results = [];
+
 
     results.push(
         ...localAssets.filter(item =>
             item.symbol.includes(query) ||
-            item.name.toUpperCase().includes(query)
+            item.name
+                .toUpperCase()
+                .includes(query)
         )
     );
+
 
     try {
 
@@ -544,38 +652,62 @@ async function searchStocks(query) {
                 `${API_BASE}/api/search?q=${encodeURIComponent(query)}`
             );
 
-        if (Array.isArray(data.results)) {
+
+        if (
+            Array.isArray(
+                data?.results
+            )
+        ) {
 
             results.push(
                 ...data.results.map(s => ({
 
-                    symbol: s.symbol,
-                    name: s.name,
-                    type: "stock",
-                    exchange: s.exchange || "NSE",
-                    instrumentKey: s.instrumentKey
+                    symbol:
+                        s.symbol,
+
+                    name:
+                        s.name,
+
+                    type:
+                        "stock",
+
+                    exchange:
+                        s.exchange ||
+                        "NSE",
+
+                    instrumentKey:
+                        s.instrumentKey
 
                 }))
             );
+
         }
 
-    } catch {
+    } catch (error) {
 
-        console.log("Stock search skipped");
+        console.log(
+            "Dynamic stock search unavailable:",
+            error.message
+        );
+
     }
+
 
     results =
         results.filter(
-            (v, i, a) =>
-                a.findIndex(
-                    t =>
-                        t.symbol === v.symbol
-                ) === i
+            (item, index, array) =>
+                array.findIndex(
+                    x =>
+                        x.symbol ===
+                        item.symbol
+                ) === index
         );
+
 
     searchResults.innerHTML = "";
 
-    if (results.length === 0) {
+
+    if (!results.length) {
 
         searchResults.innerHTML = `
             <div class="search-item">
@@ -583,19 +715,27 @@ async function searchStocks(query) {
             </div>
         `;
 
-        searchResults.classList.add("show");
+        searchResults.classList.add(
+            "show"
+        );
 
         return;
     }
+
 
     results
         .slice(0, 10)
         .forEach(item => {
 
             const div =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
 
-            div.className = "search-item";
+
+            div.className =
+                "search-item";
+
 
             const icon =
                 item.type === "crypto"
@@ -606,44 +746,77 @@ async function searchStocks(query) {
                             ? "🪙"
                             : "🏛️";
 
+
             div.innerHTML = `
+
                 <strong>
-                    ${icon} ${escapeHTML(item.symbol)}
+                    ${icon}
+                    ${escapeHTML(item.symbol)}
                 </strong>
 
                 <small>
                     ${escapeHTML(item.name)}
                 </small>
+
             `;
 
-            div.onclick = () => {
 
-                openAsset({
+            div.addEventListener(
+                "click",
+                () => {
 
-                    symbol: item.symbol,
-                    name: item.name,
-                    type:
-                        item.type === "commodity"
-                            ? "index"
-                            : item.type,
-                    exchange: item.exchange,
-                    instrumentKey: item.instrumentKey
+                    openAsset({
 
-                });
+                        symbol:
+                            item.symbol,
 
-                searchResults.innerHTML = "";
+                        name:
+                            item.name,
 
-                searchResults.classList.remove("show");
+                        type:
+                            item.type === "commodity"
+                                ? "index"
+                                : item.type,
 
-                if (searchInput) {
-                    searchInput.value = "";
+                        exchange:
+                            item.exchange,
+
+                        instrumentKey:
+                            item.instrumentKey
+
+                    });
+
+
+                    searchResults.innerHTML = "";
+
+                    searchResults.classList.remove(
+                        "show"
+                    );
+
+
+                    const input =
+                        $("marketSearch");
+
+
+                    if (input) {
+                        input.value = "";
+                    }
+
                 }
-            };
+            );
 
-            searchResults.appendChild(div);
+
+            searchResults.appendChild(
+                div
+            );
+
         });
 
-    searchResults.classList.add("show");
+
+    searchResults.classList.add(
+        "show"
+    );
+
 }
 
 
@@ -651,76 +824,111 @@ async function searchStocks(query) {
    SEARCH EVENTS
 ========================================================= */
 
-if (searchInput) {
+function setupSearch() {
 
-    searchInput.addEventListener(
-        "input",
-        () => {
+    const searchInput =
+        $("marketSearch");
 
-            clearTimeout(searchTimeout);
+    const searchButton =
+        $("marketSearchBtn");
 
-            searchTimeout =
-                setTimeout(
-                    () =>
-                        searchStocks(
-                            searchInput.value
-                        ),
-                    300
+    const searchResults =
+        $("searchResults");
+
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            () => {
+
+                clearTimeout(
+                    searchTimeout
                 );
-        }
-    );
 
-    searchInput.addEventListener(
-        "keydown",
+
+                searchTimeout =
+                    setTimeout(
+                        () => {
+
+                            searchStocks(
+                                searchInput.value
+                            );
+
+                        },
+                        300
+                    );
+
+            }
+        );
+
+
+        searchInput.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key ===
+                    "Enter"
+                ) {
+
+                    event.preventDefault();
+
+
+                    searchStocks(
+                        searchInput.value
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (searchButton) {
+
+        searchButton.addEventListener(
+            "click",
+            () => {
+
+                searchStocks(
+                    searchInput
+                        ? searchInput.value
+                        : ""
+                );
+
+            }
+        );
+
+    }
+
+
+    document.addEventListener(
+        "click",
         event => {
 
-            if (event.key === "Enter") {
+            if (
+                searchResults &&
+                searchInput &&
+                !searchResults.contains(
+                    event.target
+                ) &&
+                event.target !==
+                    searchInput
+            ) {
 
-                const query =
-                    searchInput.value
-                        .trim()
-                        .toUpperCase();
+                searchResults.classList.remove(
+                    "show"
+                );
 
-                if (query) {
-                    searchStocks(query);
-                }
             }
+
         }
     );
+
 }
-
-
-if (searchButton) {
-
-    searchButton.addEventListener(
-        "click",
-        () => {
-
-            searchStocks(
-                searchInput
-                    ? searchInput.value
-                    : ""
-            );
-        }
-    );
-}
-
-
-document.addEventListener(
-    "click",
-    event => {
-
-        if (
-            searchResults &&
-            searchInput &&
-            !searchResults.contains(event.target) &&
-            event.target !== searchInput
-        ) {
-
-            searchResults.classList.remove("show");
-        }
-    }
-);
 
 
 /* =========================================================
@@ -735,6 +943,7 @@ function escapeHTML(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+
 }
 
 
@@ -750,7 +959,9 @@ function setupMarketCards() {
         )
         .forEach(card => {
 
-            card.style.cursor = "pointer";
+            card.style.cursor =
+                "pointer";
+
 
             card.addEventListener(
                 "click",
@@ -761,21 +972,30 @@ function setupMarketCards() {
                             "button, a"
                         )
                     ) {
+
                         return;
+
                     }
+
 
                     const symbol =
                         card.dataset.symbol;
 
+
                     if (!symbol) return;
+
 
                     const isCrypto =
                         card.classList.contains(
                             "crypto-card"
                         );
 
+
                     const title =
-                        card.querySelector("h3, h4");
+                        card.querySelector(
+                            "h3, h4"
+                        );
+
 
                     openAsset({
 
@@ -795,41 +1015,55 @@ function setupMarketCards() {
                             isCrypto
                                 ? "CRYPTO"
                                 : "NSE"
+
                     });
+
                 }
             );
+
 
             card.addEventListener(
                 "keydown",
                 event => {
 
                     if (
-                        event.key === "Enter" ||
+                        event.key ===
+                            "Enter" ||
                         event.key === " "
                     ) {
 
                         event.preventDefault();
 
                         card.click();
+
                     }
+
                 }
             );
+
         });
+
 }
 
 
 /* =========================================================
-   HERO NIFTY CARD
+   HERO CARD
 ========================================================= */
 
 function setupHeroCard() {
 
     const heroCard =
-        document.querySelector(".hero-card");
+        document.querySelector(
+            ".hero-card"
+        );
+
 
     if (!heroCard) return;
 
-    heroCard.style.cursor = "pointer";
+
+    heroCard.style.cursor =
+        "pointer";
+
 
     heroCard.addEventListener(
         "click",
@@ -838,13 +1072,18 @@ function setupHeroCard() {
             openAsset({
 
                 symbol: "NIFTY50",
+
                 type: "index",
+
                 name: "NIFTY 50",
+
                 exchange: "NSE"
 
             });
+
         }
     );
+
 }
 
 
@@ -855,9 +1094,12 @@ function setupHeroCard() {
 function normalizeTimeframe(timeframe) {
 
     const tf =
-        String(timeframe || "1D")
-            .toUpperCase()
-            .trim();
+        String(
+            timeframe || "1D"
+        )
+        .toUpperCase()
+        .trim();
+
 
     const map = {
 
@@ -872,6 +1114,7 @@ function normalizeTimeframe(timeframe) {
 
     };
 
+
     return map[tf] || "1d";
 }
 
@@ -885,15 +1128,22 @@ function loadChartLibrary() {
     return new Promise(
         (resolve, reject) => {
 
-            if (window.LightweightCharts) {
+            if (
+                window.LightweightCharts
+            ) {
+
                 resolve();
+
                 return;
+
             }
+
 
             const existing =
                 document.querySelector(
                     'script[data-lwc="true"]'
                 );
+
 
             if (existing) {
 
@@ -903,24 +1153,36 @@ function loadChartLibrary() {
                     { once: true }
                 );
 
+
                 existing.addEventListener(
                     "error",
                     reject,
                     { once: true }
                 );
 
+
                 return;
+
             }
 
+
             const script =
-                document.createElement("script");
+                document.createElement(
+                    "script"
+                );
+
 
             script.src =
                 "https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js";
 
-            script.dataset.lwc = "true";
 
-            script.onload = resolve;
+            script.dataset.lwc =
+                "true";
+
+
+            script.onload =
+                resolve;
+
 
             script.onerror =
                 () =>
@@ -930,14 +1192,19 @@ function loadChartLibrary() {
                         )
                     );
 
-            document.head.appendChild(script);
+
+            document.head.appendChild(
+                script
+            );
+
         }
     );
+
 }
 
 
 /* =========================================================
-   IST DATE HELPERS
+   CANDLE TIME
 ========================================================= */
 
 function parseCandleTime(value) {
@@ -946,8 +1213,11 @@ function parseCandleTime(value) {
         value === null ||
         value === undefined
     ) {
+
         return null;
+
     }
+
 
     if (
         typeof value === "number" ||
@@ -959,51 +1229,87 @@ function parseCandleTime(value) {
         )
     ) {
 
-        let number = Number(value);
+        let number =
+            Number(value);
+
 
         if (!Number.isFinite(number)) {
             return null;
         }
 
-        if (number > 100000000000) {
+
+        if (
+            number >
+            100000000000
+        ) {
+
             number =
-                Math.floor(number / 1000);
+                Math.floor(
+                    number / 1000
+                );
+
         }
 
+
         return Math.floor(number);
+
     }
 
-    let text =
+
+    const text =
         String(value).trim();
+
 
     if (!text) return null;
 
+
     const hasTimezone =
-        /(?:Z|[+-]\d{2}:?\d{2})$/i.test(text);
+        /(?:Z|[+-]\d{2}:?\d{2})$/i.test(
+            text
+        );
+
 
     let date;
 
+
     if (hasTimezone) {
 
-        date = new Date(text);
+        date =
+            new Date(text);
 
     } else {
 
         date =
             new Date(
-                text.replace(" ", "T") +
+                text.replace(
+                    " ",
+                    "T"
+                ) +
                 "+05:30"
             );
+
     }
+
 
     const timestamp =
         date.getTime();
 
-    if (!Number.isFinite(timestamp)) {
+
+    if (
+        !Number.isFinite(
+            timestamp
+        )
+    ) {
+
         return null;
+
     }
 
-    return Math.floor(timestamp / 1000);
+
+    return Math.floor(
+        timestamp / 1000
+    );
+
 }
 
 
@@ -1015,7 +1321,10 @@ function formatChartTime(time) {
 
     let timestamp;
 
-    if (typeof time === "number") {
+
+    if (
+        typeof time === "number"
+    ) {
 
         timestamp = time;
 
@@ -1023,31 +1332,51 @@ function formatChartTime(time) {
 
         timestamp =
             parseCandleTime(time);
+
     }
 
-    if (!Number.isFinite(timestamp)) {
+
+    if (
+        !Number.isFinite(
+            timestamp
+        )
+    ) {
+
         return "";
+
     }
 
-    const date =
-        new Date(timestamp * 1000);
 
-    return date.toLocaleString(
+    return new Date(
+        timestamp * 1000
+    ).toLocaleString(
         "en-IN",
         {
 
-            timeZone: INDIA_TIMEZONE,
+            timeZone:
+                INDIA_TIMEZONE,
 
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
+            day:
+                "2-digit",
 
-            hour: "2-digit",
-            minute: "2-digit",
+            month:
+                "2-digit",
 
-            hour12: false
+            year:
+                "numeric",
+
+            hour:
+                "2-digit",
+
+            minute:
+                "2-digit",
+
+            hour12:
+                false
+
         }
     );
+
 }
 
 
@@ -1055,14 +1384,14 @@ function formatChartTime(time) {
    CHART TICK FORMATTER
 ========================================================= */
 
-function chartTickFormatter(
-    time,
-    tickMarkType
-) {
+function chartTickFormatter(time) {
 
     let timestamp;
 
-    if (typeof time === "number") {
+
+    if (
+        typeof time === "number"
+    ) {
 
         timestamp = time;
 
@@ -1070,47 +1399,77 @@ function chartTickFormatter(
 
         timestamp =
             parseCandleTime(time);
+
     }
 
-    if (!Number.isFinite(timestamp)) {
-        return "";
-    }
-
-    const date =
-        new Date(timestamp * 1000);
 
     if (
-        currentTimeframe === "1M" ||
-        currentTimeframe === "5M" ||
-        currentTimeframe === "15M" ||
-        currentTimeframe === "1H" ||
-        currentTimeframe === "4H"
+        !Number.isFinite(
+            timestamp
+        )
+    ) {
+
+        return "";
+
+    }
+
+
+    const date =
+        new Date(
+            timestamp * 1000
+        );
+
+
+    if (
+        [
+            "1M",
+            "5M",
+            "15M",
+            "1H",
+            "4H"
+        ].includes(
+            currentTimeframe
+        )
     ) {
 
         return date.toLocaleTimeString(
             "en-IN",
             {
 
-                timeZone: INDIA_TIMEZONE,
+                timeZone:
+                    INDIA_TIMEZONE,
 
-                hour: "2-digit",
-                minute: "2-digit",
+                hour:
+                    "2-digit",
 
-                hour12: false
+                minute:
+                    "2-digit",
+
+                hour12:
+                    false
+
             }
         );
+
     }
+
 
     return date.toLocaleDateString(
         "en-IN",
         {
 
-            timeZone: INDIA_TIMEZONE,
+            timeZone:
+                INDIA_TIMEZONE,
 
-            day: "2-digit",
-            month: "2-digit"
+            day:
+                "2-digit",
+
+            month:
+                "2-digit"
+
         }
     );
+
 }
 
 
@@ -1123,11 +1482,20 @@ async function createChart() {
     const container =
         $("tradingview-chart");
 
+
     if (!container) {
+
+        console.warn(
+            "Chart container not found"
+        );
+
         return null;
+
     }
 
+
     await loadChartLibrary();
+
 
     if (chartResizeHandler) {
 
@@ -1136,29 +1504,41 @@ async function createChart() {
             chartResizeHandler
         );
 
-        chartResizeHandler = null;
+        chartResizeHandler =
+            null;
+
     }
+
 
     if (chart) {
 
         try {
+
             chart.remove();
+
         } catch {}
 
         chart = null;
         candleSeries = null;
+
     }
+
 
     container.innerHTML = "";
 
+
     const width =
-        container.clientWidth || 900;
+        container.clientWidth ||
+        900;
+
 
     const height =
         Math.max(
             420,
-            container.clientHeight || 420
+            container.clientHeight ||
+            420
         );
+
 
     chart =
         LightweightCharts.createChart(
@@ -1166,15 +1546,19 @@ async function createChart() {
             {
 
                 width,
+
                 height,
 
                 layout: {
 
                     background: {
-                        color: "transparent"
+                        color:
+                            "transparent"
                     },
 
-                    textColor: "#9ca3af"
+                    textColor:
+                        "#9ca3af"
+
                 },
 
                 grid: {
@@ -1188,12 +1572,14 @@ async function createChart() {
                         color:
                             "rgba(128,128,128,0.10)"
                     }
+
                 },
 
                 rightPriceScale: {
 
                     borderColor:
                         "rgba(128,128,128,0.20)"
+
                 },
 
                 timeScale: {
@@ -1201,22 +1587,28 @@ async function createChart() {
                     borderColor:
                         "rgba(128,128,128,0.20)",
 
-                    timeVisible: true,
+                    timeVisible:
+                        true,
 
-                    secondsVisible: false,
+                    secondsVisible:
+                        false,
 
-                    rightOffset: 5,
+                    rightOffset:
+                        5,
 
-                    barSpacing: 8,
+                    barSpacing:
+                        8,
 
                     tickMarkFormatter:
                         chartTickFormatter
+
                 },
 
                 localization: {
 
                     timeFormatter:
                         formatChartTime
+
                 },
 
                 crosshair: {
@@ -1225,33 +1617,49 @@ async function createChart() {
                         LightweightCharts
                             .CrosshairMode
                             .Normal
+
                 }
+
             }
         );
+
 
     candleSeries =
         chart.addCandlestickSeries({
 
-            upColor: "#00F5A0",
-            downColor: "#ff5d6c",
+            upColor:
+                "#00F5A0",
 
-            borderUpColor: "#00F5A0",
-            borderDownColor: "#ff5d6c",
+            downColor:
+                "#ff5d6c",
 
-            wickUpColor: "#00F5A0",
-            wickDownColor: "#ff5d6c"
+            borderUpColor:
+                "#00F5A0",
+
+            borderDownColor:
+                "#ff5d6c",
+
+            wickUpColor:
+                "#00F5A0",
+
+            wickDownColor:
+                "#ff5d6c"
 
         });
 
+
     chartResizeHandler =
         resizeChart;
+
 
     window.addEventListener(
         "resize",
         chartResizeHandler
     );
 
+
     return chart;
+
 }
 
 
@@ -1263,20 +1671,27 @@ function resizeChart() {
 
     if (!chart) return;
 
+
     const container =
         $("tradingview-chart");
 
+
     if (!container) return;
+
 
     chart.resize(
 
-        container.clientWidth || 900,
+        container.clientWidth ||
+        900,
 
         Math.max(
             420,
-            container.clientHeight || 420
+            container.clientHeight ||
+            420
         )
+
     );
+
 }
 
 
@@ -1288,23 +1703,43 @@ function normalizeCandle(candle) {
 
     if (!candle) return null;
 
+
     const rawTime =
         candle.time ??
         candle.timestamp ??
         candle.datetime ??
         candle.date;
 
-    const timestamp =
-        parseCandleTime(rawTime);
 
-    if (!Number.isFinite(timestamp)) {
+    const timestamp =
+        parseCandleTime(
+            rawTime
+        );
+
+
+    if (
+        !Number.isFinite(
+            timestamp
+        )
+    ) {
+
         return null;
+
     }
 
-    const open = Number(candle.open);
-    const high = Number(candle.high);
-    const low = Number(candle.low);
-    const close = Number(candle.close);
+
+    const open =
+        Number(candle.open);
+
+    const high =
+        Number(candle.high);
+
+    const low =
+        Number(candle.low);
+
+    const close =
+        Number(candle.close);
+
 
     if (
         !Number.isFinite(open) ||
@@ -1312,49 +1747,67 @@ function normalizeCandle(candle) {
         !Number.isFinite(low) ||
         !Number.isFinite(close)
     ) {
+
         return null;
+
     }
+
 
     return {
 
-        time: timestamp,
+        time:
+            timestamp,
 
         open,
         high,
         low,
         close
+
     };
+
 }
 
 
 /* =========================================================
-   REMOVE DUPLICATE / SORT CANDLES
+   PREPARE CANDLES
 ========================================================= */
 
 function prepareCandles(candles) {
 
-    const map = new Map();
+    const map =
+        new Map();
 
-    candles.forEach(candle => {
 
-        const normalized =
-            normalizeCandle(candle);
+    candles.forEach(
+        candle => {
 
-        if (!normalized) {
-            return;
+            const normalized =
+                normalizeCandle(
+                    candle
+                );
+
+
+            if (!normalized) return;
+
+
+            map.set(
+                normalized.time,
+                normalized
+            );
+
         }
+    );
 
-        map.set(
-            normalized.time,
-            normalized
-        );
-    });
 
-    return Array.from(map.values())
-        .sort(
-            (a, b) =>
-                a.time - b.time
-        );
+    return Array.from(
+        map.values()
+    )
+    .sort(
+        (a, b) =>
+            a.time -
+            b.time
+    );
+
 }
 
 
@@ -1367,10 +1820,12 @@ async function loadStockCandles() {
     const symbol =
         currentAsset.symbol;
 
+
     const timeframe =
         normalizeTimeframe(
             currentTimeframe
         );
+
 
     try {
 
@@ -1383,40 +1838,61 @@ async function loadStockCandles() {
 
             );
 
+
         const candles =
-            Array.isArray(data.candles)
+            Array.isArray(
+                data?.candles
+            )
                 ? data.candles
                 : [];
 
+
         if (!candles.length) {
+
             throw new Error(
                 "No stock candles received"
             );
+
         }
+
 
         if (!candleSeries) {
+
             await createChart();
+
         }
 
+
         const formatted =
-            prepareCandles(candles);
+            prepareCandles(
+                candles
+            );
+
 
         if (!formatted.length) {
+
             throw new Error(
                 "Invalid stock candle data"
             );
+
         }
 
-        candleSeries.setData(formatted);
+
+        candleSeries.setData(
+            formatted
+        );
+
 
         chart
             .timeScale()
             .fitContent();
 
+
         updateChartTitle(
             currentAsset.symbol,
             currentAsset.type
         );
+
 
         console.log(
             `📊 ${symbol} candles loaded:`,
@@ -1430,11 +1906,13 @@ async function loadStockCandles() {
             error.message
         );
 
+
         showChartMessage(
-            "Indian market chart data unavailable: " +
-            error.message
+            "Indian market chart data unavailable"
         );
+
     }
+
 }
 
 
@@ -1447,10 +1925,12 @@ async function loadCryptoCandles() {
     const symbol =
         currentAsset.symbol;
 
+
     const resolution =
         normalizeTimeframe(
             currentTimeframe
         );
+
 
     try {
 
@@ -1463,40 +1943,61 @@ async function loadCryptoCandles() {
 
             );
 
+
         const candles =
-            Array.isArray(data.candles)
+            Array.isArray(
+                data?.candles
+            )
                 ? data.candles
                 : [];
 
+
         if (!candles.length) {
+
             throw new Error(
                 "No crypto candles received"
             );
+
         }
+
 
         if (!candleSeries) {
+
             await createChart();
+
         }
 
+
         const formatted =
-            prepareCandles(candles);
+            prepareCandles(
+                candles
+            );
+
 
         if (!formatted.length) {
+
             throw new Error(
                 "Invalid crypto candle data"
             );
+
         }
 
-        candleSeries.setData(formatted);
+
+        candleSeries.setData(
+            formatted
+        );
+
 
         chart
             .timeScale()
             .fitContent();
 
+
         updateChartTitle(
             currentAsset.symbol,
             currentAsset.type
         );
+
 
         console.log(
             `📊 ${symbol} crypto candles loaded:`,
@@ -1510,11 +2011,13 @@ async function loadCryptoCandles() {
             error.message
         );
 
+
         showChartMessage(
-            "Crypto chart data unavailable: " +
-            error.message
+            "Crypto chart data unavailable"
         );
+
     }
+
 }
 
 
@@ -1527,7 +2030,9 @@ function showChartMessage(message) {
     const container =
         $("tradingview-chart");
 
+
     if (!container) return;
+
 
     container.innerHTML = `
 
@@ -1546,7 +2051,9 @@ function showChartMessage(message) {
             ${escapeHTML(message)}
 
         </div>
+
     `;
+
 }
 
 
@@ -1562,15 +2069,18 @@ function updateChartTitle(
     const title =
         $("chartTitle");
 
+
     if (!title) return;
+
 
     title.textContent =
         `${symbol} • Real Market Chart`;
+
 }
 
 
 /* =========================================================
-   INDEX PRICE
+   GET INDEX PRICE
 ========================================================= */
 
 async function getIndexPrice(symbol) {
@@ -1588,20 +2098,28 @@ async function getIndexPrice(symbol) {
 
         "NIFTYIT":
             "/api/niftyit"
+
     };
+
 
     const endpoint =
         endpointMap[
-            String(symbol).toUpperCase()
+            String(symbol)
+                .toUpperCase()
         ];
 
+
     if (!endpoint) {
+
         return null;
+
     }
+
 
     return await apiFetch(
         `${API_BASE}${endpoint}`
     );
+
 }
 
 
@@ -1614,52 +2132,81 @@ function openAsset(asset) {
     currentAsset = {
 
         symbol:
-            String(asset.symbol || "")
-                .toUpperCase(),
+            String(
+                asset?.symbol || ""
+            )
+            .toUpperCase(),
 
         type:
-            asset.type || "stock",
+            asset?.type ||
+            "stock",
 
         name:
-            asset.name || asset.symbol,
+            asset?.name ||
+            asset?.symbol ||
+            "Market",
 
         exchange:
-            asset.exchange ||
+            asset?.exchange ||
             (
-                asset.type === "crypto"
+                asset?.type === "crypto"
                     ? "CRYPTO"
                     : "NSE"
             )
+
     };
 
+
     if (
-        currentAsset.symbol === "NIFTY50" ||
-        currentAsset.symbol === "BANKNIFTY" ||
-        currentAsset.symbol === "SENSEX" ||
-        currentAsset.symbol === "NIFTYIT"
+        [
+            "NIFTY50",
+            "BANKNIFTY",
+            "SENSEX",
+            "NIFTYIT"
+        ].includes(
+            currentAsset.symbol
+        )
     ) {
 
-        currentAsset.type = "index";
+        currentAsset.type =
+            "index";
+
     }
 
-    currentTimeframe = "1D";
 
-    const dashboard = $("dashboard");
-    const detail = $("detailView");
+    currentTimeframe =
+        "1D";
+
+
+    const dashboard =
+        $("dashboard");
+
+    const detail =
+        $("detailView");
+
 
     if (dashboard) {
-        dashboard.hidden = true;
+
+        dashboard.hidden =
+            true;
+
     }
 
+
     if (detail) {
-        detail.hidden = false;
+
+        detail.hidden =
+            false;
+
     }
+
 
     hideDetailTradingLevels();
 
     updateDetailHeader();
 
     setupTimeframeButtons();
+
 
     setTimeout(
         async () => {
@@ -1677,23 +2224,31 @@ function openAsset(asset) {
                     error.message
                 );
 
+
                 showChartMessage(
-                    error.message
+                    "Chart unavailable"
                 );
+
             }
+
         },
         50
     );
 
+
     window.scrollTo({
+
         top: 0,
+
         behavior: "smooth"
+
     });
+
 }
 
 
 /* =========================================================
-   HIDE TRADING LEVELS BOX
+   HIDE TRADING LEVELS
 ========================================================= */
 
 function hideDetailTradingLevels() {
@@ -1703,22 +2258,28 @@ function hideDetailTradingLevels() {
             ".levels-card"
         );
 
+
     if (levelsCard) {
 
         levelsCard.style.display =
             "none";
+
     }
+
 
     const analysisGrid =
         document.querySelector(
             ".analysis-grid"
         );
 
+
     if (analysisGrid) {
 
         analysisGrid.style.gridTemplateColumns =
             "1fr";
+
     }
+
 }
 
 
@@ -1729,7 +2290,8 @@ function hideDetailTradingLevels() {
 async function loadCurrentChart() {
 
     if (
-        currentAsset.type === "crypto"
+        currentAsset.type ===
+        "crypto"
     ) {
 
         await loadCryptoCandles();
@@ -1737,7 +2299,9 @@ async function loadCurrentChart() {
     } else {
 
         await loadStockCandles();
+
     }
+
 }
 
 
@@ -1753,38 +2317,47 @@ function updateDetailHeader() {
 
             currentAsset.type === "crypto"
                 ? "CRYPTO"
-
                 : currentAsset.type === "index"
                     ? "INDEX"
-
                     : "STOCK";
+
     }
+
 
     if ($("detailSymbol")) {
 
         $("detailSymbol").textContent =
             currentAsset.symbol;
+
     }
+
 
     if ($("detailName")) {
 
         $("detailName").textContent =
             currentAsset.name;
+
     }
+
 
     if ($("detailExchange")) {
 
         $("detailExchange").textContent =
             `${currentAsset.symbol} • ${currentAsset.exchange}`;
+
     }
+
 
     if ($("chartTitle")) {
 
         $("chartTitle").textContent =
             `${currentAsset.symbol} • Real Market Chart`;
+
     }
 
+
     updateDetailPrice();
+
 }
 
 
@@ -1798,8 +2371,10 @@ async function updateDetailPrice() {
 
         let data;
 
+
         if (
-            currentAsset.type === "crypto"
+            currentAsset.type ===
+            "crypto"
         ) {
 
             data =
@@ -1812,17 +2387,26 @@ async function updateDetailPrice() {
 
                 );
 
+
+            const price =
+                data?.price ??
+                data?.data?.price;
+
+
             if ($("detailPrice")) {
 
                 $("detailPrice").textContent =
                     "$" +
-                    formatCryptoPrice(data.price);
+                    formatCryptoPrice(price);
+
             }
 
         }
 
+
         else if (
-            currentAsset.type === "index"
+            currentAsset.type ===
+            "index"
         ) {
 
             data =
@@ -1830,17 +2414,26 @@ async function updateDetailPrice() {
                     currentAsset.symbol
                 );
 
+
+            const price =
+                data?.price ??
+                data?.data?.price;
+
+
             if (
-                data &&
+                price !== undefined &&
+                price !== null &&
                 $("detailPrice")
             ) {
 
                 $("detailPrice").textContent =
                     "₹" +
-                    formatIndianNumber(data.price);
+                    formatIndianNumber(price);
+
             }
 
         }
+
 
         else {
 
@@ -1854,18 +2447,28 @@ async function updateDetailPrice() {
 
                 );
 
+
+            const price =
+                data?.price ??
+                data?.data?.price;
+
+
             if ($("detailPrice")) {
 
                 $("detailPrice").textContent =
                     "₹" +
-                    formatIndianNumber(data.price);
+                    formatIndianNumber(price);
+
             }
+
         }
+
 
         if ($("detailChange")) {
 
             $("detailChange").textContent =
                 "LIVE";
+
         }
 
     } catch (error) {
@@ -1875,12 +2478,16 @@ async function updateDetailPrice() {
             error.message
         );
 
+
         if ($("detailPrice")) {
 
             $("detailPrice").textContent =
-                "Unavailable";
+                "--";
+
         }
+
     }
+
 }
 
 
@@ -1899,16 +2506,20 @@ function setupTimeframeButtons() {
             const timeframe =
                 button.dataset.timeframe;
 
+
             button.classList.toggle(
                 "active",
-                timeframe === currentTimeframe
+                timeframe ===
+                currentTimeframe
             );
+
 
             button.onclick =
                 async () => {
 
                     currentTimeframe =
                         timeframe;
+
 
                     document
                         .querySelectorAll(
@@ -1920,13 +2531,18 @@ function setupTimeframeButtons() {
                                 "active",
                                 btn === button
                             );
+
                         });
+
 
                     await createChart();
 
                     await loadCurrentChart();
+
                 };
+
         });
+
 }
 
 
@@ -1939,10 +2555,11 @@ function setupBackButton() {
     const button =
         $("backDashboard");
 
+
     if (!button) return;
 
-    button.addEventListener(
-        "click",
+
+    button.onclick =
         () => {
 
             const dashboard =
@@ -1951,13 +2568,22 @@ function setupBackButton() {
             const detail =
                 $("detailView");
 
+
             if (dashboard) {
-                dashboard.hidden = false;
+
+                dashboard.hidden =
+                    false;
+
             }
 
+
             if (detail) {
-                detail.hidden = true;
+
+                detail.hidden =
+                    true;
+
             }
+
 
             if (chartResizeHandler) {
 
@@ -1966,25 +2592,36 @@ function setupBackButton() {
                     chartResizeHandler
                 );
 
-                chartResizeHandler = null;
+                chartResizeHandler =
+                    null;
+
             }
+
 
             if (chart) {
 
                 try {
+
                     chart.remove();
+
                 } catch {}
 
                 chart = null;
                 candleSeries = null;
+
             }
 
+
             window.scrollTo({
+
                 top: 0,
+
                 behavior: "smooth"
+
             });
-        }
-    );
+
+        };
+
 }
 
 
@@ -1997,18 +2634,31 @@ function setupWatchlist() {
     const button =
         $("watchlistBtn");
 
+
     if (!button) return;
 
-    button.addEventListener(
-        "click",
+
+    button.onclick =
         () => {
 
-            let watchlist =
-                JSON.parse(
-                    localStorage.getItem(
-                        "stockpulse-watchlist"
-                    ) || "[]"
-                );
+            let watchlist;
+
+
+            try {
+
+                watchlist =
+                    JSON.parse(
+                        localStorage.getItem(
+                            "stockpulse-watchlist"
+                        ) || "[]"
+                    );
+
+            } catch {
+
+                watchlist = [];
+
+            }
+
 
             const exists =
                 watchlist.some(
@@ -2016,6 +2666,7 @@ function setupWatchlist() {
                         item.symbol ===
                         currentAsset.symbol
                 );
+
 
             if (exists) {
 
@@ -2025,6 +2676,7 @@ function setupWatchlist() {
                             item.symbol !==
                             currentAsset.symbol
                     );
+
 
                 button.textContent =
                     "☆ Add to Watchlist";
@@ -2041,18 +2693,28 @@ function setupWatchlist() {
 
                     type:
                         currentAsset.type
+
                 });
+
 
                 button.textContent =
                     "★ Added to Watchlist";
+
             }
 
+
             localStorage.setItem(
+
                 "stockpulse-watchlist",
-                JSON.stringify(watchlist)
+
+                JSON.stringify(
+                    watchlist
+                )
+
             );
-        }
-    );
+
+        };
+
 }
 
 
@@ -2069,15 +2731,19 @@ function normalizeSignalType(signal) {
         .toUpperCase()
         .trim();
 
+
     if (type === "SELL") {
         return "SELL";
     }
+
 
     if (type === "HOLD") {
         return "HOLD";
     }
 
+
     return "BUY";
+
 }
 
 
@@ -2092,15 +2758,18 @@ function applySignalCardStyle(
 
     if (!card) return;
 
+
     card.classList.remove(
         "buy",
         "sell",
         "hold"
     );
 
+
     card.classList.add(
         side.toLowerCase()
     );
+
 }
 
 
@@ -2115,8 +2784,10 @@ function setSignalBadge(
 
     if (!badge) return;
 
+
     badge.textContent =
         side;
+
 
     badge.classList.remove(
         "buy-badge",
@@ -2124,24 +2795,11 @@ function setSignalBadge(
         "hold-badge"
     );
 
-    if (side === "BUY") {
 
-        badge.classList.add(
-            "buy-badge"
-        );
+    badge.classList.add(
+        `${side.toLowerCase()}-badge`
+    );
 
-    } else if (side === "SELL") {
-
-        badge.classList.add(
-            "sell-badge"
-        );
-
-    } else {
-
-        badge.classList.add(
-            "hold-badge"
-        );
-    }
 }
 
 
@@ -2154,20 +2812,27 @@ function updateStockSignalCard(signal) {
     const card =
         $("dailySignal");
 
+
     if (!card) return;
 
+
     const side =
-        normalizeSignalType(signal);
+        normalizeSignalType(
+            signal
+        );
+
 
     applySignalCardStyle(
         card,
         side
     );
 
+
     setSignalBadge(
         $("signalSide"),
         side
     );
+
 
     if ($("signalStock")) {
 
@@ -2175,70 +2840,72 @@ function updateStockSignalCard(signal) {
             signal.name ||
             signal.symbol ||
             "Stock Signal";
+
     }
+
 
     if ($("signalSetup")) {
 
         $("signalSetup").textContent =
             signal.note ||
             "Updated market setup.";
+
     }
+
 
     if ($("entryPrice")) {
 
         $("entryPrice").textContent =
-            signal.entry ?? "--";
+            signal.entry ??
+            "--";
+
     }
+
 
     if ($("target1Price")) {
 
         $("target1Price").textContent =
-            signal.target1 ?? "--";
+            signal.target1 ??
+            "--";
+
     }
+
 
     if ($("target2Price")) {
 
         $("target2Price").textContent =
-            signal.target2 ?? "--";
+            signal.target2 ??
+            "--";
+
     }
+
 
     if ($("stopPrice")) {
 
         $("stopPrice").textContent =
-            signal.stopLoss ?? "--";
+            signal.stopLoss ??
+            "--";
+
     }
+
 
     if ($("riskText")) {
 
         $("riskText").textContent =
-            signal.risk || "Medium";
+            signal.risk ||
+            "Medium";
+
     }
+
 
     if ($("marketText")) {
 
         $("marketText").textContent =
-            signal.exchange || "NSE";
+            signal.exchange ||
+            "NSE";
+
     }
 
-    if ($("detailAdvice")) {
-
-        $("detailAdvice").textContent =
-            side;
-    }
-
-    if ($("detailSummary")) {
-
-        $("detailSummary").textContent =
-            signal.note ||
-            "Updated market setup.";
-    }
-
-    hideDetailTradingLevels();
-
-    console.log(
-        "✅ Stock signal updated:",
-        signal
-    );
 }
 
 
@@ -2251,28 +2918,33 @@ function updateCryptoSignalCard(signal) {
     const card =
         $("bitcoinSignal");
 
+
     if (!card) return;
 
+
     const side =
-        normalizeSignalType(signal);
+        normalizeSignalType(
+            signal
+        );
+
 
     applySignalCardStyle(
         card,
         side
     );
 
-    const badge =
-        card.querySelector(
-            ".signal-badge"
-        );
 
     setSignalBadge(
-        badge,
+        card.querySelector(
+            ".signal-badge"
+        ),
         side
     );
 
+
     const title =
         card.querySelector("h2");
+
 
     if (title) {
 
@@ -2280,24 +2952,30 @@ function updateCryptoSignalCard(signal) {
             signal.name ||
             signal.symbol ||
             "CRYPTO";
+
     }
+
 
     const paragraphs =
         card.querySelectorAll(
             ":scope > p"
         );
 
-    if (paragraphs.length > 0) {
+
+    if (paragraphs.length) {
 
         paragraphs[0].textContent =
             signal.note ||
             "Updated crypto market setup.";
+
     }
+
 
     const levelSpans =
         card.querySelectorAll(
             ".signal-levels p span"
         );
+
 
     if (levelSpans.length >= 4) {
 
@@ -2312,29 +2990,31 @@ function updateCryptoSignalCard(signal) {
 
         levelSpans[3].textContent =
             signal.stopLoss ?? "--";
+
     }
+
 
     const infoSpans =
         card.querySelectorAll(
             ".signal-info p span"
         );
 
+
     if (infoSpans.length >= 3) {
 
         infoSpans[0].textContent =
-            signal.risk || "Medium";
+            signal.risk ||
+            "Medium";
 
         infoSpans[1].textContent =
             "Short Term";
 
         infoSpans[2].textContent =
-            signal.exchange || "CRYPTO";
+            signal.exchange ||
+            "CRYPTO";
+
     }
 
-    console.log(
-        "✅ Crypto signal updated:",
-        signal
-    );
 }
 
 
@@ -2347,28 +3027,33 @@ function updateGoldSignalCard(signal) {
     const card =
         $("goldSignal");
 
+
     if (!card) return;
 
+
     const side =
-        normalizeSignalType(signal);
+        normalizeSignalType(
+            signal
+        );
+
 
     applySignalCardStyle(
         card,
         side
     );
 
-    const badge =
-        card.querySelector(
-            ".signal-badge"
-        );
 
     setSignalBadge(
-        badge,
+        card.querySelector(
+            ".signal-badge"
+        ),
         side
     );
 
+
     const title =
         card.querySelector("h2");
+
 
     if (title) {
 
@@ -2376,24 +3061,30 @@ function updateGoldSignalCard(signal) {
             signal.name ||
             signal.symbol ||
             "GOLD";
+
     }
+
 
     const paragraphs =
         card.querySelectorAll(
             ":scope > p"
         );
 
-    if (paragraphs.length > 0) {
+
+    if (paragraphs.length) {
 
         paragraphs[0].textContent =
             signal.note ||
             "Updated gold market setup.";
+
     }
+
 
     const levelSpans =
         card.querySelectorAll(
             ".signal-levels p span"
         );
+
 
     if (levelSpans.length >= 4) {
 
@@ -2408,39 +3099,49 @@ function updateGoldSignalCard(signal) {
 
         levelSpans[3].textContent =
             signal.stopLoss ?? "--";
+
     }
+
 
     const infoSpans =
         card.querySelectorAll(
             ".signal-info p span"
         );
 
+
     if (infoSpans.length >= 3) {
 
         infoSpans[0].textContent =
-            signal.risk || "Medium";
+            signal.risk ||
+            "Medium";
 
         infoSpans[1].textContent =
             "Short Term";
 
         infoSpans[2].textContent =
-            signal.exchange || "COMMODITY";
+            signal.exchange ||
+            "COMMODITY";
+
     }
 
-    console.log(
-        "✅ Gold signal updated:",
-        signal
-    );
 }
 
 
 /* =========================================================
-   FREE SIGNAL MODE
-   ---------------------------------------------------------
-   IMPORTANT:
-   No premium token.
-   No payment lock.
-   Directly loads /api/signals.
+   PREMIUM TOKEN
+========================================================= */
+
+function getPremiumToken() {
+
+    return localStorage.getItem(
+        "stockpulsePremiumToken"
+    );
+
+}
+
+
+/* =========================================================
+   PREMIUM LOCK
 ========================================================= */
 
 function showPremiumLock() {
@@ -2451,15 +3152,28 @@ function showPremiumLock() {
     const lock =
         $("premiumLock");
 
-    if (lock) {
-        lock.style.display = "none";
-    }
 
     if (recommendation) {
-        recommendation.style.display = "block";
+
+        recommendation.style.display =
+            "none";
+
     }
+
+
+    if (lock) {
+
+        lock.style.display =
+            "block";
+
+    }
+
 }
 
+
+/* =========================================================
+   PREMIUM CONTENT
+========================================================= */
 
 function showPremiumContent() {
 
@@ -2469,31 +3183,27 @@ function showPremiumContent() {
     const lock =
         $("premiumLock");
 
+
     if (lock) {
-        lock.style.display = "none";
+
+        lock.style.display =
+            "none";
+
     }
 
+
     if (recommendation) {
-        recommendation.style.display = "block";
+
+        recommendation.style.display =
+            "block";
+
     }
+
 }
 
 
 /* =========================================================
    RENDER TODAY SIGNALS
-   ---------------------------------------------------------
-   MongoDB fields:
-   - symbol
-   - name
-   - type
-   - entry
-   - stopLoss
-   - target1
-   - target2
-   - target3
-   - risk
-   - exchange
-   - note
 ========================================================= */
 
 function renderTodaySignals(signals) {
@@ -2501,9 +3211,9 @@ function renderTodaySignals(signals) {
     const container =
         $("todaySignals");
 
-    if (!container) {
-        return;
-    }
+
+    if (!container) return;
+
 
     if (
         !Array.isArray(signals) ||
@@ -2522,17 +3232,23 @@ function renderTodaySignals(signals) {
                 will be updated soon.
 
             </div>
+
         `;
 
         return;
+
     }
+
 
     container.innerHTML =
         signals
             .map(signal => {
 
                 const side =
-                    normalizeSignalType(signal);
+                    normalizeSignalType(
+                        signal
+                    );
+
 
                 const sideClass =
                     side === "BUY"
@@ -2540,6 +3256,7 @@ function renderTodaySignals(signals) {
                         : side === "SELL"
                             ? "sell"
                             : "hold";
+
 
                 return `
 
@@ -2553,8 +3270,6 @@ function renderTodaySignals(signals) {
                             margin-top:15px;
                         "
                     >
-
-                        <!-- HEADER -->
 
                         <div style="
                             display:flex;
@@ -2607,8 +3322,6 @@ function renderTodaySignals(signals) {
                         </div>
 
 
-                        <!-- NOTE -->
-
                         ${
                             signal.note
                                 ? `
@@ -2628,8 +3341,6 @@ function renderTodaySignals(signals) {
                         }
 
 
-                        <!-- TRADE LEVELS -->
-
                         <div style="
                             display:grid;
                             grid-template-columns:
@@ -2641,8 +3352,6 @@ function renderTodaySignals(signals) {
                             margin-top:10px;
                         ">
 
-
-                            <!-- ENTRY -->
 
                             <div style="
                                 padding:12px;
@@ -2660,14 +3369,13 @@ function renderTodaySignals(signals) {
 
                                 <strong>
                                     ${escapeHTML(
-                                        signal.entry ?? "--"
+                                        signal.entry ??
+                                        "--"
                                     )}
                                 </strong>
 
                             </div>
 
-
-                            <!-- STOP LOSS -->
 
                             <div style="
                                 padding:12px;
@@ -2685,14 +3393,13 @@ function renderTodaySignals(signals) {
 
                                 <strong>
                                     ${escapeHTML(
-                                        signal.stopLoss ?? "--"
+                                        signal.stopLoss ??
+                                        "--"
                                     )}
                                 </strong>
 
                             </div>
 
-
-                            <!-- TARGET 1 -->
 
                             <div style="
                                 padding:12px;
@@ -2710,14 +3417,13 @@ function renderTodaySignals(signals) {
 
                                 <strong>
                                     ${escapeHTML(
-                                        signal.target1 ?? "--"
+                                        signal.target1 ??
+                                        "--"
                                     )}
                                 </strong>
 
                             </div>
 
-
-                            <!-- TARGET 2 -->
 
                             <div style="
                                 padding:12px;
@@ -2735,14 +3441,13 @@ function renderTodaySignals(signals) {
 
                                 <strong>
                                     ${escapeHTML(
-                                        signal.target2 ?? "--"
+                                        signal.target2 ??
+                                        "--"
                                     )}
                                 </strong>
 
                             </div>
 
-
-                            <!-- TARGET 3 -->
 
                             <div style="
                                 padding:12px;
@@ -2760,7 +3465,8 @@ function renderTodaySignals(signals) {
 
                                 <strong>
                                     ${escapeHTML(
-                                        signal.target3 ?? "--"
+                                        signal.target3 ??
+                                        "--"
                                     )}
                                 </strong>
 
@@ -2768,8 +3474,6 @@ function renderTodaySignals(signals) {
 
                         </div>
 
-
-                        <!-- EXTRA INFO -->
 
                         <div style="
                             display:flex;
@@ -2816,42 +3520,63 @@ function renderTodaySignals(signals) {
                     </div>
 
                 `;
+
             })
             .join("");
+
 }
 
 
 /* =========================================================
-   LOAD SIGNALS - FREE
+   LOAD PREMIUM SIGNALS
    ---------------------------------------------------------
-   IMPORTANT:
-   This version DOES NOT require:
-   - Premium token
-   - Payment
-   - Authorization header
-
-   It directly calls:
-   GET /api/signals
+   SINGLE FUNCTION
 ========================================================= */
 
 async function loadSignals() {
 
-    try {
+    const token =
+        getPremiumToken();
 
-        console.log(
-            "📡 Loading free market signals..."
-        );
+
+    if (!token) {
+
+        showPremiumLock();
+
+        return;
+
+    }
+
+
+    try {
 
         const response =
             await fetch(
                 `${API_BASE}/api/signals`,
                 {
-                    method: "GET",
-                    cache: "no-store"
+
+                    method:
+                        "GET",
+
+                    cache:
+                        "no-store",
+
+                    headers: {
+
+                        Authorization:
+                            `Bearer ${token}`,
+
+                        "Content-Type":
+                            "application/json"
+
+                    }
+
                 }
             );
 
+
         let data;
+
 
         try {
 
@@ -2863,192 +3588,181 @@ async function loadSignals() {
             throw new Error(
                 "Invalid server response"
             );
+
         }
 
-        if (!response.ok) {
-
-            throw new Error(
-                data.error ||
-                `Signals API error ${response.status}`
-            );
-        }
 
         if (
-            data.success === false
+            response.status === 401 ||
+            response.status === 403 ||
+            !response.ok ||
+            !data.success
         ) {
 
-            throw new Error(
-                data.error ||
-                "Signals API returned success:false"
+            localStorage.removeItem(
+                "stockpulsePremiumToken"
             );
+
+
+            localStorage.removeItem(
+                "stockpulsePremium"
+            );
+
+
+            showPremiumLock();
+
+            return;
+
         }
+
 
         showPremiumContent();
 
+
         const signals =
-            Array.isArray(data.signals)
+            Array.isArray(
+                data.signals
+            )
                 ? data.signals
                 : [];
 
-        console.log(
-            "📡 Signals received:",
-            signals
-        );
-
-        /* TODAY RECOMMENDATION */
 
         renderTodaySignals(
             signals
         );
 
-        let stockSignal = null;
-        let cryptoSignal = null;
-        let goldSignal = null;
 
-        signals.forEach(signal => {
+        let stockSignal =
+            null;
 
-            if (!signal) return;
+        let cryptoSignal =
+            null;
 
-            const symbol =
-                String(
-                    signal.symbol || ""
-                )
-                .toUpperCase();
+        let goldSignal =
+            null;
 
-            const name =
-                String(
-                    signal.name || ""
-                )
-                .toUpperCase();
 
-            const type =
-                String(
-                    signal.type || ""
-                )
-                .toUpperCase();
+        signals.forEach(
+            signal => {
 
-            const isCrypto =
-                type === "CRYPTO" ||
-                symbol.includes("BTC") ||
-                symbol.includes("ETH") ||
-                symbol.includes("SOL") ||
-                symbol.includes("XRP") ||
-                symbol.includes("USDT") ||
-                name.includes("BITCOIN") ||
-                name.includes("ETHEREUM") ||
-                name.includes("SOLANA") ||
-                name.includes("XRP");
+                if (!signal) return;
 
-            const isGold =
-                type === "GOLD" ||
-                type === "COMMODITY" ||
-                symbol.includes("GOLD") ||
-                symbol.includes("XAU") ||
-                symbol.includes("GOLDM") ||
-                name.includes("GOLD") ||
-                name.includes("XAU");
 
-            if (
-                isGold &&
-                !goldSignal
-            ) {
+                const symbol =
+                    String(
+                        signal.symbol || ""
+                    )
+                    .toUpperCase();
 
-                goldSignal =
-                    signal;
 
-            } else if (
-                isCrypto &&
-                !cryptoSignal
-            ) {
+                const name =
+                    String(
+                        signal.name || ""
+                    )
+                    .toUpperCase();
 
-                cryptoSignal =
-                    signal;
 
-            } else if (
-                !isCrypto &&
-                !isGold &&
-                !stockSignal
-            ) {
+                const isCrypto =
+                    symbol.includes("BTC") ||
+                    symbol.includes("ETH") ||
+                    symbol.includes("SOL") ||
+                    symbol.includes("XRP") ||
+                    symbol.includes("USDT") ||
+                    name.includes("BITCOIN") ||
+                    name.includes("ETHEREUM") ||
+                    name.includes("SOLANA") ||
+                    name.includes("XRP");
 
-                stockSignal =
-                    signal;
+
+                const isGold =
+                    symbol.includes("GOLD") ||
+                    symbol.includes("XAU") ||
+                    symbol.includes("GOLDM") ||
+                    name.includes("GOLD") ||
+                    name.includes("XAU");
+
+
+                if (
+                    isGold &&
+                    !goldSignal
+                ) {
+
+                    goldSignal =
+                        signal;
+
+                }
+
+                else if (
+                    isCrypto &&
+                    !cryptoSignal
+                ) {
+
+                    cryptoSignal =
+                        signal;
+
+                }
+
+                else if (
+                    !isCrypto &&
+                    !isGold &&
+                    !stockSignal
+                ) {
+
+                    stockSignal =
+                        signal;
+
+                }
+
             }
-        });
+        );
+
 
         if (stockSignal) {
 
             updateStockSignalCard(
                 stockSignal
             );
+
         }
+
 
         if (cryptoSignal) {
 
             updateCryptoSignalCard(
                 cryptoSignal
             );
+
         }
+
 
         if (goldSignal) {
 
             updateGoldSignalCard(
                 goldSignal
             );
+
         }
+
+
+        console.log(
+            "📡 Premium signals loaded:",
+            signals.length
+        );
 
     } catch (error) {
 
         console.error(
-            "❌ Signal load error:",
+            "Signal load error:",
             error.message
         );
 
-        /*
-           Do NOT hide the recommendation.
-           Show a useful message instead.
-        */
-
-        const container =
-            $("todaySignals");
-
-        if (container) {
-
-            container.innerHTML = `
-
-                <div style="
-                    padding:20px;
-                    color:#9ca3af;
-                    text-align:center;
-                ">
-
-                    Market recommendation
-                    is temporarily unavailable.
-
-                </div>
-
-            `;
-        }
     }
-}
 
-
-/* =========================================================
-   PREMIUM PAGE SUPPORT
-   ---------------------------------------------------------
-   Kept for compatibility with existing HTML.
-   It now simply loads FREE signals.
-========================================================= */
-
-async function loadPremiumSignals() {
-
-    await loadSignals();
 }
 
 
 /* =========================================================
    PREMIUM BUTTONS
-   ---------------------------------------------------------
-   Payment navigation removed for FREE website.
 ========================================================= */
 
 function setupPremiumButtons() {
@@ -3060,31 +3774,53 @@ function setupPremiumButtons() {
 
     ];
 
-    buttons.forEach(button => {
 
-        if (!button) return;
+    buttons.forEach(
+        button => {
 
-        /*
-           Hide old premium/payment buttons.
-        */
+            if (!button) return;
 
-        button.style.display = "none";
-    });
+
+            button.onclick =
+                event => {
+
+                    event.preventDefault();
+
+
+                    window.location.href =
+                        "payment.html";
+
+                };
+
+        }
+    );
+
 }
 
 
 /* =========================================================
-   KEYBOARD ESC
+   ESC KEY
 ========================================================= */
 
-document.addEventListener(
-    "keydown",
-    event => {
+function setupEscapeKey() {
 
-        if (event.key === "Escape") {
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key !==
+                "Escape"
+            ) {
+
+                return;
+
+            }
+
 
             const detail =
                 $("detailView");
+
 
             if (
                 detail &&
@@ -3094,13 +3830,19 @@ document.addEventListener(
                 const back =
                     $("backDashboard");
 
+
                 if (back) {
+
                     back.click();
+
                 }
+
             }
+
         }
-    }
-);
+    );
+
+}
 
 
 /* =========================================================
@@ -3109,44 +3851,60 @@ document.addEventListener(
 
 function startLiveUpdates() {
 
-    clearInterval(priceTimer);
+    clearInterval(
+        priceTimer
+    );
+
 
     priceTimer =
         setInterval(
             async () => {
 
-                /*
-                   Dashboard prices
-                */
+                try {
 
-                await updateDashboardPrices();
+                    await updateDashboardPrices();
 
 
-                /*
-                   Detail price
-                */
+                    const detail =
+                        $("detailView");
 
-                const detail =
-                    $("detailView");
 
-                if (
-                    detail &&
-                    !detail.hidden
-                ) {
+                    if (
+                        detail &&
+                        !detail.hidden
+                    ) {
 
-                    await updateDetailPrice();
+                        await updateDetailPrice();
+
+                    }
+
+
+                    /*
+                       Premium signals are refreshed
+                       only if a token exists.
+                    */
+
+                    if (
+                        getPremiumToken()
+                    ) {
+
+                        await loadSignals();
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Live update error:",
+                        error.message
+                    );
+
                 }
-
-
-                /*
-                   MongoDB signals
-                */
-
-                await loadSignals();
 
             },
             5000
         );
+
 }
 
 
@@ -3161,79 +3919,66 @@ async function initStockPulse() {
     );
 
 
-    /*
-       Theme
-    */
+    try {
 
-    setupTheme();
+        setupTheme();
 
+        setupSearch();
 
-    /*
-       Market cards
-    */
+        setupMarketCards();
 
-    setupMarketCards();
+        setupHeroCard();
 
+        setupBackButton();
 
-    /*
-       Hero card
-    */
+        setupWatchlist();
 
-    setupHeroCard();
+        setupPremiumButtons();
 
+        setupEscapeKey();
 
-    /*
-       Back button
-    */
-
-    setupBackButton();
+        hideDetailTradingLevels();
 
 
-    /*
-       Watchlist
-    */
+        /*
+           IMPORTANT:
+           Dashboard prices load immediately.
+        */
 
-    setupWatchlist();
-
-
-    /*
-       Old premium buttons
-    */
-
-    setupPremiumButtons();
+        await updateDashboardPrices();
 
 
-    /*
-       Hide detail levels
-    */
+        /*
+           Premium only loads once.
+        */
 
-    hideDetailTradingLevels();
-
-
-    /*
-       Live prices
-    */
-
-    await updateDashboardPrices();
+        await loadSignals();
 
 
-    /*
-       FREE TODAY RECOMMENDATION
-    */
-
-    await loadSignals();
+        startLiveUpdates();
 
 
-    /*
-       Auto refresh every 5 seconds
-    */
+        console.log(
+            "✅ StockPulse frontend ready"
+        );
 
-    startLiveUpdates();
+    } catch (error) {
+
+        console.error(
+            "❌ StockPulse initialization error:",
+            error
+        );
 
 
-    console.log(
-        "✅ StockPulse frontend ready"
-    );
+        /*
+           Even if one API fails,
+           website should NOT remain stuck.
+        */
+
+        startLiveUpdates();
+
+    }
+
 }
 
 
@@ -3241,31 +3986,19 @@ async function initStockPulse() {
    START
 ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    initStockPulse
-);
+if (
+    document.readyState ===
+    "loading"
+) {
 
+    document.addEventListener(
+        "DOMContentLoaded",
+        initStockPulse,
+        { once: true }
+    );
 
-/* =========================================================
-   EXTRA PREMIUM PAGE SUPPORT
-   ---------------------------------------------------------
-   Compatibility with existing HTML.
-========================================================= */
+} else {
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+    initStockPulse();
 
-        if (
-            $("todayRecommendation") ||
-            $("premiumLock") ||
-            $("todaySignals")
-        ) {
-
-            loadPremiumSignals();
-
-        }
-    }
-);
-```
+}
