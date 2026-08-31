@@ -23,8 +23,7 @@
    CONFIG
 ========================================================= */
 
-const API_BASE = "http://localhost:3000";
-
+const API_BASE = "https://stockpulse-production-0709.up.railway.app";
 const INDIA_TIMEZONE = "Asia/Kolkata";
 
 
@@ -41,7 +40,6 @@ let currentTimeframe = "1D";
 let chart = null;
 let candleSeries = null;
 let priceTimer = null;
-
 let chartResizeHandler = null;
 
 
@@ -104,15 +102,13 @@ function formatCryptoPrice(value) {
 
 async function apiFetch(url, options = {}) {
 
-    const response =
-        await fetch(url, options);
+    const response = await fetch(url, options);
 
     let data;
 
     try {
 
-        data =
-            await response.json();
+        data = await response.json();
 
     } catch {
 
@@ -137,7 +133,6 @@ async function apiFetch(url, options = {}) {
 
 
     return data;
-
 }
 
 
@@ -147,8 +142,7 @@ async function apiFetch(url, options = {}) {
 
 function setupTheme() {
 
-    const button =
-        $("themeToggle");
+    const button = $("themeToggle");
 
     if (!button) return;
 
@@ -200,7 +194,6 @@ function setupTheme() {
 
         }
     );
-
 }
 
 
@@ -253,10 +246,7 @@ async function updateHeroNifty() {
 
 
         if (status) {
-
-            status.textContent =
-                "OPEN";
-
+            status.textContent = "OPEN";
         }
 
 
@@ -268,7 +258,6 @@ async function updateHeroNifty() {
         );
 
     }
-
 }
 
 
@@ -293,7 +282,6 @@ function getCardPriceElement(card) {
     return card.querySelector(
         ".price, .market-price, .current-price"
     );
-
 }
 
 
@@ -323,17 +311,10 @@ async function updateIndex(
 
             const symbolMap = {
 
-                "NIFTY":
-                    "NIFTY50",
-
-                "BANKNIFTY":
-                    "BANKNIFTY",
-
-                "SENSEX":
-                    "SENSEX",
-
-                "NIFTY IT":
-                    "NIFTYIT"
+                "NIFTY": "NIFTY50",
+                "BANKNIFTY": "BANKNIFTY",
+                "SENSEX": "SENSEX",
+                "NIFTY IT": "NIFTYIT"
 
             };
 
@@ -394,7 +375,6 @@ async function updateIndex(
         );
 
     }
-
 }
 
 
@@ -433,7 +413,6 @@ async function updateAllIndexPrices() {
         )
 
     ]);
-
 }
 
 
@@ -489,14 +468,10 @@ async function updateCryptoPrice(symbol) {
 
 
         if (element) {
-
-            element.textContent =
-                "Unavailable";
-
+            element.textContent = "Unavailable";
         }
 
     }
-
 }
 
 
@@ -510,7 +485,6 @@ async function updateAllCryptoPrices() {
         updateCryptoPrice("XRP")
 
     ]);
-
 }
 
 
@@ -526,12 +500,11 @@ async function updateDashboardPrices() {
         updateAllCryptoPrices()
 
     ]);
-
 }
 
 
 /* =========================================================
-   SEARCH (STOCK + INDEX + CRYPTO + COMMODITY)
+   SEARCH
 ========================================================= */
 
 let searchTimeout = null;
@@ -540,115 +513,254 @@ const searchInput = $("marketSearch");
 const searchButton = $("marketSearchBtn");
 const searchResults = $("searchResults");
 
+
 const localAssets = [
-  { symbol:"NIFTY50", name:"NIFTY 50", type:"index", exchange:"NSE" },
-  { symbol:"BANKNIFTY", name:"BANK NIFTY", type:"index", exchange:"NSE" },
-  { symbol:"SENSEX", name:"SENSEX", type:"index", exchange:"BSE" },
-  { symbol:"NIFTYIT", name:"NIFTY IT", type:"index", exchange:"NSE" },
 
-  { symbol:"BTC", name:"Bitcoin", type:"crypto", exchange:"DELTA" },
-  { symbol:"ETH", name:"Ethereum", type:"crypto", exchange:"DELTA" },
-  { symbol:"SOL", name:"Solana", type:"crypto", exchange:"DELTA" },
-  { symbol:"XRP", name:"Ripple", type:"crypto", exchange:"DELTA" },
+    {
+        symbol: "NIFTY50",
+        name: "NIFTY 50",
+        type: "index",
+        exchange: "NSE"
+    },
 
-  { symbol:"GOLD", name:"Gold", type:"commodity", exchange:"COMEX" },
-  { symbol:"SILVER", name:"Silver", type:"commodity", exchange:"COMEX" }
+    {
+        symbol: "BANKNIFTY",
+        name: "BANK NIFTY",
+        type: "index",
+        exchange: "NSE"
+    },
+
+    {
+        symbol: "SENSEX",
+        name: "SENSEX",
+        type: "index",
+        exchange: "BSE"
+    },
+
+    {
+        symbol: "NIFTYIT",
+        name: "NIFTY IT",
+        type: "index",
+        exchange: "NSE"
+    },
+
+    {
+        symbol: "BTC",
+        name: "Bitcoin",
+        type: "crypto",
+        exchange: "DELTA"
+    },
+
+    {
+        symbol: "ETH",
+        name: "Ethereum",
+        type: "crypto",
+        exchange: "DELTA"
+    },
+
+    {
+        symbol: "SOL",
+        name: "Solana",
+        type: "crypto",
+        exchange: "DELTA"
+    },
+
+    {
+        symbol: "XRP",
+        name: "Ripple",
+        type: "crypto",
+        exchange: "DELTA"
+    },
+
+    {
+        symbol: "GOLD",
+        name: "Gold",
+        type: "commodity",
+        exchange: "COMEX"
+    },
+
+    {
+        symbol: "SILVER",
+        name: "Silver",
+        type: "commodity",
+        exchange: "COMEX"
+    }
+
 ];
 
-async function searchStocks(query){
 
-  if(!searchResults) return;
+async function searchStocks(query) {
 
-  query = String(query || "").trim().toUpperCase();
+    if (!searchResults) return;
 
-  if(!query){
-    searchResults.innerHTML="";
-    searchResults.classList.remove("show");
-    return;
-  }
 
-  let results = [];
+    query =
+        String(query || "")
+            .trim()
+            .toUpperCase();
 
-  // Local search (Index + Crypto + Commodity)
-  results.push(
-    ...localAssets.filter(item =>
-      item.symbol.includes(query) ||
-      item.name.toUpperCase().includes(query)
-    )
-  );
 
-  // NSE stock search
-  try{
-    const data = await apiFetch(
-      `${API_BASE}/api/search?q=${encodeURIComponent(query)}`
+    if (!query) {
+
+        searchResults.innerHTML = "";
+
+        searchResults.classList.remove(
+            "show"
+        );
+
+        return;
+    }
+
+
+    let results = [];
+
+
+    results.push(
+        ...localAssets.filter(item =>
+            item.symbol.includes(query) ||
+            item.name
+                .toUpperCase()
+                .includes(query)
+        )
     );
 
-    if(Array.isArray(data.results)){
-      results.push(
-        ...data.results.map(s => ({
-          symbol:s.symbol,
-          name:s.name,
-          type:"stock",
-          exchange:"NSE",
-          instrumentKey:s.instrumentKey
-        }))
-      );
+
+    try {
+
+        const data =
+            await apiFetch(
+                `${API_BASE}/api/search?q=${encodeURIComponent(query)}`
+            );
+
+
+        if (Array.isArray(data.results)) {
+
+            results.push(
+                ...data.results.map(s => ({
+
+                    symbol: s.symbol,
+                    name: s.name,
+                    type: "stock",
+                    exchange: "NSE",
+                    instrumentKey:
+                        s.instrumentKey
+
+                }))
+            );
+
+        }
+
+    } catch (e) {
+
+        console.log(
+            "Stock search skipped"
+        );
+
     }
-  }catch(e){
-    console.log("Stock search skipped");
-  }
 
-  // Remove duplicates
-  results = results.filter(
-    (v,i,a)=>a.findIndex(t=>t.symbol===v.symbol)===i
-  );
 
-  searchResults.innerHTML="";
+    results =
+        results.filter(
+            (v, i, a) =>
+                a.findIndex(
+                    t =>
+                        t.symbol === v.symbol
+                ) === i
+        );
 
-  if(results.length===0){
-    searchResults.innerHTML=`
-      <div class="search-item">No result found</div>
-    `;
+
+    searchResults.innerHTML = "";
+
+
+    if (results.length === 0) {
+
+        searchResults.innerHTML = `
+            <div class="search-item">
+                No result found
+            </div>
+        `;
+
+        searchResults.classList.add("show");
+
+        return;
+    }
+
+
+    results
+        .slice(0, 10)
+        .forEach(item => {
+
+            const div =
+                document.createElement("div");
+
+
+            div.className =
+                "search-item";
+
+
+            const icon =
+                item.type === "crypto"
+                    ? "₿"
+                    : item.type === "index"
+                        ? "📈"
+                        : item.type === "commodity"
+                            ? "🪙"
+                            : "🏛️";
+
+
+            div.innerHTML = `
+                <strong>
+                    ${icon} ${escapeHTML(item.symbol)}
+                </strong>
+
+                <small>
+                    ${escapeHTML(item.name)}
+                </small>
+            `;
+
+
+            div.onclick = () => {
+
+                openAsset({
+
+                    symbol: item.symbol,
+                    name: item.name,
+
+                    type:
+                        item.type === "commodity"
+                            ? "index"
+                            : item.type,
+
+                    exchange: item.exchange,
+
+                    instrumentKey:
+                        item.instrumentKey
+
+                });
+
+
+                searchResults.innerHTML = "";
+
+                searchResults.classList.remove(
+                    "show"
+                );
+
+
+                if (searchInput) {
+                    searchInput.value = "";
+                }
+
+            };
+
+
+            searchResults.appendChild(div);
+
+        });
+
+
     searchResults.classList.add("show");
-    return;
-  }
-
-  results.slice(0,10).forEach(item=>{
-
-    const div=document.createElement("div");
-    div.className="search-item";
-
-    const icon =
-      item.type==="crypto" ? "₿" :
-      item.type==="index" ? "📈" :
-      item.type==="commodity" ? "🪙" : "🏛️";
-
-    div.innerHTML=`
-      <strong>${icon} ${item.symbol}</strong>
-      <small>${item.name}</small>
-    `;
-
-    div.onclick=()=>{
-
-      openAsset({
-        symbol:item.symbol,
-        name:item.name,
-        type:item.type==="commodity" ? "index" : item.type,
-        exchange:item.exchange,
-        instrumentKey:item.instrumentKey
-      });
-
-      searchResults.innerHTML="";
-      searchResults.classList.remove("show");
-      if(searchInput) searchInput.value="";
-    };
-
-    searchResults.appendChild(div);
-
-  });
-
-  searchResults.classList.add("show");
 }
+
 
 /* =========================================================
    SEARCH EVENTS
@@ -691,9 +803,7 @@ if (searchInput) {
 
 
                 if (query) {
-
                     searchStocks(query);
-
                 }
 
             }
@@ -751,27 +861,12 @@ document.addEventListener(
 
 function escapeHTML(value) {
 
-    return String(value || "")
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
 }
 
@@ -788,8 +883,7 @@ function setupMarketCards() {
         )
         .forEach(card => {
 
-            card.style.cursor =
-                "pointer";
+            card.style.cursor = "pointer";
 
 
             card.addEventListener(
@@ -801,9 +895,7 @@ function setupMarketCards() {
                             "button, a"
                         )
                     ) {
-
                         return;
-
                     }
 
 
@@ -899,17 +991,13 @@ function setupHeroCard() {
 
             openAsset({
 
-                symbol:
-                    "NIFTY50",
+                symbol: "NIFTY50",
 
-                type:
-                    "index",
+                type: "index",
 
-                name:
-                    "NIFTY 50",
+                name: "NIFTY 50",
 
-                exchange:
-                    "NSE"
+                exchange: "NSE"
 
             });
 
@@ -923,9 +1011,7 @@ function setupHeroCard() {
    TIMEFRAME NORMALIZER
 ========================================================= */
 
-function normalizeTimeframe(
-    timeframe
-) {
+function normalizeTimeframe(timeframe) {
 
     const tf =
         String(
@@ -950,7 +1036,6 @@ function normalizeTimeframe(
 
 
     return map[tf] || "1d";
-
 }
 
 
@@ -968,7 +1053,6 @@ function loadChartLibrary() {
             ) {
 
                 resolve();
-
                 return;
 
             }
@@ -988,14 +1072,15 @@ function loadChartLibrary() {
                     { once: true }
                 );
 
+
                 existing.addEventListener(
                     "error",
                     reject,
                     { once: true }
                 );
 
-                return;
 
+                return;
             }
 
 
@@ -1032,7 +1117,6 @@ function loadChartLibrary() {
 
         }
     );
-
 }
 
 
@@ -1139,12 +1223,11 @@ function parseCandleTime(value) {
     return Math.floor(
         timestamp / 1000
     );
-
 }
 
 
 /* =========================================================
-   FORMAT CHART TIME IN INDIA
+   FORMAT CHART TIME
 ========================================================= */
 
 function formatChartTime(time) {
@@ -1156,8 +1239,7 @@ function formatChartTime(time) {
         typeof time === "number"
     ) {
 
-        timestamp =
-            time;
+        timestamp = time;
 
     } else {
 
@@ -1187,6 +1269,7 @@ function formatChartTime(time) {
     return date.toLocaleString(
         "en-IN",
         {
+
             timeZone:
                 INDIA_TIMEZONE,
 
@@ -1207,14 +1290,14 @@ function formatChartTime(time) {
 
             hour12:
                 false
+
         }
     );
-
 }
 
 
 /* =========================================================
-   CHART TIME TICK FORMATTER
+   CHART TICK FORMATTER
 ========================================================= */
 
 function chartTickFormatter(
@@ -1229,8 +1312,7 @@ function chartTickFormatter(
         typeof time === "number"
     ) {
 
-        timestamp =
-            time;
+        timestamp = time;
 
     } else {
 
@@ -1268,6 +1350,7 @@ function chartTickFormatter(
         return date.toLocaleTimeString(
             "en-IN",
             {
+
                 timeZone:
                     INDIA_TIMEZONE,
 
@@ -1279,6 +1362,7 @@ function chartTickFormatter(
 
                 hour12:
                     false
+
             }
         );
 
@@ -1288,6 +1372,7 @@ function chartTickFormatter(
     return date.toLocaleDateString(
         "en-IN",
         {
+
             timeZone:
                 INDIA_TIMEZONE,
 
@@ -1296,9 +1381,9 @@ function chartTickFormatter(
 
             month:
                 "2-digit"
+
         }
     );
-
 }
 
 
@@ -1313,9 +1398,7 @@ async function createChart() {
 
 
     if (!container) {
-
         return null;
-
     }
 
 
@@ -1337,9 +1420,7 @@ async function createChart() {
     if (chart) {
 
         try {
-
             chart.remove();
-
         } catch {}
 
         chart = null;
@@ -1352,15 +1433,13 @@ async function createChart() {
 
 
     const width =
-        container.clientWidth ||
-        900;
+        container.clientWidth || 900;
 
 
     const height =
         Math.max(
             420,
-            container.clientHeight ||
-            420
+            container.clientHeight || 420
         );
 
 
@@ -1369,11 +1448,9 @@ async function createChart() {
             container,
             {
 
-                width:
-                    width,
+                width,
 
-                height:
-                    height,
+                height,
 
 
                 layout: {
@@ -1491,7 +1568,6 @@ async function createChart() {
 
 
     return chart;
-
 }
 
 
@@ -1512,16 +1588,13 @@ function resizeChart() {
 
 
     chart.resize(
-        container.clientWidth ||
-        900,
+        container.clientWidth || 900,
 
         Math.max(
             420,
-            container.clientHeight ||
-            420
+            container.clientHeight || 420
         )
     );
-
 }
 
 
@@ -1597,7 +1670,6 @@ function normalizeCandle(candle) {
         close
 
     };
-
 }
 
 
@@ -1642,7 +1714,6 @@ function prepareCandles(candles) {
             a.time -
             b.time
     );
-
 }
 
 
@@ -1692,9 +1763,7 @@ async function loadStockCandles() {
 
 
         if (!candleSeries) {
-
             await createChart();
-
         }
 
 
@@ -1749,7 +1818,6 @@ async function loadStockCandles() {
         );
 
     }
-
 }
 
 
@@ -1799,9 +1867,7 @@ async function loadCryptoCandles() {
 
 
         if (!candleSeries) {
-
             await createChart();
-
         }
 
 
@@ -1856,7 +1922,6 @@ async function loadCryptoCandles() {
         );
 
     }
-
 }
 
 
@@ -1892,7 +1957,6 @@ function showChartMessage(message) {
         </div>
 
     `;
-
 }
 
 
@@ -1914,17 +1978,14 @@ function updateChartTitle(
 
     title.textContent =
         `${symbol} • Real Market Chart`;
-
 }
 
 
 /* =========================================================
-   INDEX PRICE FOR DETAIL PAGE
+   INDEX PRICE
 ========================================================= */
 
-async function getIndexPrice(
-    symbol
-) {
+async function getIndexPrice(symbol) {
 
     const endpointMap = {
 
@@ -1951,16 +2012,13 @@ async function getIndexPrice(
 
 
     if (!endpoint) {
-
         return null;
-
     }
 
 
     return await apiFetch(
         `${API_BASE}${endpoint}`
     );
-
 }
 
 
@@ -2023,18 +2081,12 @@ function openAsset(asset) {
 
 
     if (dashboard) {
-
-        dashboard.hidden =
-            true;
-
+        dashboard.hidden = true;
     }
 
 
     if (detail) {
-
-        detail.hidden =
-            false;
-
+        detail.hidden = false;
     }
 
 
@@ -2077,14 +2129,11 @@ function openAsset(asset) {
 
     window.scrollTo({
 
-        top:
-            0,
+        top: 0,
 
-        behavior:
-            "smooth"
+        behavior: "smooth"
 
     });
-
 }
 
 
@@ -2120,7 +2169,6 @@ function hideDetailTradingLevels() {
             "1fr";
 
     }
-
 }
 
 
@@ -2142,7 +2190,6 @@ async function loadCurrentChart() {
         await loadStockCandles();
 
     }
-
 }
 
 
@@ -2155,10 +2202,13 @@ function updateDetailHeader() {
     if ($("detailType")) {
 
         $("detailType").textContent =
+
             currentAsset.type === "crypto"
                 ? "CRYPTO"
+
                 : currentAsset.type === "index"
                     ? "INDEX"
+
                     : "STOCK";
 
     }
@@ -2197,7 +2247,6 @@ function updateDetailHeader() {
 
 
     updateDetailPrice();
-
 }
 
 
@@ -2318,7 +2367,6 @@ async function updateDetailPrice() {
         }
 
     }
-
 }
 
 
@@ -2373,7 +2421,6 @@ function setupTimeframeButtons() {
                 };
 
         });
-
 }
 
 
@@ -2425,6 +2472,7 @@ function setupBackButton() {
                     chartResizeHandler
                 );
 
+
                 chartResizeHandler =
                     null;
 
@@ -2434,13 +2482,10 @@ function setupBackButton() {
             if (chart) {
 
                 try {
-
                     chart.remove();
-
                 } catch {}
 
                 chart = null;
-
                 candleSeries = null;
 
             }
@@ -2448,17 +2493,14 @@ function setupBackButton() {
 
             window.scrollTo({
 
-                top:
-                    0,
+                top: 0,
 
-                behavior:
-                    "smooth"
+                behavior: "smooth"
 
             });
 
         }
     );
-
 }
 
 
@@ -2481,9 +2523,11 @@ function setupWatchlist() {
 
             let watchlist =
                 JSON.parse(
+
                     localStorage.getItem(
                         "stockpulse-watchlist"
                     ) || "[]"
+
                 );
 
 
@@ -2508,7 +2552,9 @@ function setupWatchlist() {
                 button.textContent =
                     "☆ Add to Watchlist";
 
-            } else {
+            }
+
+            else {
 
                 watchlist.push({
 
@@ -2542,7 +2588,6 @@ function setupWatchlist() {
 
         }
     );
-
 }
 
 
@@ -2561,21 +2606,16 @@ function normalizeSignalType(signal) {
 
 
     if (type === "SELL") {
-
         return "SELL";
-
     }
 
 
     if (type === "HOLD") {
-
         return "HOLD";
-
     }
 
 
     return "BUY";
-
 }
 
 
@@ -2601,7 +2641,6 @@ function applySignalCardStyle(
     card.classList.add(
         side.toLowerCase()
     );
-
 }
 
 
@@ -2634,22 +2673,23 @@ function setSignalBadge(
             "buy-badge"
         );
 
-    } else if (
-        side === "SELL"
-    ) {
+    }
+
+    else if (side === "SELL") {
 
         badge.classList.add(
             "sell-badge"
         );
 
-    } else {
+    }
+
+    else {
 
         badge.classList.add(
             "hold-badge"
         );
 
     }
-
 }
 
 
@@ -2657,9 +2697,7 @@ function setSignalBadge(
    UPDATE STOCK SIGNAL
 ========================================================= */
 
-function updateStockSignalCard(
-    signal
-) {
+function updateStockSignalCard(signal) {
 
     const card =
         $("dailySignal");
@@ -2708,7 +2746,7 @@ function updateStockSignalCard(
     if ($("entryPrice")) {
 
         $("entryPrice").textContent =
-            signal.entry ||
+            signal.entry ??
             "--";
 
     }
@@ -2717,7 +2755,7 @@ function updateStockSignalCard(
     if ($("target1Price")) {
 
         $("target1Price").textContent =
-            signal.target1 ||
+            signal.target1 ??
             "--";
 
     }
@@ -2726,7 +2764,7 @@ function updateStockSignalCard(
     if ($("target2Price")) {
 
         $("target2Price").textContent =
-            signal.target2 ||
+            signal.target2 ??
             "--";
 
     }
@@ -2735,7 +2773,7 @@ function updateStockSignalCard(
     if ($("stopPrice")) {
 
         $("stopPrice").textContent =
-            signal.stopLoss ||
+            signal.stopLoss ??
             "--";
 
     }
@@ -2783,7 +2821,6 @@ function updateStockSignalCard(
         "✅ Stock signal updated:",
         signal
     );
-
 }
 
 
@@ -2791,9 +2828,7 @@ function updateStockSignalCard(
    UPDATE CRYPTO SIGNAL
 ========================================================= */
 
-function updateCryptoSignalCard(
-    signal
-) {
+function updateCryptoSignalCard(signal) {
 
     const card =
         $("bitcoinSignal");
@@ -2848,9 +2883,7 @@ function updateCryptoSignalCard(
         );
 
 
-    if (
-        paragraphs.length > 0
-    ) {
+    if (paragraphs.length > 0) {
 
         paragraphs[0].textContent =
             signal.note ||
@@ -2868,22 +2901,22 @@ function updateCryptoSignalCard(
     if (levelSpans.length >= 4) {
 
         levelSpans[0].textContent =
-            signal.entry ||
+            signal.entry ??
             "--";
 
 
         levelSpans[1].textContent =
-            signal.target1 ||
+            signal.target1 ??
             "--";
 
 
         levelSpans[2].textContent =
-            signal.target2 ||
+            signal.target2 ??
             "--";
 
 
         levelSpans[3].textContent =
-            signal.stopLoss ||
+            signal.stopLoss ??
             "--";
 
     }
@@ -2917,7 +2950,6 @@ function updateCryptoSignalCard(
         "✅ Crypto signal updated:",
         signal
     );
-
 }
 
 
@@ -2925,9 +2957,7 @@ function updateCryptoSignalCard(
    UPDATE GOLD SIGNAL
 ========================================================= */
 
-function updateGoldSignalCard(
-    signal
-) {
+function updateGoldSignalCard(signal) {
 
     const card =
         $("goldSignal");
@@ -2982,9 +3012,7 @@ function updateGoldSignalCard(
         );
 
 
-    if (
-        paragraphs.length > 0
-    ) {
+    if (paragraphs.length > 0) {
 
         paragraphs[0].textContent =
             signal.note ||
@@ -3002,22 +3030,22 @@ function updateGoldSignalCard(
     if (levelSpans.length >= 4) {
 
         levelSpans[0].textContent =
-            signal.entry ||
+            signal.entry ??
             "--";
 
 
         levelSpans[1].textContent =
-            signal.target1 ||
+            signal.target1 ??
             "--";
 
 
         levelSpans[2].textContent =
-            signal.target2 ||
+            signal.target2 ??
             "--";
 
 
         levelSpans[3].textContent =
-            signal.stopLoss ||
+            signal.stopLoss ??
             "--";
 
     }
@@ -3051,7 +3079,6 @@ function updateGoldSignalCard(
         "✅ Gold signal updated:",
         signal
     );
-
 }
 
 
@@ -3064,7 +3091,6 @@ function getPremiumToken() {
     return localStorage.getItem(
         "stockpulsePremiumToken"
     );
-
 }
 
 
@@ -3077,6 +3103,7 @@ function showPremiumLock() {
     const recommendation =
         $("todayRecommendation");
 
+
     const lock =
         $("premiumLock");
 
@@ -3095,7 +3122,6 @@ function showPremiumLock() {
             "block";
 
     }
-
 }
 
 
@@ -3108,6 +3134,7 @@ function showPremiumContent() {
     const recommendation =
         $("todayRecommendation");
 
+
     const lock =
         $("premiumLock");
 
@@ -3126,16 +3153,370 @@ function showPremiumContent() {
             "block";
 
     }
+}
 
+
+/* =========================================================
+   RENDER TODAY SIGNALS
+   ---------------------------------------------------------
+   MongoDB fields supported:
+   - symbol
+   - name
+   - type
+   - entry
+   - stopLoss
+   - target1
+   - target2
+   - target3
+   - risk
+   - exchange
+   - note
+========================================================= */
+
+function renderTodaySignals(signals) {
+
+    const container =
+        $("todaySignals");
+
+
+    if (!container) {
+        return;
+    }
+
+
+    if (
+        !Array.isArray(signals) ||
+        signals.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div style="
+                padding:20px;
+                color:#9ca3af;
+                text-align:center;
+            ">
+
+                Today's recommendation
+                will be updated soon.
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        signals.map(signal => {
+
+            const side =
+                normalizeSignalType(
+                    signal
+                );
+
+
+            const sideClass =
+                side === "BUY"
+                    ? "buy"
+                    : side === "SELL"
+                        ? "sell"
+                        : "hold";
+
+
+            return `
+
+                <div
+                    class="today-signal-card ${sideClass}"
+                    style="
+                        background:#0b1220;
+                        border:1px solid #263244;
+                        border-radius:15px;
+                        padding:20px;
+                        margin-top:15px;
+                    "
+                >
+
+                    <!-- HEADER -->
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        gap:10px;
+                        margin-bottom:12px;
+                    ">
+
+                        <div>
+
+                            <h3 style="
+                                margin:0 0 5px 0;
+                                font-size:20px;
+                            ">
+                                ${escapeHTML(
+                                    signal.symbol ||
+                                    "MARKET"
+                                )}
+                            </h3>
+
+
+                            <p style="
+                                margin:0;
+                                color:#9ca3af;
+                                font-size:13px;
+                            ">
+                                ${escapeHTML(
+                                    signal.name ||
+                                    ""
+                                )}
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            class="signal-badge ${side.toLowerCase()}-badge"
+                            style="
+                                display:inline-flex;
+                                align-items:center;
+                                justify-content:center;
+                                padding:7px 14px;
+                                border-radius:20px;
+                                font-weight:700;
+                                font-size:13px;
+                            "
+                        >
+                            ${escapeHTML(side)}
+                        </span>
+
+                    </div>
+
+
+                    <!-- NOTE -->
+
+                    ${
+                        signal.note
+                            ? `
+
+                                <p style="
+                                    margin:10px 0 18px;
+                                    color:#d1d5db;
+                                    line-height:1.5;
+                                ">
+                                    ${escapeHTML(
+                                        signal.note
+                                    )}
+                                </p>
+
+                            `
+                            : ""
+                    }
+
+
+                    <!-- TRADE LEVELS -->
+
+                    <div style="
+                        display:grid;
+                        grid-template-columns:
+                            repeat(
+                                auto-fit,
+                                minmax(120px,1fr)
+                            );
+                        gap:10px;
+                        margin-top:10px;
+                    ">
+
+
+                        <!-- ENTRY -->
+
+                        <div style="
+                            padding:12px;
+                            border:1px solid #263244;
+                            border-radius:10px;
+                        ">
+
+                            <small style="
+                                display:block;
+                                color:#9ca3af;
+                                margin-bottom:5px;
+                            ">
+                                Entry
+                            </small>
+
+                            <strong>
+                                ${escapeHTML(
+                                    signal.entry ??
+                                    "--"
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <!-- STOP LOSS -->
+
+                        <div style="
+                            padding:12px;
+                            border:1px solid #263244;
+                            border-radius:10px;
+                        ">
+
+                            <small style="
+                                display:block;
+                                color:#9ca3af;
+                                margin-bottom:5px;
+                            ">
+                                Stop Loss
+                            </small>
+
+                            <strong>
+                                ${escapeHTML(
+                                    signal.stopLoss ??
+                                    "--"
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <!-- TARGET 1 -->
+
+                        <div style="
+                            padding:12px;
+                            border:1px solid #263244;
+                            border-radius:10px;
+                        ">
+
+                            <small style="
+                                display:block;
+                                color:#9ca3af;
+                                margin-bottom:5px;
+                            ">
+                                Target 1
+                            </small>
+
+                            <strong>
+                                ${escapeHTML(
+                                    signal.target1 ??
+                                    "--"
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <!-- TARGET 2 -->
+
+                        <div style="
+                            padding:12px;
+                            border:1px solid #263244;
+                            border-radius:10px;
+                        ">
+
+                            <small style="
+                                display:block;
+                                color:#9ca3af;
+                                margin-bottom:5px;
+                            ">
+                                Target 2
+                            </small>
+
+                            <strong>
+                                ${escapeHTML(
+                                    signal.target2 ??
+                                    "--"
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <!-- TARGET 3 -->
+
+                        <div style="
+                            padding:12px;
+                            border:1px solid #263244;
+                            border-radius:10px;
+                        ">
+
+                            <small style="
+                                display:block;
+                                color:#9ca3af;
+                                margin-bottom:5px;
+                            ">
+                                Target 3
+                            </small>
+
+                            <strong>
+                                ${escapeHTML(
+                                    signal.target3 ??
+                                    "--"
+                                )}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- EXTRA INFO -->
+
+                    <div style="
+                        display:flex;
+                        flex-wrap:wrap;
+                        gap:15px;
+                        margin-top:18px;
+                        padding-top:14px;
+                        border-top:1px solid #263244;
+                        color:#9ca3af;
+                        font-size:13px;
+                    ">
+
+                        <span>
+                            Risk:
+                            <strong style="color:#fff;">
+                                ${escapeHTML(
+                                    signal.risk ||
+                                    "Medium"
+                                )}
+                            </strong>
+                        </span>
+
+
+                        <span>
+                            Exchange:
+                            <strong style="color:#fff;">
+                                ${escapeHTML(
+                                    signal.exchange ||
+                                    "NSE"
+                                )}
+                            </strong>
+                        </span>
+
+
+                        <span>
+                            Setup:
+                            <strong style="color:#fff;">
+                                ${escapeHTML(side)}
+                            </strong>
+                        </span>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        })
+        .join("");
 }
 
 
 /* =========================================================
    PREMIUM SIGNAL API
    ---------------------------------------------------------
-   IMPORTANT:
    No token = NO /api/signals request.
-   This fixes repeated 403 errors.
 ========================================================= */
 
 async function loadSignals() {
@@ -3144,17 +3525,11 @@ async function loadSignals() {
         getPremiumToken();
 
 
-    /*
-       User is not premium.
-       Don't call protected API.
-    */
-
     if (!token) {
 
         showPremiumLock();
 
         return;
-
     }
 
 
@@ -3164,8 +3539,8 @@ async function loadSignals() {
             await fetch(
                 `${API_BASE}/api/signals`,
                 {
-                    method:
-                        "GET",
+
+                    method: "GET",
 
                     headers: {
 
@@ -3198,10 +3573,6 @@ async function loadSignals() {
         }
 
 
-        /*
-           Premium token invalid/expired
-        */
-
         if (
             response.status === 401 ||
             response.status === 403 ||
@@ -3214,14 +3585,10 @@ async function loadSignals() {
             );
 
 
-            /*
-               Only remove token if server
-               actually rejected it.
-            */
-
             localStorage.removeItem(
                 "stockpulsePremiumToken"
             );
+
 
             localStorage.removeItem(
                 "stockpulsePremium"
@@ -3231,7 +3598,6 @@ async function loadSignals() {
             showPremiumLock();
 
             return;
-
         }
 
 
@@ -3252,8 +3618,9 @@ async function loadSignals() {
                 "No active signals found."
             );
 
-            return;
+            renderTodaySignals([]);
 
+            return;
         }
 
 
@@ -3263,14 +3630,16 @@ async function loadSignals() {
         );
 
 
-        let stockSignal =
-            null;
+        /* TODAY RECOMMENDATION */
 
-        let cryptoSignal =
-            null;
+        renderTodaySignals(
+            signals
+        );
 
-        let goldSignal =
-            null;
+
+        let stockSignal = null;
+        let cryptoSignal = null;
+        let goldSignal = null;
 
 
         signals.forEach(signal => {
@@ -3320,7 +3689,9 @@ async function loadSignals() {
                 goldSignal =
                     signal;
 
-            } else if (
+            }
+
+            else if (
                 isCrypto &&
                 !cryptoSignal
             ) {
@@ -3328,7 +3699,9 @@ async function loadSignals() {
                 cryptoSignal =
                     signal;
 
-            } else if (
+            }
+
+            else if (
                 !isCrypto &&
                 !isGold &&
                 !stockSignal
@@ -3377,125 +3750,6 @@ async function loadSignals() {
         );
 
     }
-
-}
-
-
-/* =========================================================
-   RENDER TODAY SIGNALS
-========================================================= */
-
-function renderTodaySignals(signals) {
-
-    const container =
-        $("todaySignals");
-
-
-    if (!container) {
-        return;
-    }
-
-
-    if (!signals.length) {
-
-        container.innerHTML = `
-            <div style="
-                padding:20px;
-                color:#9ca3af;
-            ">
-                Today's recommendation
-                will be updated soon.
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        signals.map(signal => `
-
-            <div style="
-                background:#0b1220;
-                border:1px solid #263244;
-                border-radius:15px;
-                padding:18px;
-                margin-top:15px;
-            ">
-
-                <h3>
-                    ${escapeHTML(
-                        signal.symbol
-                    )}
-                </h3>
-
-                <p>
-                    ${escapeHTML(
-                        signal.name || ""
-                    )}
-                </p>
-
-                <p>
-                    <strong>
-                        ${escapeHTML(
-                            signal.type || ""
-                        )}
-                    </strong>
-                </p>
-
-                <p>
-                    Entry:
-                    ${escapeHTML(
-                        signal.entry || "--"
-                    )}
-                </p>
-
-                <p>
-                    Stop Loss:
-                    ${escapeHTML(
-                        signal.stopLoss || "--"
-                    )}
-                </p>
-
-                <p>
-                    Target 1:
-                    ${escapeHTML(
-                        signal.target1 || "--"
-                    )}
-                </p>
-
-                <p>
-                    Target 2:
-                    ${escapeHTML(
-                        signal.target2 || "--"
-                    )}
-                </p>
-
-                <p>
-                    Target 3:
-                    ${escapeHTML(
-                        signal.target3 || "--"
-                    )}
-                </p>
-
-                <p>
-                    Risk:
-                    ${escapeHTML(
-                        signal.risk || "Medium"
-                    )}
-                </p>
-
-                ${
-                    signal.note
-                    ? `<p>${escapeHTML(signal.note)}</p>`
-                    : ""
-                }
-
-            </div>
-
-        `).join("");
-
 }
 
 
@@ -3509,16 +3763,11 @@ async function loadPremiumSignals() {
         getPremiumToken();
 
 
-    /*
-       No premium
-    */
-
     if (!token) {
 
         showPremiumLock();
 
         return;
-
     }
 
 
@@ -3528,8 +3777,8 @@ async function loadPremiumSignals() {
             await fetch(
                 `${API_BASE}/api/signals`,
                 {
-                    method:
-                        "GET",
+
+                    method: "GET",
 
                     headers: {
 
@@ -3545,8 +3794,21 @@ async function loadPremiumSignals() {
             );
 
 
-        const data =
-            await response.json();
+        let data;
+
+
+        try {
+
+            data =
+                await response.json();
+
+        } catch {
+
+            throw new Error(
+                "Invalid server response"
+            );
+
+        }
 
 
         if (
@@ -3560,6 +3822,7 @@ async function loadPremiumSignals() {
                 "stockpulsePremiumToken"
             );
 
+
             localStorage.removeItem(
                 "stockpulsePremium"
             );
@@ -3568,15 +3831,32 @@ async function loadPremiumSignals() {
             showPremiumLock();
 
             return;
-
         }
 
 
         showPremiumContent();
 
 
+        const signals =
+            Array.isArray(
+                data.signals
+            )
+                ? data.signals
+                : [];
+
+
+        /* IMPORTANT:
+           Render MongoDB Entry/SL/TG data
+        */
+
         renderTodaySignals(
-            data.signals || []
+            signals
+        );
+
+
+        console.log(
+            "✅ Premium page signals loaded:",
+            signals
         );
 
 
@@ -3588,7 +3868,6 @@ async function loadPremiumSignals() {
         );
 
     }
-
 }
 
 
@@ -3601,7 +3880,6 @@ function setupPremiumButtons() {
     const buttons = [
 
         $("premiumBtn"),
-
         $("premiumBtnBottom")
 
     ];
@@ -3626,7 +3904,6 @@ function setupPremiumButtons() {
         );
 
     });
-
 }
 
 
@@ -3656,9 +3933,7 @@ document.addEventListener(
 
 
                 if (back) {
-
                     back.click();
-
                 }
 
             }
@@ -3684,16 +3959,12 @@ function startLiveUpdates() {
         setInterval(
             async () => {
 
-                /*
-                   Dashboard prices
-                */
+                /* Dashboard prices */
 
                 await updateDashboardPrices();
 
 
-                /*
-                   Detail price
-                */
+                /* Detail price */
 
                 const detail =
                     $("detailView");
@@ -3709,19 +3980,13 @@ function startLiveUpdates() {
                 }
 
 
-                /*
-                   Premium signals
-
-                   loadSignals() itself checks
-                   whether a premium token exists.
-                */
+                /* Premium signals */
 
                 await loadSignals();
 
             },
             5000
         );
-
 }
 
 
@@ -3736,75 +4001,52 @@ async function initStockPulse() {
     );
 
 
-    /*
-       Theme
-    */
+    /* Theme */
 
     setupTheme();
 
 
-    /*
-       Market cards
-    */
+    /* Market cards */
 
     setupMarketCards();
 
 
-    /*
-       Hero card
-    */
+    /* Hero card */
 
     setupHeroCard();
 
 
-    /*
-       Back button
-    */
+    /* Back button */
 
     setupBackButton();
 
 
-    /*
-       Watchlist
-    */
+    /* Watchlist */
 
     setupWatchlist();
 
 
-    /*
-       Premium
-    */
+    /* Premium */
 
     setupPremiumButtons();
 
 
-    /*
-       Hide detail levels
-    */
+    /* Hide detail levels */
 
     hideDetailTradingLevels();
 
 
-    /*
-       Live prices
-    */
+    /* Live prices */
 
     await updateDashboardPrices();
 
 
-    /*
-       Premium signals
-
-       Protected API is called ONLY
-       when premium token exists.
-    */
+    /* Premium signals */
 
     await loadSignals();
 
 
-    /*
-       Auto refresh
-    */
+    /* Auto refresh */
 
     startLiveUpdates();
 
@@ -3812,7 +4054,6 @@ async function initStockPulse() {
     console.log(
         "✅ StockPulse frontend ready"
     );
-
 }
 
 
@@ -3828,9 +4069,6 @@ document.addEventListener(
 
 /* =========================================================
    EXTRA PREMIUM PAGE SUPPORT
-   ---------------------------------------------------------
-   If the page contains premium recommendation
-   elements, load them after DOM is ready.
 ========================================================= */
 
 document.addEventListener(

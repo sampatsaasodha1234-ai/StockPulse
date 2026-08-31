@@ -24,14 +24,12 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-
 // ======================================================
 // MIDDLEWARE
 // ======================================================
 
 app.use(cors());
 app.use(express.json());
-
 
 // ======================================================
 // ENV CONFIGURATION
@@ -52,7 +50,6 @@ const ADMIN_PASSWORD =
 const MONGODB_URI =
     process.env.MONGODB_URI || "";
 
-
 // ======================================================
 // CONFIGURATION STATUS
 // ======================================================
@@ -63,40 +60,41 @@ console.log("       STOCKPULSE CONFIGURATION");
 console.log("==========================================");
 
 console.log(
-    `UPSTOX: ${
-        UPSTOX_ACCESS_TOKEN
-            ? "Configured ✅"
-            : "NOT CONFIGURED ❌"
-    }`
+    "UPSTOX: " +
+    (UPSTOX_ACCESS_TOKEN
+        ? "Configured"
+        : "NOT CONFIGURED")
 );
 
 console.log(
-    `RAZORPAY: ${
+    "RAZORPAY: " +
+    (
         RAZORPAY_KEY_ID &&
         RAZORPAY_KEY_SECRET
-            ? "Configured ✅"
-            : "NOT CONFIGURED ❌"
-    }`
+            ? "Configured"
+            : "NOT CONFIGURED"
+    )
 );
 
 console.log(
-    `ADMIN PASSWORD: ${
+    "ADMIN PASSWORD: " +
+    (
         ADMIN_PASSWORD
-            ? "Configured ✅"
-            : "NOT CONFIGURED ❌"
-    }`
+            ? "Configured"
+            : "NOT CONFIGURED"
+    )
 );
 
 console.log(
-    `MONGODB: ${
+    "MONGODB: " +
+    (
         MONGODB_URI
-            ? "Configured ✅"
-            : "NOT CONFIGURED ❌"
-    }`
+            ? "Configured"
+            : "NOT CONFIGURED"
+    )
 );
 
 console.log("==========================================");
-
 
 // ======================================================
 // MONGODB CONNECTION
@@ -110,47 +108,24 @@ async function connectMongoDB() {
 
         console.warn("");
         console.warn(
-            "⚠️ MONGODB_URI is not configured."
+            "MONGODB_URI is not configured."
         );
 
-        return;
-
+        return false;
     }
 
     try {
 
         console.log("");
         console.log(
-            "🍃 MongoDB: Connecting..."
+            "MongoDB: Connecting..."
         );
 
         await mongoose.connect(
-            MONGODB_URI.trim(),
-            {
-                family: 4,
-
-                serverSelectionTimeoutMS:
-                    15000,
-
-                connectTimeoutMS:
-                    15000,
-
-                socketTimeoutMS:
-                    45000,
-
-                retryWrites:
-                    true,
-
-                w:
-                    "majority",
-
-                maxPoolSize:
-                    10
-            }
+            MONGODB_URI.trim()
         );
 
-        mongoConnected =
-            true;
+        mongoConnected = true;
 
         console.log("");
         console.log(
@@ -158,7 +133,7 @@ async function connectMongoDB() {
         );
 
         console.log(
-            "🍃 MONGODB CONNECTED SUCCESSFULLY ✅"
+            "MONGODB CONNECTED SUCCESSFULLY"
         );
 
         console.log(
@@ -180,10 +155,11 @@ async function connectMongoDB() {
             mongoose.connection.readyState
         );
 
+        return true;
+
     } catch (error) {
 
-        mongoConnected =
-            false;
+        mongoConnected = false;
 
         console.error("");
         console.error(
@@ -191,7 +167,7 @@ async function connectMongoDB() {
         );
 
         console.error(
-            "❌ MONGODB CONNECTION ERROR"
+            "MONGODB CONNECTION ERROR"
         );
 
         console.error(
@@ -217,59 +193,50 @@ async function connectMongoDB() {
             "=========================================="
         );
 
+        return false;
     }
-
 }
 
+// ======================================================
+// MONGODB EVENTS
+// ======================================================
 
 mongoose.connection.on(
     "connected",
     () => {
 
-        mongoConnected =
-            true;
+        mongoConnected = true;
 
         console.log(
-            "🍃 MongoDB event: connected ✅"
+            "MongoDB event: connected"
         );
-
     }
 );
-
 
 mongoose.connection.on(
     "disconnected",
     () => {
 
-        mongoConnected =
-            false;
+        mongoConnected = false;
 
         console.warn(
-            "⚠️ MongoDB disconnected"
+            "MongoDB disconnected"
         );
-
     }
 );
-
 
 mongoose.connection.on(
     "error",
     error => {
 
-        mongoConnected =
-            false;
+        mongoConnected = false;
 
         console.error(
-            "❌ MongoDB event error:",
+            "MongoDB event error:",
             error.message
         );
-
     }
 );
-
-
-connectMongoDB();
-
 
 // ======================================================
 // PAYMENT SCHEMA
@@ -345,19 +312,16 @@ const paymentSchema =
             }
 
         },
-
         {
             timestamps: true
         }
     );
-
 
 const Payment =
     mongoose.model(
         "Payment",
         paymentSchema
     );
-
 
 // ======================================================
 // PREMIUM SIGNAL SCHEMA
@@ -368,114 +332,83 @@ const signalSchema =
         {
 
             category: {
-
                 type: String,
-
                 enum: [
                     "stocks",
                     "crypto",
                     "commodity",
                     "intraday"
                 ],
-
                 required: true,
-
                 lowercase: true
             },
 
             symbol: {
-
                 type: String,
-
                 required: true,
-
                 uppercase: true,
-
                 trim: true
             },
 
             name: {
-
                 type: String,
-
                 default: ""
             },
 
             type: {
-
                 type: String,
-
                 enum: [
                     "BUY",
                     "SELL"
                 ],
-
                 default: "BUY"
             },
 
             entry: {
-
                 type: String,
-
                 default: ""
             },
 
             stopLoss: {
-
                 type: String,
-
                 default: ""
             },
 
             target1: {
-
                 type: String,
-
                 default: ""
             },
 
             target2: {
-
                 type: String,
-
                 default: ""
             },
 
             target3: {
-
                 type: String,
-
                 default: ""
             },
 
             risk: {
-
                 type: String,
-
                 default: "Medium"
             },
 
             note: {
-
                 type: String,
-
                 default: ""
             },
 
             active: {
-
                 type: Boolean,
-
                 default: true
             }
 
         },
-
         {
             timestamps: true
         }
     );
-
 
 const Signal =
     mongoose.model(
@@ -483,14 +416,12 @@ const Signal =
         signalSchema
     );
 
-
 // ======================================================
 // UPSTOX
 // ======================================================
 
 const UPSTOX_API =
     "https://api.upstox.com";
-
 
 function upstoxHeaders() {
 
@@ -503,12 +434,9 @@ function upstoxHeaders() {
             "application/json",
 
         Authorization:
-            `Bearer ${UPSTOX_ACCESS_TOKEN}`
-
+            "Bearer " + UPSTOX_ACCESS_TOKEN
     };
-
 }
-
 
 async function upstoxFetch(url) {
 
@@ -517,7 +445,6 @@ async function upstoxFetch(url) {
         throw new Error(
             "UPSTOX_ACCESS_TOKEN is not configured"
         );
-
     }
 
     const response =
@@ -529,7 +456,6 @@ async function upstoxFetch(url) {
             }
         );
 
-
     let data;
 
     try {
@@ -540,47 +466,40 @@ async function upstoxFetch(url) {
     } catch {
 
         throw new Error(
-            `Upstox returned invalid response (${response.status})`
+            "Upstox returned invalid response (" +
+            response.status +
+            ")"
         );
-
     }
-
 
     if (!response.ok) {
 
         throw new Error(
-
             data.errors?.[0]?.message ||
             data.message ||
             "Upstox API request failed"
-
         );
-
     }
 
-
     return data;
-
 }
-
 
 async function getUpstoxData(
     instrumentKey
 ) {
 
     const url =
-        `${UPSTOX_API}/v2/market-quote/ltp` +
-        `?instrument_key=${encodeURIComponent(
+        UPSTOX_API +
+        "/v2/market-quote/ltp" +
+        "?instrument_key=" +
+        encodeURIComponent(
             instrumentKey
-        )}`;
-
+        );
 
     return await upstoxFetch(
         url
     );
-
 }
-
 
 // ======================================================
 // STATIC INSTRUMENTS
@@ -608,9 +527,7 @@ const STATIC_INSTRUMENTS = {
 
     ITC:
         "NSE_EQ|INE154A01025"
-
 };
-
 
 // ======================================================
 // INDEX PRICE HELPER
@@ -630,10 +547,8 @@ async function sendIndexPrice(
                 instrumentKey
             );
 
-
         const index =
             data.data?.[responseKey];
-
 
         if (!index) {
 
@@ -642,18 +557,15 @@ async function sendIndexPrice(
                 success: false,
 
                 error:
-                    `${name} data not found`
-
+                    name +
+                    " data not found"
             });
-
         }
-
 
         const price =
             Number(
                 index.last_price
             );
-
 
         if (!Number.isFinite(price)) {
 
@@ -662,12 +574,10 @@ async function sendIndexPrice(
                 success: false,
 
                 error:
-                    `${name} price is invalid`
-
+                    name +
+                    " price is invalid"
             });
-
         }
-
 
         res.json({
 
@@ -676,16 +586,14 @@ async function sendIndexPrice(
             name,
 
             price
-
         });
 
     } catch (error) {
 
         console.error(
-            `${name} ERROR:`,
+            name + " ERROR:",
             error.message
         );
-
 
         res.status(500).json({
 
@@ -693,13 +601,9 @@ async function sendIndexPrice(
 
             error:
                 error.message
-
         });
-
     }
-
 }
-
 
 // ======================================================
 // INDEX ROUTES
@@ -710,80 +614,52 @@ app.get(
     async (req, res) => {
 
         await sendIndexPrice(
-
             res,
-
             "NIFTY 50",
-
             "NSE_INDEX|Nifty 50",
-
             "NSE_INDEX:Nifty 50"
-
         );
-
     }
 );
-
 
 app.get(
     "/api/banknifty",
     async (req, res) => {
 
         await sendIndexPrice(
-
             res,
-
             "BANK NIFTY",
-
             "NSE_INDEX|Nifty Bank",
-
             "NSE_INDEX:Nifty Bank"
-
         );
-
     }
 );
-
 
 app.get(
     "/api/niftyit",
     async (req, res) => {
 
         await sendIndexPrice(
-
             res,
-
             "NIFTY IT",
-
             "NSE_INDEX|Nifty IT",
-
             "NSE_INDEX:Nifty IT"
-
         );
-
     }
 );
-
 
 app.get(
     "/api/sensex",
     async (req, res) => {
 
         await sendIndexPrice(
-
             res,
-
             "SENSEX",
-
             "BSE_INDEX|SENSEX",
-
             "BSE_INDEX:SENSEX"
-
         );
-
     }
 );
-
 
 // ======================================================
 // FIND NSE INSTRUMENT
@@ -798,13 +674,9 @@ async function findNSEInstrument(
             .trim()
             .toUpperCase();
 
-
     if (!query) {
-
         return null;
-
     }
-
 
     if (
         STATIC_INSTRUMENTS[query] &&
@@ -825,57 +697,47 @@ async function findNSEInstrument(
 
             exchange:
                 "NSE"
-
         };
-
     }
 
-
     const url =
-        `${UPSTOX_API}/v2/instruments/search` +
-        `?query=${encodeURIComponent(query)}` +
-        `&exchanges=NSE` +
-        `&segments=EQ` +
-        `&page_number=1` +
-        `&records=30`;
-
+        UPSTOX_API +
+        "/v2/instruments/search" +
+        "?query=" +
+        encodeURIComponent(query) +
+        "&exchanges=NSE" +
+        "&segments=EQ" +
+        "&page_number=1" +
+        "&records=30";
 
     const data =
         await upstoxFetch(
             url
         );
 
-
     const results =
         Array.isArray(data.data)
             ? data.data
             : [];
 
-
     if (!results.length) {
-
         return null;
-
     }
-
 
     let match =
         results.find(
             item =>
-
                 String(
                     item.trading_symbol || ""
                 )
                     .toUpperCase() ===
                 query &&
-
                 String(
                     item.segment || ""
                 )
                     .toUpperCase() ===
                 "NSE_EQ"
         );
-
 
     if (!match) {
 
@@ -889,13 +751,11 @@ async function findNSEInstrument(
                         )
                             .toUpperCase();
 
-
                     const shortName =
                         String(
                             item.short_name || ""
                         )
                             .toUpperCase();
-
 
                     const name =
                         String(
@@ -903,45 +763,31 @@ async function findNSEInstrument(
                         )
                             .toUpperCase();
 
-
                     return (
-
                         tradingSymbol === query ||
-
                         shortName === query ||
-
                         name === query
-
                     );
-
                 }
             );
-
     }
-
 
     if (!match) {
 
         match =
             results.find(
                 item =>
-
                     String(
                         item.segment || ""
                     )
                         .toUpperCase() ===
                     "NSE_EQ"
             );
-
     }
-
 
     if (!match) {
-
         return null;
-
     }
-
 
     return {
 
@@ -959,11 +805,8 @@ async function findNSEInstrument(
         exchange:
             match.exchange ||
             "NSE"
-
     };
-
 }
-
 
 // ======================================================
 // SEARCH
@@ -982,7 +825,6 @@ app.get(
                     .trim()
                     .toUpperCase();
 
-
             if (!query) {
 
                 return res.status(400).json({
@@ -991,46 +833,39 @@ app.get(
 
                     error:
                         "Please provide search query"
-
                 });
-
             }
 
-
             const url =
-                `${UPSTOX_API}/v2/instruments/search` +
-                `?query=${encodeURIComponent(query)}` +
-                `&exchanges=NSE` +
-                `&segments=EQ` +
-                `&page_number=1` +
-                `&records=20`;
-
+                UPSTOX_API +
+                "/v2/instruments/search" +
+                "?query=" +
+                encodeURIComponent(query) +
+                "&exchanges=NSE" +
+                "&segments=EQ" +
+                "&page_number=1" +
+                "&records=20";
 
             const data =
                 await upstoxFetch(
                     url
                 );
 
-
             const results =
                 Array.isArray(data.data)
                     ? data.data
                     : [];
 
-
             const stocks =
                 results
-
                     .filter(
                         item =>
-
                             String(
                                 item.segment || ""
                             )
                                 .toUpperCase() ===
                             "NSE_EQ"
                     )
-
                     .map(
                         item => ({
 
@@ -1049,15 +884,12 @@ app.get(
                             exchange:
                                 item.exchange ||
                                 "NSE"
-
                         })
                     )
-
                     .filter(
                         item =>
                             item.symbol
                     );
-
 
             res.json({
 
@@ -1070,7 +902,6 @@ app.get(
 
                 results:
                     stocks
-
             });
 
         } catch (error) {
@@ -1080,21 +911,16 @@ app.get(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // STOCK PRICE
@@ -1113,7 +939,6 @@ app.get(
                     .toUpperCase()
                     .trim();
 
-
             if (!symbol) {
 
                 return res.status(400).json({
@@ -1122,17 +947,13 @@ app.get(
 
                     error:
                         "Please provide stock symbol"
-
                 });
-
             }
-
 
             const instrument =
                 await findNSEInstrument(
                     symbol
                 );
-
 
             if (!instrument) {
 
@@ -1141,24 +962,21 @@ app.get(
                     success: false,
 
                     error:
-                        `Stock ${symbol} not found on NSE`
-
+                        "Stock " +
+                        symbol +
+                        " not found on NSE"
                 });
-
             }
-
 
             const data =
                 await getUpstoxData(
                     instrument.instrumentKey
                 );
 
-
             const stock =
                 Object.values(
                     data.data || {}
                 )[0];
-
 
             if (!stock) {
 
@@ -1167,18 +985,16 @@ app.get(
                     success: false,
 
                     error:
-                        `Stock ${symbol} data not found`
-
+                        "Stock " +
+                        symbol +
+                        " data not found"
                 });
-
             }
-
 
             const price =
                 Number(
                     stock.last_price
                 );
-
 
             if (!Number.isFinite(price)) {
 
@@ -1187,12 +1003,10 @@ app.get(
                     success: false,
 
                     error:
-                        `${symbol} price is invalid`
-
+                        symbol +
+                        " price is invalid"
                 });
-
             }
-
 
             res.json({
 
@@ -1208,7 +1022,6 @@ app.get(
                     instrument.instrumentKey,
 
                 price
-
             });
 
         } catch (error) {
@@ -1218,21 +1031,16 @@ app.get(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // DELTA EXCHANGE
@@ -1241,15 +1049,14 @@ app.get(
 const DELTA_API_URL =
     "https://api.india.delta.exchange";
 
-
 async function getDeltaTicker(
     symbol
 ) {
 
     const url =
-        `${DELTA_API_URL}/v2/tickers/` +
-        `${encodeURIComponent(symbol)}`;
-
+        DELTA_API_URL +
+        "/v2/tickers/" +
+        encodeURIComponent(symbol);
 
     const response =
         await fetch(
@@ -1266,12 +1073,9 @@ async function getDeltaTicker(
 
                     "User-Agent":
                         "StockPulse/1.0"
-
                 }
-
             }
         );
-
 
     let data;
 
@@ -1283,11 +1087,11 @@ async function getDeltaTicker(
     } catch {
 
         throw new Error(
-            `Delta returned invalid response (${response.status})`
+            "Delta returned invalid response (" +
+            response.status +
+            ")"
         );
-
     }
-
 
     if (
         !response.ok ||
@@ -1299,16 +1103,11 @@ async function getDeltaTicker(
             data.error?.message ||
             data.error ||
             "Delta ticker API failed"
-
         );
-
     }
 
-
     return data.result;
-
 }
-
 
 // ======================================================
 // CRYPTO SYMBOLS
@@ -1327,9 +1126,7 @@ const CRYPTO_SYMBOLS = {
 
     XRP:
         "XRPUSD"
-
 };
-
 
 // ======================================================
 // CRYPTO PRICE
@@ -1348,7 +1145,6 @@ app.get(
                     .toUpperCase()
                     .trim();
 
-
             if (!symbol) {
 
                 return res.status(400).json({
@@ -1357,17 +1153,13 @@ app.get(
 
                     error:
                         "Please provide crypto symbol"
-
                 });
-
             }
-
 
             const deltaSymbol =
                 CRYPTO_SYMBOLS[
                     symbol
                 ];
-
 
             if (!deltaSymbol) {
 
@@ -1376,24 +1168,21 @@ app.get(
                     success: false,
 
                     error:
-                        `Crypto ${symbol} is not configured`
-
+                        "Crypto " +
+                        symbol +
+                        " is not configured"
                 });
-
             }
-
 
             const ticker =
                 await getDeltaTicker(
                     deltaSymbol
                 );
 
-
             const price =
                 ticker.close ??
                 ticker.mark_price ??
                 ticker.last_price;
-
 
             if (
                 price === undefined ||
@@ -1405,12 +1194,10 @@ app.get(
                     success: false,
 
                     error:
-                        `${symbol} price not available`
-
+                        symbol +
+                        " price not available"
                 });
-
             }
-
 
             res.json({
 
@@ -1422,7 +1209,6 @@ app.get(
 
                 price:
                     Number(price)
-
             });
 
         } catch (error) {
@@ -1432,21 +1218,16 @@ app.get(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // TIMEFRAME CONFIG
@@ -1462,7 +1243,6 @@ function getTimeframeConfig(
         )
             .toLowerCase()
             .trim();
-
 
     const configs = {
 
@@ -1530,15 +1310,10 @@ function getTimeframeConfig(
             unit: "months",
             interval: "1"
         }
-
     };
 
-
-    return configs[tf] ||
-        null;
-
+    return configs[tf] || null;
 }
-
 
 // ======================================================
 // IST DATE
@@ -1551,12 +1326,10 @@ function getISTDate(
     const now =
         new Date();
 
-
     now.setUTCDate(
         now.getUTCDate() -
         daysAgo
     );
-
 
     return new Intl.DateTimeFormat(
         "en-CA",
@@ -1573,12 +1346,9 @@ function getISTDate(
 
             day:
                 "2-digit"
-
         }
     ).format(now);
-
 }
-
 
 // ======================================================
 // UPSTOX CANDLES
@@ -1594,15 +1364,12 @@ async function getUpstoxCandles(
             timeframe
         );
 
-
     if (!config) {
 
         throw new Error(
             "Invalid timeframe"
         );
-
     }
-
 
     if (
         [
@@ -1614,25 +1381,22 @@ async function getUpstoxCandles(
     ) {
 
         const url =
-            `${UPSTOX_API}` +
-            `/v3/historical-candle/intraday/` +
-            `${encodeURIComponent(
+            UPSTOX_API +
+            "/v3/historical-candle/intraday/" +
+            encodeURIComponent(
                 instrumentKey
-            )}/` +
-            `${config.unit}/` +
-            `${config.interval}`;
-
+            ) +
+            "/" +
+            config.unit +
+            "/" +
+            config.interval;
 
         return await upstoxFetch(
             url
         );
-
     }
 
-
-    let daysBack =
-        365;
-
+    let daysBack = 365;
 
     if (
         config.unit ===
@@ -1641,9 +1405,7 @@ async function getUpstoxCandles(
 
         daysBack =
             365 * 3;
-
     }
-
 
     if (
         config.unit ===
@@ -1652,38 +1414,35 @@ async function getUpstoxCandles(
 
         daysBack =
             365 * 5;
-
     }
-
 
     const toDate =
         getISTDate(0);
-
 
     const fromDate =
         getISTDate(
             daysBack
         );
 
-
     const url =
-        `${UPSTOX_API}` +
-        `/v3/historical-candle/` +
-        `${encodeURIComponent(
+        UPSTOX_API +
+        "/v3/historical-candle/" +
+        encodeURIComponent(
             instrumentKey
-        )}/` +
-        `${config.unit}/` +
-        `${config.interval}/` +
-        `${toDate}/` +
-        `${fromDate}`;
-
+        ) +
+        "/" +
+        config.unit +
+        "/" +
+        config.interval +
+        "/" +
+        toDate +
+        "/" +
+        fromDate;
 
     return await upstoxFetch(
         url
     );
-
 }
-
 
 // ======================================================
 // FORMAT UPSTOX CANDLES
@@ -1700,12 +1459,9 @@ function formatUpstoxCandles(
     ) {
 
         return [];
-
     }
 
-
     return rawCandles
-
         .map(
             candle => {
 
@@ -1717,59 +1473,46 @@ function formatUpstoxCandles(
                 ) {
 
                     return null;
-
                 }
-
 
                 const time =
                     candle[0];
-
 
                 const open =
                     Number(
                         candle[1]
                     );
 
-
                 const high =
                     Number(
                         candle[2]
                     );
-
 
                 const low =
                     Number(
                         candle[3]
                     );
 
-
                 const close =
                     Number(
                         candle[4]
                     );
-
 
                 const volume =
                     Number(
                         candle[5] || 0
                     );
 
-
                 if (
-
                     !time ||
-
                     !Number.isFinite(open) ||
                     !Number.isFinite(high) ||
                     !Number.isFinite(low) ||
                     !Number.isFinite(close)
-
                 ) {
 
                     return null;
-
                 }
-
 
                 return {
 
@@ -1784,14 +1527,10 @@ function formatUpstoxCandles(
                     close,
 
                     volume
-
                 };
-
             }
         )
-
         .filter(Boolean)
-
         .sort(
             (a, b) => {
 
@@ -1800,20 +1539,15 @@ function formatUpstoxCandles(
                         a.time
                     ).getTime();
 
-
                 const tb =
                     new Date(
                         b.time
                     ).getTime();
 
-
                 return ta - tb;
-
             }
         );
-
 }
-
 
 // ======================================================
 // STOCK / INDEX CANDLES
@@ -1832,14 +1566,12 @@ app.get(
                     .toUpperCase()
                     .trim();
 
-
             const timeframe =
                 String(
                     req.query.timeframe || "1m"
                 )
                     .toLowerCase()
                     .trim();
-
 
             if (!symbol) {
 
@@ -1849,17 +1581,13 @@ app.get(
 
                     error:
                         "Please provide symbol"
-
                 });
-
             }
-
 
             const config =
                 getTimeframeConfig(
                     timeframe
                 );
-
 
             if (!config) {
 
@@ -1869,21 +1597,16 @@ app.get(
 
                     error:
                         "Invalid timeframe"
-
                 });
-
             }
-
 
             let instrumentKey =
                 STATIC_INSTRUMENTS[
                     symbol
                 ];
 
-
             let instrumentName =
                 symbol;
-
 
             if (!instrumentKey) {
 
@@ -1892,7 +1615,6 @@ app.get(
                         symbol
                     );
 
-
                 if (!instrument) {
 
                     return res.status(404).json({
@@ -1900,30 +1622,24 @@ app.get(
                         success: false,
 
                         error:
-                            `${symbol} instrument not found on NSE`
-
+                            symbol +
+                            " instrument not found on NSE"
                     });
-
                 }
-
 
                 instrumentKey =
                     instrument.instrumentKey;
 
-
                 instrumentName =
                     instrument.name ||
                     symbol;
-
             }
-
 
             const data =
                 await getUpstoxCandles(
                     instrumentKey,
                     timeframe
                 );
-
 
             const rawCandles =
                 Array.isArray(
@@ -1932,12 +1648,10 @@ app.get(
                     ? data.data.candles
                     : [];
 
-
             const candles =
                 formatUpstoxCandles(
                     rawCandles
                 );
-
 
             if (!candles.length) {
 
@@ -1947,11 +1661,8 @@ app.get(
 
                     error:
                         "Upstox returned no valid candles"
-
                 });
-
             }
-
 
             res.json({
 
@@ -1970,7 +1681,6 @@ app.get(
                     candles.length,
 
                 candles
-
             });
 
         } catch (error) {
@@ -1980,21 +1690,16 @@ app.get(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // DELTA RESOLUTIONS
@@ -2045,9 +1750,7 @@ const DELTA_RESOLUTIONS = {
     "1w": {
         seconds: 604800
     }
-
 };
-
 
 // ======================================================
 // NORMALIZE DELTA CANDLE
@@ -2068,60 +1771,48 @@ function normalizeDeltaCandle(
         ) {
 
             return null;
-
         }
-
 
         const time =
             Number(
                 candle[0]
             );
 
-
         const open =
             Number(
                 candle[1]
             );
-
 
         const high =
             Number(
                 candle[2]
             );
 
-
         const low =
             Number(
                 candle[3]
             );
-
 
         const close =
             Number(
                 candle[4]
             );
 
-
         const volume =
             Number(
                 candle[5] || 0
             );
 
-
         if (
-
             !Number.isFinite(time) ||
             !Number.isFinite(open) ||
             !Number.isFinite(high) ||
             !Number.isFinite(low) ||
             !Number.isFinite(close)
-
         ) {
 
             return null;
-
         }
-
 
         return {
 
@@ -2141,11 +1832,8 @@ function normalizeDeltaCandle(
             close,
 
             volume
-
         };
-
     }
-
 
     if (
         candle &&
@@ -2158,36 +1846,30 @@ function normalizeDeltaCandle(
             candle.timestamp ??
             candle.ts;
 
-
         const time =
             Number(
                 rawTime
             );
-
 
         const open =
             Number(
                 candle.open
             );
 
-
         const high =
             Number(
                 candle.high
             );
-
 
         const low =
             Number(
                 candle.low
             );
 
-
         const close =
             Number(
                 candle.close
             );
-
 
         const volume =
             Number(
@@ -2196,21 +1878,16 @@ function normalizeDeltaCandle(
                 0
             );
 
-
         if (
-
             !Number.isFinite(time) ||
             !Number.isFinite(open) ||
             !Number.isFinite(high) ||
             !Number.isFinite(low) ||
             !Number.isFinite(close)
-
         ) {
 
             return null;
-
         }
-
 
         return {
 
@@ -2230,16 +1907,11 @@ function normalizeDeltaCandle(
             close,
 
             volume
-
         };
-
     }
 
-
     return null;
-
 }
-
 
 // ======================================================
 // DELTA CRYPTO CANDLES
@@ -2258,7 +1930,6 @@ app.get(
                     .toUpperCase()
                     .trim();
 
-
             const resolution =
                 String(
                     req.query.resolution || "1m"
@@ -2266,12 +1937,10 @@ app.get(
                     .toLowerCase()
                     .trim();
 
-
             const deltaSymbol =
                 CRYPTO_SYMBOLS[
                     symbol
                 ];
-
 
             if (!deltaSymbol) {
 
@@ -2280,18 +1949,16 @@ app.get(
                     success: false,
 
                     error:
-                        `Crypto ${symbol} is not configured`
-
+                        "Crypto " +
+                        symbol +
+                        " is not configured"
                 });
-
             }
-
 
             const config =
                 DELTA_RESOLUTIONS[
                     resolution
                 ];
-
 
             if (!config) {
 
@@ -2301,22 +1968,17 @@ app.get(
 
                     error:
                         "Invalid crypto resolution"
-
                 });
-
             }
-
 
             const candleCount =
                 200;
-
 
             const end =
                 Math.floor(
                     Date.now() /
                     1000
                 );
-
 
             const start =
                 end -
@@ -2325,18 +1987,21 @@ app.get(
                     candleCount
                 );
 
-
             const url =
-                `${DELTA_API_URL}/v2/history/candles` +
-                `?resolution=${encodeURIComponent(
+                DELTA_API_URL +
+                "/v2/history/candles" +
+                "?resolution=" +
+                encodeURIComponent(
                     resolution
-                )}` +
-                `&symbol=${encodeURIComponent(
+                ) +
+                "&symbol=" +
+                encodeURIComponent(
                     deltaSymbol
-                )}` +
-                `&start=${start}` +
-                `&end=${end}`;
-
+                ) +
+                "&start=" +
+                start +
+                "&end=" +
+                end;
 
             const response =
                 await fetch(
@@ -2353,12 +2018,9 @@ app.get(
 
                             "User-Agent":
                                 "StockPulse/1.0"
-
                         }
-
                     }
                 );
-
 
             let data;
 
@@ -2370,11 +2032,11 @@ app.get(
             } catch {
 
                 throw new Error(
-                    `Delta returned invalid response (${response.status})`
+                    "Delta returned invalid response (" +
+                    response.status +
+                    ")"
                 );
-
             }
-
 
             if (!response.ok) {
 
@@ -2388,11 +2050,8 @@ app.get(
                         data.error?.message ||
                         data.error ||
                         "Delta candle API failed"
-
                 });
-
             }
-
 
             if (
                 data.success ===
@@ -2407,11 +2066,8 @@ app.get(
                         data.error?.message ||
                         data.error ||
                         "Delta API returned an error"
-
                 });
-
             }
-
 
             const rawCandles =
                 Array.isArray(
@@ -2420,22 +2076,17 @@ app.get(
                     ? data.result
                     : [];
 
-
             const candles =
                 rawCandles
-
                     .map(
                         normalizeDeltaCandle
                     )
-
                     .filter(Boolean)
-
                     .sort(
                         (a, b) =>
                             a.time -
                             b.time
                     );
-
 
             if (!candles.length) {
 
@@ -2445,11 +2096,8 @@ app.get(
 
                     error:
                         "Delta returned no valid candles"
-
                 });
-
             }
-
 
             res.json({
 
@@ -2465,7 +2113,6 @@ app.get(
                     candles.length,
 
                 candles
-
             });
 
         } catch (error) {
@@ -2475,44 +2122,40 @@ app.get(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // RAZORPAY
 // ======================================================
 
 const razorpay =
-    new Razorpay({
+    RAZORPAY_KEY_ID &&
+    RAZORPAY_KEY_SECRET
+        ? new Razorpay({
 
-        key_id:
-            RAZORPAY_KEY_ID,
+            key_id:
+                RAZORPAY_KEY_ID,
 
-        key_secret:
-            RAZORPAY_KEY_SECRET
+            key_secret:
+                RAZORPAY_KEY_SECRET
 
-    });
-
+        })
+        : null;
 
 const PREMIUM_AMOUNT =
     200000;
 
 const PREMIUM_CURRENCY =
     "INR";
-
 
 // ======================================================
 // PREMIUM TOKEN
@@ -2537,9 +2180,7 @@ function createPremiumToken(
 
         issuedAt:
             Date.now()
-
     };
-
 
     const payloadString =
         Buffer
@@ -2551,7 +2192,6 @@ function createPremiumToken(
             .toString(
                 "base64url"
             );
-
 
     const signature =
         crypto
@@ -2566,13 +2206,12 @@ function createPremiumToken(
                 "hex"
             );
 
-
     return (
-        `${payloadString}.${signature}`
+        payloadString +
+        "." +
+        signature
     );
-
 }
-
 
 function verifyPremiumToken(
     token
@@ -2581,32 +2220,27 @@ function verifyPremiumToken(
     try {
 
         if (!token) {
-
             return false;
-
         }
 
+        if (!RAZORPAY_KEY_SECRET) {
+            return false;
+        }
 
         const parts =
             token.split(".");
 
-
         if (
             parts.length !== 2
         ) {
-
             return false;
-
         }
-
 
         const payloadString =
             parts[0];
 
-
         const signature =
             parts[1];
-
 
         const expectedSignature =
             crypto
@@ -2621,16 +2255,12 @@ function verifyPremiumToken(
                     "hex"
                 );
 
-
         if (
             signature.length !==
             expectedSignature.length
         ) {
-
             return false;
-
         }
-
 
         if (
             !crypto.timingSafeEqual(
@@ -2642,11 +2272,8 @@ function verifyPremiumToken(
                 )
             )
         ) {
-
             return false;
-
         }
-
 
         const payload =
             JSON.parse(
@@ -2659,18 +2286,13 @@ function verifyPremiumToken(
                     .toString(
                         "utf8"
                     )
-
             );
-
 
         if (
             !payload.premium
         ) {
-
             return false;
-
         }
-
 
         if (
             payload.expiry &&
@@ -2679,22 +2301,16 @@ function verifyPremiumToken(
                     payload.expiry
                 )
         ) {
-
             return false;
-
         }
-
 
         return true;
 
     } catch {
 
         return false;
-
     }
-
 }
-
 
 // ======================================================
 // CREATE RAZORPAY ORDER
@@ -2708,7 +2324,8 @@ app.post(
 
             if (
                 !RAZORPAY_KEY_ID ||
-                !RAZORPAY_KEY_SECRET
+                !RAZORPAY_KEY_SECRET ||
+                !razorpay
             ) {
 
                 return res.status(500).json({
@@ -2717,11 +2334,8 @@ app.post(
 
                     error:
                         "Razorpay keys are not configured"
-
                 });
-
             }
-
 
             const order =
                 await razorpay.orders.create({
@@ -2733,7 +2347,8 @@ app.post(
                         PREMIUM_CURRENCY,
 
                     receipt:
-                        `stockpulse_${Date.now()}`,
+                        "stockpulse_" +
+                        Date.now(),
 
                     notes: {
 
@@ -2742,11 +2357,8 @@ app.post(
 
                         plan:
                             "6 Month Premium Membership"
-
                     }
-
                 });
-
 
             res.json({
 
@@ -2756,7 +2368,6 @@ app.post(
                     RAZORPAY_KEY_ID,
 
                 order
-
             });
 
         } catch (error) {
@@ -2766,7 +2377,6 @@ app.post(
                 error
             );
 
-
             res.status(500).json({
 
                 success: false,
@@ -2775,14 +2385,10 @@ app.post(
                     error.error?.description ||
                     error.message ||
                     "Unable to create payment order"
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // VERIFY RAZORPAY PAYMENT
@@ -2793,6 +2399,22 @@ app.post(
     async (req, res) => {
 
         try {
+
+            if (
+                !RAZORPAY_KEY_SECRET ||
+                !razorpay
+            ) {
+
+                return res.status(500).json({
+
+                    success: false,
+
+                    paid: false,
+
+                    error:
+                        "Razorpay is not configured"
+                });
+            }
 
             const {
 
@@ -2810,13 +2432,10 @@ app.post(
 
             } = req.body;
 
-
             if (
-
                 !razorpay_order_id ||
                 !razorpay_payment_id ||
                 !razorpay_signature
-
             ) {
 
                 return res.status(400).json({
@@ -2827,17 +2446,13 @@ app.post(
 
                     error:
                         "Payment verification data missing"
-
                 });
-
             }
-
 
             const body =
                 razorpay_order_id +
                 "|" +
                 razorpay_payment_id;
-
 
             const expectedSignature =
                 crypto
@@ -2852,7 +2467,6 @@ app.post(
                         "hex"
                     );
 
-
             if (
                 expectedSignature !==
                 razorpay_signature
@@ -2866,15 +2480,11 @@ app.post(
 
                     error:
                         "Payment verification failed"
-
                 });
-
             }
-
 
             let paymentDetails =
                 null;
-
 
             try {
 
@@ -2889,9 +2499,7 @@ app.post(
                     "PAYMENT FETCH ERROR:",
                     error.message
                 );
-
             }
-
 
             if (
                 paymentDetails &&
@@ -2907,37 +2515,30 @@ app.post(
                     paid: false,
 
                     error:
-                        `Payment status is ${paymentDetails.status}`
-
+                        "Payment status is " +
+                        paymentDetails.status
                 });
-
             }
-
 
             const premiumStartDate =
                 new Date();
-
 
             const premiumExpiry =
                 new Date(
                     premiumStartDate
                 );
 
-
             premiumExpiry.setMonth(
                 premiumExpiry.getMonth() +
                 6
             );
-
 
             let paymentRecord =
                 await Payment.findOne({
 
                     paymentId:
                         razorpay_payment_id
-
                 });
-
 
             if (!paymentRecord) {
 
@@ -2987,32 +2588,24 @@ app.post(
                         premiumExpiry,
 
                         paymentDate:
-
                             paymentDetails?.created_at
-
                                 ? new Date(
                                     paymentDetails.created_at *
                                     1000
                                 )
-
                                 : new Date()
-
                     });
 
-
                 console.log(
-                    "✅ PAYMENT SAVED TO MONGODB"
+                    "PAYMENT SAVED TO MONGODB"
                 );
-
             }
-
 
             const premiumToken =
                 createPremiumToken(
                     razorpay_payment_id,
                     paymentRecord.premiumExpiry
                 );
-
 
             res.json({
 
@@ -3030,7 +2623,6 @@ app.post(
                     paymentRecord.premiumExpiry,
 
                 premiumToken
-
             });
 
         } catch (error) {
@@ -3040,7 +2632,6 @@ app.post(
                 error
             );
 
-
             res.status(500).json({
 
                 success: false,
@@ -3049,38 +2640,67 @@ app.post(
 
                 error:
                     "Payment verification error"
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // ADMIN AUTH
 // ======================================================
 
-function verifyAdmin(
-    req,
-    res,
-    next
-) {
+function verifyAdmin(req, res, next) {
 
-    const password =
+    const headerPassword =
         String(
-            req.headers[
-                "x-admin-password"
-            ] || ""
-        );
+            req.headers["x-admin-password"] || ""
+        ).trim();
 
+    const authorization =
+        String(
+            req.headers.authorization || ""
+        ).trim();
+
+    let password = headerPassword;
+
+    // Support: Authorization: Bearer <password>
+    if (
+        !password &&
+        authorization.toLowerCase().startsWith("bearer ")
+    ) {
+        password =
+            authorization
+                .slice(7)
+                .trim();
+    }
 
     if (
-        !ADMIN_PASSWORD ||
-        password !==
-            ADMIN_PASSWORD
+        !ADMIN_PASSWORD
     ) {
+
+        console.error(
+            "ADMIN AUTH ERROR: ADMIN_PASSWORD is not configured"
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+            error:
+                "ADMIN_PASSWORD is not configured on server"
+        });
+    }
+
+    if (
+        !password ||
+        password !== ADMIN_PASSWORD
+    ) {
+
+        console.warn(
+            "ADMIN AUTH FAILED:",
+            req.method,
+            req.originalUrl
+        );
 
         return res.status(401).json({
 
@@ -3088,14 +2708,10 @@ function verifyAdmin(
 
             error:
                 "Unauthorized admin access"
-
         });
-
     }
 
-
     next();
-
 }
 
 
@@ -3107,43 +2723,98 @@ app.post(
     "/api/admin/login",
     (req, res) => {
 
-        const password =
-            String(
-                req.body.password || ""
+        try {
+
+            const password =
+                String(
+                    req.body?.password || ""
+                ).trim();
+
+            if (
+                !ADMIN_PASSWORD
+            ) {
+
+                return res.status(500).json({
+
+                    success: false,
+
+                    error:
+                        "ADMIN_PASSWORD is not configured on server"
+                });
+            }
+
+            if (
+                !password ||
+                password !== ADMIN_PASSWORD
+            ) {
+
+                return res.status(401).json({
+
+                    success: false,
+
+                    error:
+                        "Invalid admin password"
+                });
+            }
+
+            res.json({
+
+                success: true,
+
+                message:
+                    "Admin login successful",
+
+                // Admin HTML can use this value
+                // as x-admin-password
+                adminPassword:
+                    password
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ADMIN LOGIN ERROR:",
+                error.message
             );
 
-
-        if (
-            !ADMIN_PASSWORD ||
-            password !==
-                ADMIN_PASSWORD
-        ) {
-
-            return res.status(401).json({
+            res.status(500).json({
 
                 success: false,
 
                 error:
-                    "Invalid admin password"
-
+                    "Admin login failed"
             });
-
         }
+    }
+);
 
+
+// ======================================================
+// ADMIN STATUS
+// ======================================================
+// Admin HTML mein agar /api/admin/status call ho
+// to 404 nahi aayega.
+// ======================================================
+
+app.get(
+    "/api/admin/status",
+    verifyAdmin,
+    async (req, res) => {
 
         res.json({
 
             success: true,
 
+            authenticated: true,
+
+            mongoConnected:
+                mongoConnected,
+
             message:
-                "Admin login successful"
-
+                "Admin authentication successful"
         });
-
     }
 );
-
-
 // ======================================================
 // ADMIN DASHBOARD STATS
 // ======================================================
@@ -3163,24 +2834,18 @@ app.get(
 
                     error:
                         "MongoDB is not connected"
-
                 });
-
             }
-
 
             const totalPayments =
                 await Payment.countDocuments();
-
 
             const successfulPayments =
                 await Payment.countDocuments({
 
                     status:
                         "SUCCESS"
-
                 });
-
 
             const customerPhones =
                 await Payment.distinct(
@@ -3191,9 +2856,7 @@ app.get(
                         status:
                             "SUCCESS"
                     }
-
                 );
-
 
             const customerEmails =
                 await Payment.distinct(
@@ -3204,13 +2867,10 @@ app.get(
                         status:
                             "SUCCESS"
                     }
-
                 );
-
 
             const customers =
                 new Set();
-
 
             customerPhones.forEach(
                 phone => {
@@ -3222,14 +2882,12 @@ app.get(
                     ) {
 
                         customers.add(
-                            `phone:${phone}`
+                            "phone:" +
+                            phone
                         );
-
                     }
-
                 }
             );
-
 
             customerEmails.forEach(
                 email => {
@@ -3241,14 +2899,12 @@ app.get(
                     ) {
 
                         customers.add(
-                            `email:${email}`
+                            "email:" +
+                            email
                         );
-
                     }
-
                 }
             );
-
 
             const activePremium =
                 await Payment.countDocuments({
@@ -3263,9 +2919,7 @@ app.get(
 
                     status:
                         "SUCCESS"
-
                 });
-
 
             const revenueResult =
                 await Payment.aggregate([
@@ -3275,7 +2929,6 @@ app.get(
 
                             status:
                                 "SUCCESS"
-
                         }
                     },
 
@@ -3289,32 +2942,24 @@ app.get(
 
                                 $sum:
                                     "$amount"
-
                             }
-
                         }
                     }
-
                 ]);
-
 
             const totalRevenuePaise =
                 revenueResult[0]?.total ||
                 0;
 
-
             const totalSignals =
                 await Signal.countDocuments();
-
 
             const activeSignals =
                 await Signal.countDocuments({
 
                     active:
                         true
-
                 });
-
 
             res.json({
 
@@ -3338,9 +2983,7 @@ app.get(
                     totalSignals,
 
                     activeSignals
-
                 }
-
             });
 
         } catch (error) {
@@ -3350,21 +2993,16 @@ app.get(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // ADMIN CUSTOMER RECORDS
@@ -3385,11 +3023,8 @@ app.get(
 
                     error:
                         "MongoDB is not connected"
-
                 });
-
             }
-
 
             const payments =
                 await Payment.find({
@@ -3398,20 +3033,16 @@ app.get(
                         "SUCCESS"
 
                 })
-
                     .sort({
 
                         paymentDate:
                             -1
 
                     })
-
                     .lean();
-
 
             const customerMap =
                 new Map();
-
 
             for (
                 const payment of payments
@@ -3423,7 +3054,6 @@ app.get(
                         ""
                     ).trim();
 
-
                 const email =
                     String(
                         payment.customerEmail ||
@@ -3432,22 +3062,23 @@ app.get(
                         .trim()
                         .toLowerCase();
 
-
                 const key =
                     phone &&
                     phone !==
                         "Not Provided"
 
-                        ? `phone:${phone}`
+                        ? "phone:" +
+                          phone
 
                         : email &&
                           email !==
                               "not provided"
 
-                            ? `email:${email}`
+                            ? "email:" +
+                              email
 
-                            : `payment:${payment.paymentId}`;
-
+                            : "payment:" +
+                              payment.paymentId;
 
                 if (
                     !customerMap.has(
@@ -3497,20 +3128,15 @@ app.get(
                             status:
                                 payment.status ||
                                 "SUCCESS"
-
                         }
                     );
-
                 }
-
             }
-
 
             const customers =
                 Array.from(
                     customerMap.values()
                 );
-
 
             res.json({
 
@@ -3520,7 +3146,6 @@ app.get(
                     customers.length,
 
                 customers
-
             });
 
         } catch (error) {
@@ -3530,21 +3155,16 @@ app.get(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // ADMIN PAYMENT RECORDS
@@ -3565,11 +3185,8 @@ app.get(
 
                     error:
                         "MongoDB is not connected"
-
                 });
-
             }
-
 
             const payments =
                 await Payment.find()
@@ -3583,7 +3200,6 @@ app.get(
 
                     .lean();
 
-
             res.json({
 
                 success: true,
@@ -3592,7 +3208,6 @@ app.get(
                     payments.length,
 
                 payments
-
             });
 
         } catch (error) {
@@ -3602,21 +3217,16 @@ app.get(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // ADMIN PREMIUM SIGNALS
@@ -3637,11 +3247,8 @@ app.get(
 
                     error:
                         "MongoDB is not connected"
-
                 });
-
             }
-
 
             const signals =
                 await Signal.find()
@@ -3658,7 +3265,6 @@ app.get(
 
                     .lean();
 
-
             res.json({
 
                 success: true,
@@ -3667,7 +3273,6 @@ app.get(
                     signals.length,
 
                 signals
-
             });
 
         } catch (error) {
@@ -3677,21 +3282,16 @@ app.get(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // SAVE / UPDATE PREMIUM SIGNAL
@@ -3712,11 +3312,8 @@ app.post(
 
                     error:
                         "MongoDB is not connected"
-
                 });
-
             }
-
 
             const {
 
@@ -3748,14 +3345,12 @@ app.post(
 
             } = req.body;
 
-
             const cleanCategory =
                 String(
                     category || ""
                 )
                     .toLowerCase()
                     .trim();
-
 
             const cleanSymbol =
                 String(
@@ -3764,14 +3359,12 @@ app.post(
                     .toUpperCase()
                     .trim();
 
-
             const cleanType =
                 String(
                     type || ""
                 )
                     .toUpperCase()
                     .trim();
-
 
             const allowedCategories = [
 
@@ -3782,9 +3375,7 @@ app.post(
                 "commodity",
 
                 "intraday"
-
             ];
-
 
             if (
                 !allowedCategories.includes(
@@ -3798,11 +3389,8 @@ app.post(
 
                     error:
                         "Invalid signal category"
-
                 });
-
             }
-
 
             if (!cleanSymbol) {
 
@@ -3812,11 +3400,8 @@ app.post(
 
                     error:
                         "Symbol is required"
-
                 });
-
             }
-
 
             if (
                 !["BUY", "SELL"].includes(
@@ -3830,14 +3415,10 @@ app.post(
 
                     error:
                         "BUY or SELL is required"
-
                 });
-
             }
 
-
             let signal;
-
 
             if (id) {
 
@@ -3892,7 +3473,6 @@ app.post(
                             active:
                                 active !==
                                 false
-
                         },
 
                         {
@@ -3902,9 +3482,7 @@ app.post(
 
                             runValidators:
                                 true
-
                         }
-
                     );
 
             } else {
@@ -3956,11 +3534,8 @@ app.post(
                         active:
                             active !==
                             false
-
                     });
-
             }
-
 
             res.json({
 
@@ -3970,7 +3545,6 @@ app.post(
                     "Premium signal saved successfully",
 
                 signal
-
             });
 
         } catch (error) {
@@ -3980,21 +3554,16 @@ app.post(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
-
 
 // ======================================================
 // DELETE PREMIUM SIGNAL
@@ -4015,16 +3584,12 @@ app.delete(
 
                     error:
                         "MongoDB is not connected"
-
                 });
-
             }
-
 
             await Signal.findByIdAndDelete(
                 req.params.id
             );
-
 
             res.json({
 
@@ -4032,7 +3597,6 @@ app.delete(
 
                 message:
                     "Signal deleted successfully"
-
             });
 
         } catch (error) {
@@ -4042,24 +3606,23 @@ app.delete(
                 error.message
             );
 
-
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
 
-
 // ======================================================
-// CUSTOMER PREMIUM SIGNAL API
+// PUBLIC SIGNAL API
+// ======================================================
+// Website par active signals publicly available hain.
+// Admin panel se add/update kiye gaye signals yahan milenge.
+// Premium token ki requirement hata di gayi hai.
 // ======================================================
 
 app.get(
@@ -4068,45 +3631,16 @@ app.get(
 
         try {
 
-            const authHeader =
-                String(
-                    req.headers.authorization ||
-                    ""
-                );
+            if (!mongoConnected) {
 
-
-            const token =
-                authHeader.startsWith(
-                    "Bearer "
-                )
-
-                    ? authHeader.substring(
-                        7
-                    )
-
-                    : "";
-
-
-            if (
-                !verifyPremiumToken(
-                    token
-                )
-            ) {
-
-                return res.status(403).json({
+                return res.status(503).json({
 
                     success: false,
 
-                    premiumRequired:
-                        true,
-
                     error:
-                        "Premium membership required"
-
+                        "MongoDB is not connected"
                 });
-
             }
-
 
             const signals =
                 await Signal.find({
@@ -4115,7 +3649,6 @@ app.get(
                         true
 
                 })
-
                     .sort({
 
                         category:
@@ -4125,16 +3658,14 @@ app.get(
                             -1
 
                     })
-
                     .lean();
-
 
             res.json({
 
                 success: true,
 
-                premium:
-                    true,
+                count:
+                    signals.length,
 
                 signals
 
@@ -4142,19 +3673,22 @@ app.get(
 
         } catch (error) {
 
+            console.error(
+                "PUBLIC SIGNALS ERROR:",
+                error.message
+            );
+
             res.status(500).json({
 
                 success: false,
 
                 error:
                     error.message
-
             });
-
         }
-
     }
 );
+
 
 
 // ======================================================
@@ -4174,10 +3708,8 @@ app.get(
                 "admin.html"
             )
         );
-
     }
 );
-
 
 // ======================================================
 // SERVER STATUS
@@ -4215,7 +3747,7 @@ app.get(
                 "MongoDB",
 
             premiumPrice:
-                "₹2,000",
+                "2000 INR",
 
             premiumDuration:
                 "6 Months",
@@ -4229,7 +3761,6 @@ app.get(
                 "Commodity",
 
                 "Intraday"
-
             ],
 
             endpoints: [
@@ -4281,132 +3812,194 @@ app.get(
                 "/api/admin/stats",
 
                 "/api/admin/signals"
-
             ]
-
         });
-
     }
 );
-
 
 // ======================================================
 // START SERVER
 // ======================================================
 
-app.listen(
-    PORT,
-    () => {
+async function startServer() {
 
-        console.log("");
+    console.log("");
 
-        console.log(
+    console.log(
+        "=========================================="
+    );
+
+    console.log(
+        "MongoDB: Connecting..."
+    );
+
+    console.log(
+        "=========================================="
+    );
+
+    const connected =
+        await connectMongoDB();
+
+    if (!connected) {
+
+        console.error("");
+        console.error(
+            "MongoDB connection failed."
+        );
+
+        console.error(
+            "Server will NOT start."
+        );
+
+        console.error(
+            "Please check MONGODB_URI in .env"
+        );
+
+        process.exit(1);
+    }
+
+    app.listen(
+        PORT,
+        () => {
+
+            console.log("");
+
+            console.log(
+                "=========================================="
+            );
+
+            console.log(
+                "STOCKPULSE SERVER STARTED"
+            );
+
+            console.log(
+                "=========================================="
+            );
+
+            console.log(
+                "http://localhost:" +
+                PORT
+            );
+
+            console.log(
+                "MongoDB: CONNECTED"
+            );
+
+            console.log(
+                "NIFTY: /api/nifty"
+            );
+
+            console.log(
+                "BANKNIFTY: /api/banknifty"
+            );
+
+            console.log(
+                "SENSEX: /api/sensex"
+            );
+
+            console.log(
+                "NIFTY IT: /api/niftyit"
+            );
+
+            console.log(
+                "Dynamic NSE Search: /api/search"
+            );
+
+            console.log(
+                "Real Candles: /api/candles"
+            );
+
+            console.log(
+                "CRYPTO: /api/crypto"
+            );
+
+            console.log(
+                "CRYPTO CANDLES: /api/crypto/candles"
+            );
+
+            console.log(
+                "RAZORPAY: ENABLED"
+            );
+
+            console.log(
+                "MONGODB: ENABLED"
+            );
+
+            console.log(
+                "PREMIUM SIGNALS: ENABLED"
+            );
+
+            console.log(
+                "INDIAN STOCKS SIGNALS"
+            );
+
+            console.log(
+                "CRYPTO SIGNALS"
+            );
+
+            console.log(
+                "COMMODITY SIGNALS"
+            );
+
+            console.log(
+                "INTRADAY SIGNALS"
+            );
+
+            console.log(
+                "CUSTOMER RECORDS: ENABLED"
+            );
+
+            console.log(
+                "PAYMENT RECORDS: ENABLED"
+            );
+
+            console.log(
+                "DASHBOARD STATS: ENABLED"
+            );
+
+            console.log(
+                "PREMIUM: 2000 INR / 6 MONTHS"
+            );
+
+            console.log(
+                "ADMIN PANEL: ENABLED"
+            );
+
+            console.log(
+                "=========================================="
+            );
+        }
+    );
+}
+
+// ======================================================
+// RUN SERVER
+// ======================================================
+
+startServer().catch(
+    error => {
+
+        console.error("");
+        console.error(
             "=========================================="
         );
 
-        console.log(
-            "🚀 STOCKPULSE SERVER STARTED"
+        console.error(
+            "STOCKPULSE STARTUP FAILED"
         );
 
-        console.log(
+        console.error(
             "=========================================="
         );
 
-        console.log(
-            `🌐 http://localhost:${PORT}`
+        console.error(
+            error.message
         );
 
-        console.log(
-            `🍃 MongoDB: ${
-                mongoConnected
-                    ? "CONNECTED ✅"
-                    : "CONNECTING / NOT CONNECTED ❌"
-            }`
-        );
-
-        console.log(
-            "📊 NIFTY: /api/nifty"
-        );
-
-        console.log(
-            "🏦 BANKNIFTY: /api/banknifty"
-        );
-
-        console.log(
-            "📈 SENSEX: /api/sensex"
-        );
-
-        console.log(
-            "💻 NIFTY IT: /api/niftyit"
-        );
-
-        console.log(
-            "🔍 Dynamic NSE Search: /api/search"
-        );
-
-        console.log(
-            "📊 Real Candles: /api/candles"
-        );
-
-        console.log(
-            "₿ CRYPTO: /api/crypto"
-        );
-
-        console.log(
-            "📈 CRYPTO CANDLES: /api/crypto/candles"
-        );
-
-        console.log(
-            "💳 RAZORPAY: ENABLED"
-        );
-
-        console.log(
-            "🍃 MONGODB: ENABLED"
-        );
-
-        console.log(
-            "📈 PREMIUM SIGNALS: ENABLED"
-        );
-
-        console.log(
-            "🇮🇳 INDIAN STOCKS SIGNALS"
-        );
-
-        console.log(
-            "₿ CRYPTO SIGNALS"
-        );
-
-        console.log(
-            "🪙 COMMODITY SIGNALS"
-        );
-
-        console.log(
-            "⚡ INTRADAY SIGNALS"
-        );
-
-        console.log(
-            "👥 CUSTOMER RECORDS: ENABLED"
-        );
-
-        console.log(
-            "💳 PAYMENT RECORDS: ENABLED"
-        );
-
-        console.log(
-            "📊 DASHBOARD STATS: ENABLED"
-        );
-
-        console.log(
-            "🔐 PREMIUM: ₹2,000 / 6 MONTHS"
-        );
-
-        console.log(
-            "👑 ADMIN PANEL: ENABLED"
-        );
-
-        console.log(
+        console.error(
             "=========================================="
         );
 
+        process.exit(1);
     }
 );
