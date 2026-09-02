@@ -43,6 +43,9 @@ app.use(
     })
 );
 
+// Serve frontend HTML/CSS/JS files
+app.use(express.static(__dirname));
+
 
 // ============================================================
 // MONGODB
