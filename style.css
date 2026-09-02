@@ -2748,3 +2748,80 @@ button {
         grid-template-columns: 1fr !important;
     }
 }
+/* =========================================================
+   STOCKPULSE - TODAY RECOMMENDATIONS FINAL 4 CARD FIX
+   ========================================================= */
+
+.signal-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 18px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    align-items: stretch !important;
+}
+
+.signal-grid > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+.signal {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+.signal * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.signal h2,
+.signal h3,
+.signal p,
+.signal span,
+.signal strong,
+.signal div {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+}
+
+/* Gold / Commodity ke andar koi element bahar na nikle */
+#goldSignal,
+#goldSignal * {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+}
+
+/* Signal ke andar rows */
+.signal .level-row,
+.signal .info-row,
+.signal .signal-top {
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Desktop/tablet: ALWAYS 4 cards */
+@media (min-width: 769px) {
+    .signal-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+}
+
+/* Mobile: 1 card */
+@media (max-width: 768px) {
+    .signal-grid {
+        grid-template-columns: 1fr !important;
+    }
+}

@@ -4,7 +4,8 @@
    FEATURES:
    - Live NIFTY / BANKNIFTY / SENSEX / NIFTY IT
    - Live Crypto prices
-   - Stock search
+   - Indian Stock Search - NSE / BSE
+   - MCX Commodity Search
    - Real candlestick charts
    - IST chart time
    - FREE Today Recommendations
@@ -35,7 +36,11 @@ let currentAsset = {
     symbol: "NIFTY50",
     type: "index",
     name: "NIFTY 50",
-    exchange: "NSE"
+    exchange: "NSE",
+    instrumentKey: "NSE_INDEX|Nifty 50",
+    segment: "INDEX",
+    instrumentType: "INDEX",
+    expiry: ""
 };
 
 let currentTimeframe = "1D";
@@ -563,7 +568,11 @@ async function updateDashboardPrices() {
 
 
 /* =========================================================
-   SEARCH
+   LOCAL SEARCH ASSETS
+   ---------------------------------------------------------
+   IMPORTANT:
+   Gold/Silver ko yahan static COMEX nahi rakha.
+   MCX commodities backend se dynamically aayengi.
 ========================================================= */
 
 const localAssets = [
@@ -572,77 +581,87 @@ const localAssets = [
         symbol: "NIFTY50",
         name: "NIFTY 50",
         type: "index",
-        exchange: "NSE"
+        exchange: "NSE",
+        instrumentKey: "NSE_INDEX|Nifty 50",
+        segment: "INDEX",
+        instrumentType: "INDEX"
     },
 
     {
         symbol: "BANKNIFTY",
         name: "BANK NIFTY",
         type: "index",
-        exchange: "NSE"
+        exchange: "NSE",
+        instrumentKey: "NSE_INDEX|Nifty Bank",
+        segment: "INDEX",
+        instrumentType: "INDEX"
     },
 
     {
         symbol: "SENSEX",
         name: "SENSEX",
         type: "index",
-        exchange: "BSE"
+        exchange: "BSE",
+        instrumentKey: "BSE_INDEX|SENSEX",
+        segment: "INDEX",
+        instrumentType: "INDEX"
     },
 
     {
         symbol: "NIFTYIT",
         name: "NIFTY IT",
         type: "index",
-        exchange: "NSE"
+        exchange: "NSE",
+        instrumentKey: "NSE_INDEX|Nifty IT",
+        segment: "INDEX",
+        instrumentType: "INDEX"
     },
 
     {
         symbol: "BTC",
         name: "Bitcoin",
         type: "crypto",
-        exchange: "CRYPTO"
+        exchange: "CRYPTO",
+        instrumentKey: "",
+        segment: "CRYPTO",
+        instrumentType: "CRYPTO"
     },
 
     {
         symbol: "ETH",
         name: "Ethereum",
         type: "crypto",
-        exchange: "CRYPTO"
+        exchange: "CRYPTO",
+        instrumentKey: "",
+        segment: "CRYPTO",
+        instrumentType: "CRYPTO"
     },
 
     {
         symbol: "SOL",
         name: "Solana",
         type: "crypto",
-        exchange: "CRYPTO"
+        exchange: "CRYPTO",
+        instrumentKey: "",
+        segment: "CRYPTO",
+        instrumentType: "CRYPTO"
     },
 
     {
         symbol: "XRP",
         name: "Ripple",
         type: "crypto",
-        exchange: "CRYPTO"
-    },
-
-    {
-        symbol: "GOLD",
-        name: "Gold",
-        type: "commodity",
-        exchange: "COMEX"
-    },
-
-    {
-        symbol: "SILVER",
-        name: "Silver",
-        type: "commodity",
-        exchange: "COMEX"
+        exchange: "CRYPTO",
+        instrumentKey: "",
+        segment: "CRYPTO",
+        instrumentType: "CRYPTO"
     }
 
 ];
 
 
 /* =========================================================
-   SEARCH STOCKS
+   SEARCH STOCKS / COMMODITIES
 ========================================================= */
 
 async function searchStocks(query) {
@@ -676,15 +695,23 @@ async function searchStocks(query) {
     let results = [];
 
 
+    /* -----------------------------------------------------
+       LOCAL ASSETS
+    ----------------------------------------------------- */
+
     results.push(
         ...localAssets.filter(item =>
             item.symbol.includes(query) ||
-            item.name
+            String(item.name || "")
                 .toUpperCase()
                 .includes(query)
         )
     );
 
+
+    /* -----------------------------------------------------
+       RAILWAY / UPSTOX SEARCH
+    ----------------------------------------------------- */
 
     try {
 
@@ -701,23 +728,56 @@ async function searchStocks(query) {
         ) {
 
             results.push(
-                ...data.results.map(s => ({
+                ...data.results.map(item => ({
 
                     symbol:
-                        s.symbol,
+                        item.symbol ||
+                        item.tradingSymbol ||
+                        item.shortName ||
+                        item.name ||
+                        "",
 
                     name:
-                        s.name,
+                        item.name ||
+                        item.shortName ||
+                        item.tradingSymbol ||
+                        item.symbol ||
+                        "",
 
                     type:
+                        item.type ||
                         "stock",
 
                     exchange:
-                        s.exchange ||
-                        "NSE",
+                        item.exchange ||
+                        (
+                            item.type === "commodity"
+                                ? "MCX"
+                                : "NSE"
+                        ),
 
                     instrumentKey:
-                        s.instrumentKey
+                        item.instrumentKey ||
+                        item.instrument_key ||
+                        "",
+
+                    segment:
+                        item.segment ||
+                        "",
+
+                    instrumentType:
+                        item.instrumentType ||
+                        item.instrument_type ||
+                        "",
+
+                    expiry:
+                        item.expiry ||
+                        "",
+
+                    tradingSymbol:
+                        item.tradingSymbol ||
+                        item.trading_symbol ||
+                        ""
 
                 }))
             );
@@ -727,22 +787,97 @@ async function searchStocks(query) {
     } catch (error) {
 
         console.log(
-            "Dynamic stock search unavailable:",
+            "Dynamic market search unavailable:",
             error.message
         );
 
     }
 
 
+    /* -----------------------------------------------------
+       REMOVE INVALID RESULTS
+    ----------------------------------------------------- */
+
     results =
-        results.filter(
-            (item, index, array) =>
-                array.findIndex(
-                    x =>
-                        x.symbol ===
-                        item.symbol
-                ) === index
+        results.filter(item =>
+            item &&
+            item.symbol
         );
+
+
+    /* -----------------------------------------------------
+       REMOVE DUPLICATES
+       Instrument key preferred.
+    ----------------------------------------------------- */
+
+    const seen =
+        new Set();
+
+
+    results =
+        results.filter(item => {
+
+            const key =
+                item.instrumentKey ||
+                `${item.symbol}-${item.exchange}-${item.expiry || ""}`;
+
+            if (seen.has(key)) {
+                return false;
+            }
+
+            seen.add(key);
+
+            return true;
+
+        });
+
+
+    /* -----------------------------------------------------
+       SORT RESULTS
+       Exact symbol first.
+    ----------------------------------------------------- */
+
+    results.sort((a, b) => {
+
+        const aSymbol =
+            String(a.symbol || "")
+                .toUpperCase();
+
+        const bSymbol =
+            String(b.symbol || "")
+                .toUpperCase();
+
+
+        const aExact =
+            aSymbol === query
+                ? 0
+                : 1;
+
+        const bExact =
+            bSymbol === query
+                ? 0
+                : 1;
+
+
+        if (aExact !== bExact) {
+            return aExact - bExact;
+        }
+
+
+        const aName =
+            String(a.name || "")
+                .toUpperCase();
+
+        const bName =
+            String(b.name || "")
+                .toUpperCase();
+
+
+        return aName.localeCompare(
+            bName
+        );
+
+    });
 
 
     searchResults.innerHTML = "";
@@ -752,7 +887,8 @@ async function searchStocks(query) {
 
         searchResults.innerHTML = `
             <div class="search-item">
-                No result found
+                <strong>🔎 No result found</strong>
+                <small>Try stock name, symbol, Gold, Silver, Crude, etc.</small>
             </div>
         `;
 
@@ -765,8 +901,12 @@ async function searchStocks(query) {
     }
 
 
+    /* -----------------------------------------------------
+       DISPLAY MAX 12 RESULTS
+    ----------------------------------------------------- */
+
     results
-        .slice(0, 10)
+        .slice(0, 12)
         .forEach(item => {
 
             const div =
@@ -779,14 +919,40 @@ async function searchStocks(query) {
                 "search-item";
 
 
-            const icon =
+            let icon = "🏛️";
+
+
+            if (
                 item.type === "crypto"
-                    ? "₿"
-                    : item.type === "index"
-                        ? "📈"
-                        : item.type === "commodity"
-                            ? "🪙"
-                            : "🏛️";
+            ) {
+
+                icon = "₿";
+
+            } else if (
+                item.type === "index"
+            ) {
+
+                icon = "📈";
+
+            } else if (
+                item.type === "commodity"
+            ) {
+
+                icon = "🪙";
+
+            }
+
+
+            const exchange =
+                item.exchange
+                    ? ` • ${escapeHTML(item.exchange)}`
+                    : "";
+
+
+            const expiry =
+                item.expiry
+                    ? ` • ${escapeHTML(item.expiry)}`
+                    : "";
 
 
             div.innerHTML = `
@@ -798,6 +964,8 @@ async function searchStocks(query) {
 
                 <small>
                     ${escapeHTML(item.name)}
+                    ${exchange}
+                    ${expiry}
                 </small>
 
             `;
@@ -816,15 +984,26 @@ async function searchStocks(query) {
                             item.name,
 
                         type:
-                            item.type === "commodity"
-                                ? "index"
-                                : item.type,
+                            item.type,
 
                         exchange:
                             item.exchange,
 
                         instrumentKey:
-                            item.instrumentKey
+                            item.instrumentKey ||
+                            "",
+
+                        segment:
+                            item.segment ||
+                            "",
+
+                        instrumentType:
+                            item.instrumentType ||
+                            "",
+
+                        expiry:
+                            item.expiry ||
+                            ""
 
                     });
 
@@ -912,11 +1091,15 @@ function setupSearch() {
             event => {
 
                 if (
-                    event.key ===
-                    "Enter"
+                    event.key === "Enter"
                 ) {
 
                     event.preventDefault();
+
+
+                    clearTimeout(
+                        searchTimeout
+                    );
 
 
                     searchStocks(
@@ -1041,6 +1224,41 @@ function setupMarketCards() {
                         );
 
 
+                    let instrumentKey =
+                        "";
+
+
+                    if (
+                        symbol === "NIFTY50"
+                    ) {
+
+                        instrumentKey =
+                            "NSE_INDEX|Nifty 50";
+
+                    } else if (
+                        symbol === "BANKNIFTY"
+                    ) {
+
+                        instrumentKey =
+                            "NSE_INDEX|Nifty Bank";
+
+                    } else if (
+                        symbol === "SENSEX"
+                    ) {
+
+                        instrumentKey =
+                            "BSE_INDEX|SENSEX";
+
+                    } else if (
+                        symbol === "NIFTYIT"
+                    ) {
+
+                        instrumentKey =
+                            "NSE_INDEX|Nifty IT";
+
+                    }
+
+
                     openAsset({
 
                         symbol,
@@ -1058,7 +1276,11 @@ function setupMarketCards() {
                         exchange:
                             isCrypto
                                 ? "CRYPTO"
-                                : "NSE"
+                                : symbol === "SENSEX"
+                                    ? "BSE"
+                                    : "NSE",
+
+                        instrumentKey
 
                     });
 
@@ -1120,7 +1342,10 @@ function setupHeroCard() {
 
                 name: "NIFTY 50",
 
-                exchange: "NSE"
+                exchange: "NSE",
+
+                instrumentKey:
+                    "NSE_INDEX|Nifty 50"
 
             });
 
@@ -1856,7 +2081,7 @@ function prepareCandles(candles) {
 
 
 /* =========================================================
-   STOCK CANDLES
+   STOCK / INDEX / MCX CANDLES
 ========================================================= */
 
 async function loadStockCandles() {
@@ -1873,12 +2098,25 @@ async function loadStockCandles() {
 
     try {
 
+        const params =
+            new URLSearchParams({
+
+                symbol:
+                    symbol || "",
+
+                instrument_key:
+                    currentAsset.instrumentKey || "",
+
+                timeframe:
+                    timeframe
+
+            });
+
+
         const data =
             await apiFetch(
 
-                `${API_BASE}/api/candles` +
-                `?symbol=${encodeURIComponent(symbol)}` +
-                `&timeframe=${encodeURIComponent(timeframe)}`
+                `${API_BASE}/api/candles?${params.toString()}`
 
             );
 
@@ -1894,7 +2132,7 @@ async function loadStockCandles() {
         if (!candles.length) {
 
             throw new Error(
-                "No stock candles received"
+                "No market candles received"
             );
 
         }
@@ -1916,7 +2154,7 @@ async function loadStockCandles() {
         if (!formatted.length) {
 
             throw new Error(
-                "Invalid stock candle data"
+                "Invalid market candle data"
             );
 
         }
@@ -1943,10 +2181,11 @@ async function loadStockCandles() {
             formatted.length
         );
 
+
     } catch (error) {
 
         console.error(
-            "Stock candle error:",
+            "Market candle error:",
             error.message
         );
 
@@ -2047,6 +2286,7 @@ async function loadCryptoCandles() {
             `📊 ${symbol} crypto candles loaded:`,
             formatted.length
         );
+
 
     } catch (error) {
 
@@ -2173,13 +2413,49 @@ async function getIndexPrice(symbol) {
 
 function openAsset(asset) {
 
+    const symbol =
+        String(
+            asset?.symbol || ""
+        )
+        .toUpperCase();
+
+
+    let instrumentKey =
+        asset?.instrumentKey || "";
+
+
+    /* -----------------------------------------------------
+       Known index fallback
+    ----------------------------------------------------- */
+
+    if (!instrumentKey) {
+
+        const knownKeys = {
+
+            "NIFTY50":
+                "NSE_INDEX|Nifty 50",
+
+            "BANKNIFTY":
+                "NSE_INDEX|Nifty Bank",
+
+            "SENSEX":
+                "BSE_INDEX|SENSEX",
+
+            "NIFTYIT":
+                "NSE_INDEX|Nifty IT"
+
+        };
+
+
+        instrumentKey =
+            knownKeys[symbol] || "";
+
+    }
+
+
     currentAsset = {
 
-        symbol:
-            String(
-                asset?.symbol || ""
-            )
-            .toUpperCase(),
+        symbol,
 
         type:
             asset?.type ||
@@ -2195,8 +2471,24 @@ function openAsset(asset) {
             (
                 asset?.type === "crypto"
                     ? "CRYPTO"
-                    : "NSE"
-            )
+                    : asset?.type === "commodity"
+                        ? "MCX"
+                        : "NSE"
+            ),
+
+        instrumentKey,
+
+        segment:
+            asset?.segment ||
+            "",
+
+        instrumentType:
+            asset?.instrumentType ||
+            "",
+
+        expiry:
+            asset?.expiry ||
+            ""
 
     };
 
@@ -2340,11 +2632,20 @@ async function loadCurrentChart() {
 
         await loadCryptoCandles();
 
-    } else {
-
-        await loadStockCandles();
+        return;
 
     }
+
+
+    /*
+       STOCK
+       INDEX
+       MCX COMMODITY
+       Sab generic candles endpoint
+       se jayenge.
+    */
+
+    await loadStockCandles();
 
 }
 
@@ -2361,9 +2662,14 @@ function updateDetailHeader() {
 
             currentAsset.type === "crypto"
                 ? "CRYPTO"
+
+                : currentAsset.type === "commodity"
+                    ? "COMMODITY"
+
                 : currentAsset.type === "index"
                     ? "INDEX"
-                    : "STOCK";
+
+                : "STOCK";
 
     }
 
@@ -2416,6 +2722,10 @@ async function updateDetailPrice() {
         let data;
 
 
+        /* -------------------------------------------------
+           CRYPTO
+        ------------------------------------------------- */
+
         if (
             currentAsset.type ===
             "crypto"
@@ -2448,9 +2758,14 @@ async function updateDetailPrice() {
         }
 
 
+        /* -------------------------------------------------
+           KNOWN INDEX
+           Only use old endpoint if no instrument key.
+        ------------------------------------------------- */
+
         else if (
-            currentAsset.type ===
-            "index"
+            currentAsset.type === "index" &&
+            !currentAsset.instrumentKey
         ) {
 
             data =
@@ -2479,21 +2794,45 @@ async function updateDetailPrice() {
         }
 
 
+        /* -------------------------------------------------
+           GENERIC NSE / BSE / MCX / INDEX
+        ------------------------------------------------- */
+
         else {
 
-            data =
-                await apiFetch(
+            if (
+                currentAsset.instrumentKey
+            ) {
 
-                    `${API_BASE}/api/stock` +
-                    `?symbol=${encodeURIComponent(
-                        currentAsset.symbol
-                    )}`
+                data =
+                    await apiFetch(
 
-                );
+                        `${API_BASE}/api/quote` +
+                        `?instrument_key=${encodeURIComponent(
+                            currentAsset.instrumentKey
+                        )}`
+
+                    );
+
+            } else {
+
+                data =
+                    await apiFetch(
+
+                        `${API_BASE}/api/stock` +
+                        `?symbol=${encodeURIComponent(
+                            currentAsset.symbol
+                        )}`
+
+                    );
+
+            }
 
 
             const price =
                 data?.price ??
+                data?.lastPrice ??
+                data?.last_price ??
                 data?.data?.price;
 
 
@@ -2514,6 +2853,7 @@ async function updateDetailPrice() {
                 "LIVE";
 
         }
+
 
     } catch (error) {
 
@@ -2707,8 +3047,18 @@ function setupWatchlist() {
             const exists =
                 watchlist.some(
                     item =>
-                        item.symbol ===
-                        currentAsset.symbol
+                        (
+                            item.instrumentKey &&
+                            currentAsset.instrumentKey &&
+                            item.instrumentKey ===
+                            currentAsset.instrumentKey
+                        ) ||
+                        (
+                            !item.instrumentKey &&
+                            !currentAsset.instrumentKey &&
+                            item.symbol ===
+                            currentAsset.symbol
+                        )
                 );
 
 
@@ -2717,8 +3067,20 @@ function setupWatchlist() {
                 watchlist =
                     watchlist.filter(
                         item =>
-                            item.symbol !==
-                            currentAsset.symbol
+                            !(
+                                (
+                                    item.instrumentKey &&
+                                    currentAsset.instrumentKey &&
+                                    item.instrumentKey ===
+                                    currentAsset.instrumentKey
+                                ) ||
+                                (
+                                    !item.instrumentKey &&
+                                    !currentAsset.instrumentKey &&
+                                    item.symbol ===
+                                    currentAsset.symbol
+                                )
+                            )
                     );
 
 
@@ -2736,7 +3098,26 @@ function setupWatchlist() {
                         currentAsset.name,
 
                     type:
-                        currentAsset.type
+                        currentAsset.type,
+
+                    exchange:
+                        currentAsset.exchange,
+
+                    instrumentKey:
+                        currentAsset.instrumentKey ||
+                        "",
+
+                    segment:
+                        currentAsset.segment ||
+                        "",
+
+                    instrumentType:
+                        currentAsset.instrumentType ||
+                        "",
+
+                    expiry:
+                        currentAsset.expiry ||
+                        ""
 
                 });
 
@@ -2781,6 +3162,7 @@ function normalizeSignalType(signal) {
             ]
         );
 
+
     const type =
         String(
             rawType || "BUY"
@@ -2793,7 +3175,9 @@ function normalizeSignalType(signal) {
         type.includes("SELL") ||
         type.includes("SHORT")
     ) {
+
         return "SELL";
+
     }
 
 
@@ -2801,11 +3185,14 @@ function normalizeSignalType(signal) {
         type.includes("HOLD") ||
         type.includes("WAIT")
     ) {
+
         return "HOLD";
+
     }
 
 
     return "BUY";
+
 }
 
 
@@ -2828,6 +3215,7 @@ function applySignalCardStyle(card, side) {
     card.classList.add(
         String(side || "BUY").toLowerCase()
     );
+
 }
 
 
@@ -2859,6 +3247,7 @@ function setSignalBadge(badge, side) {
     badge.classList.add(
         `${safeSide.toLowerCase()}-badge`
     );
+
 }
 
 
@@ -3012,6 +3401,7 @@ function normalizeSignal(signal) {
             )
 
     };
+
 }
 
 
@@ -3038,18 +3428,15 @@ function normalizeSignalCategory(signal) {
         .trim();
 
 
-    /*
-       IMPORTANT:
-       Backend category ko priority di jayegi.
-    */
-
     if (
         rawCategory === "stocks" ||
         rawCategory === "stock" ||
         rawCategory === "indian-stock" ||
         rawCategory === "indian_stock"
     ) {
+
         return "stock";
+
     }
 
 
@@ -3057,7 +3444,9 @@ function normalizeSignalCategory(signal) {
         rawCategory === "crypto" ||
         rawCategory === "cryptocurrency"
     ) {
+
         return "crypto";
+
     }
 
 
@@ -3066,7 +3455,9 @@ function normalizeSignalCategory(signal) {
         rawCategory === "commodities" ||
         rawCategory === "gold"
     ) {
+
         return "commodity";
+
     }
 
 
@@ -3075,16 +3466,11 @@ function normalizeSignalCategory(signal) {
         rawCategory === "intra-day" ||
         rawCategory === "intra_day"
     ) {
+
         return "intraday";
+
     }
 
-
-    /*
-       Backward compatibility:
-       Agar purane database signal me
-       category missing hai to symbol/name se
-       category identify karenge.
-    */
 
     const symbol =
         String(
@@ -3098,10 +3484,6 @@ function normalizeSignalCategory(signal) {
             normalized.name || ""
         )
         .toUpperCase();
-
-
-    const combined =
-        `${symbol} ${name}`;
 
 
     const isCrypto =
@@ -3127,8 +3509,12 @@ function normalizeSignalCategory(signal) {
         symbol.includes("GOLDM") ||
         symbol.includes("SILVER") ||
         symbol.includes("XAG") ||
+        symbol.includes("CRUDE") ||
+        symbol.includes("NATURALGAS") ||
         name.includes("GOLD") ||
         name.includes("SILVER") ||
+        name.includes("CRUDE") ||
+        name.includes("NATURAL GAS") ||
         name.includes("XAU") ||
         name.includes("XAG");
 
@@ -3137,11 +3523,6 @@ function normalizeSignalCategory(signal) {
         return "commodity";
     }
 
-
-    /*
-       Agar explicitly intraday field milta hai
-       to intraday category detect karo.
-    */
 
     const setupText =
         String(
@@ -3155,11 +3536,14 @@ function normalizeSignalCategory(signal) {
         setupText.includes("scalp") ||
         setupText.includes("same day")
     ) {
+
         return "intraday";
+
     }
 
 
     return "stock";
+
 }
 
 
@@ -3239,39 +3623,40 @@ const SIGNAL_CARD_CONFIG = {
     },
 
 
-   commodity: {
+    commodity: {
 
-    card:
-        "goldSignal",
+        card:
+            "goldSignal",
 
-    side:
-        "goldSide",
+        side:
+            "goldSide",
 
-    name:
-        "goldName",
+        name:
+            "goldName",
 
-    setup:
-        "goldSetup",
+        setup:
+            "goldSetup",
 
-    entry:
-        "goldEntry",
+        entry:
+            "goldEntry",
 
-    target1:
-        "goldTarget1",
+        target1:
+            "goldTarget1",
 
-    target2:
-        "goldTarget2",
+        target2:
+            "goldTarget2",
 
-    target3:
-        "goldTarget3",
+        target3:
+            "goldTarget3",
 
-    stopLoss:
-        "goldSL",
+        stopLoss:
+            "goldSL",
 
-    risk:
-        "goldRisk"
+        risk:
+            "goldRisk"
 
-},
+    },
+
 
     intraday: {
 
@@ -3423,7 +3808,10 @@ function clearSignalCard(category) {
    UPDATE ONE FIXED SIGNAL CARD
 ========================================================= */
 
-function updateSignalCard(category, signal) {
+function updateSignalCard(
+    category,
+    signal
+) {
 
     const config =
         SIGNAL_CARD_CONFIG[category];
@@ -3551,17 +3939,9 @@ function updateSignalCard(category, signal) {
 
 /* =========================================================
    RENDER TODAY SIGNALS
-   ---------------------------------------------------------
-   IMPORTANT:
-   Ab dynamic HTML cards generate nahi honge.
-   index.html ke fixed 4 cards update honge.
 ========================================================= */
 
 function renderTodaySignals(signals) {
-
-    /*
-       Pehle saare 4 cards clear karo.
-    */
 
     clearSignalCard("stock");
     clearSignalCard("crypto");
@@ -3582,48 +3962,40 @@ function renderTodaySignals(signals) {
     const categorySignals = {
 
         stock: null,
-
         crypto: null,
-
         commodity: null,
-
         intraday: null
 
     };
 
 
-    /*
-       Har signal ki category identify karo.
-       Same category me pehla active signal use hoga.
-    */
+    signals.forEach(
+        signal => {
 
-    signals.forEach(signal => {
-
-        if (!signal) return;
+            if (!signal) return;
 
 
-        const category =
-            normalizeSignalCategory(signal);
+            const category =
+                normalizeSignalCategory(
+                    signal
+                );
 
 
-        if (!category) return;
+            if (!category) return;
 
 
-        if (
-            !categorySignals[category]
-        ) {
+            if (
+                !categorySignals[category]
+            ) {
 
-            categorySignals[category] =
-                signal;
+                categorySignals[category] =
+                    signal;
+
+            }
 
         }
+    );
 
-    });
-
-
-    /*
-       Fixed 4 cards update.
-    */
 
     if (categorySignals.stock) {
 
@@ -3680,13 +4052,6 @@ function renderTodaySignals(signals) {
 async function loadSignals() {
 
     try {
-
-        /*
-           FREE WEBSITE
-           No token
-           No authorization
-           No payment
-        */
 
         const response =
             await fetch(
@@ -3746,36 +4111,6 @@ async function loadSignals() {
         }
 
 
-        /*
-           Website completely FREE.
-        */
-
-      
-
-
-        /*
-           Supported backend responses:
-
-           {
-               success: true,
-               signals: [...]
-           }
-
-           OR
-
-           {
-               success: true,
-               data: [...]
-           }
-
-           OR
-
-           {
-               success: true,
-               recommendations: [...]
-           }
-        */
-
         let signals = [];
 
 
@@ -3813,26 +4148,23 @@ async function loadSignals() {
         }
 
 
-        /*
-           Sirf active signals use karo
-           agar backend active field bhej raha hai.
-        */
-
         signals =
-            signals.filter(signal => {
+            signals.filter(
+                signal => {
 
-                if (
-                    signal &&
-                    signal.active === false
-                ) {
+                    if (
+                        signal &&
+                        signal.active === false
+                    ) {
 
-                    return false;
+                        return false;
+
+                    }
+
+                    return true;
 
                 }
-
-                return true;
-
-            });
+            );
 
 
         console.log(
@@ -3840,10 +4172,6 @@ async function loadSignals() {
             signals
         );
 
-
-        /*
-           Fixed 4 recommendation cards update.
-        */
 
         renderTodaySignals(
             signals
@@ -3855,6 +4183,7 @@ async function loadSignals() {
             signals.length
         );
 
+
     } catch (error) {
 
         console.error(
@@ -3863,26 +4192,22 @@ async function loadSignals() {
         );
 
 
-        showPremiumContent();
-
-
         /*
-           Error hone par existing cards ko
-           blank/default state me rakho.
+           PAYMENT/PREMIUM SYSTEM REMOVED.
+           Error hone par sirf default cards dikhao.
         */
 
         renderTodaySignals([]);
-
 
     }
 
 }
 
+
 /* =========================================================
    OLD PREMIUM BUTTONS
    ---------------------------------------------------------
    Payment removed.
-   Buttons no longer redirect to payment.html.
 ========================================================= */
 
 function setupPremiumButtons() {
@@ -3997,16 +4322,8 @@ function startLiveUpdates() {
 
                 try {
 
-                    /*
-                       Live market prices
-                    */
-
                     await updateDashboardPrices();
 
-
-                    /*
-                       Detail page live price
-                    */
 
                     const detail =
                         $("detailView");
@@ -4021,14 +4338,6 @@ function startLiveUpdates() {
 
                     }
 
-
-                    /*
-                       FREE TODAY SIGNALS
-
-                       No premium token.
-                       No payment.
-                       Refresh every 5 seconds.
-                    */
 
                     await loadSignals();
 
@@ -4081,23 +4390,11 @@ async function initStockPulse() {
         hideDetailTradingLevels();
 
 
-        /*
-           Dashboard prices load immediately.
-        */
-
         await updateDashboardPrices();
 
 
-        /*
-           FREE signals load immediately.
-        */
-
         await loadSignals();
 
-
-        /*
-           Start automatic updates.
-        */
 
         startLiveUpdates();
 
@@ -4106,6 +4403,7 @@ async function initStockPulse() {
             "✅ StockPulse FREE frontend ready"
         );
 
+
     } catch (error) {
 
         console.error(
@@ -4113,11 +4411,6 @@ async function initStockPulse() {
             error
         );
 
-
-        /*
-           Website continues working
-           even if API temporarily fails.
-        */
 
         startLiveUpdates();
 
@@ -4138,7 +4431,9 @@ if (
     document.addEventListener(
         "DOMContentLoaded",
         initStockPulse,
-        { once: true }
+        {
+            once: true
+        }
     );
 
 } else {
