@@ -3751,7 +3751,7 @@ async function loadSignals() {
            Website completely FREE.
         */
 
-        showPremiumContent();
+      
 
 
         /*
