@@ -22,6 +22,11 @@ const path = require("path");
 const app = express();
 
 const PORT = Number(process.env.PORT) || 8080;
+// ======================================================
+// STATIC WEBSITE FILES
+// ======================================================
+
+app.use(express.static(__dirname));
 
 // ======================================================
 // MIDDLEWARE
