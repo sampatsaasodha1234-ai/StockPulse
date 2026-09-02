@@ -3239,40 +3239,39 @@ const SIGNAL_CARD_CONFIG = {
     },
 
 
-    commodity: {
+   commodity: {
 
-        card:
-            "commoditySignal",
+    card:
+        "goldSignal",
 
-        side:
-            "commoditySide",
+    side:
+        "goldSide",
 
-        name:
-            "commodityName",
+    name:
+        "goldName",
 
-        setup:
-            "commoditySetup",
+    setup:
+        "goldSetup",
 
-        entry:
-            "commodityEntry",
+    entry:
+        "goldEntry",
 
-        target1:
-            "commodityTarget1",
+    target1:
+        "goldTarget1",
 
-        target2:
-            "commodityTarget2",
+    target2:
+        "goldTarget2",
 
-        target3:
-            "commodityTarget3",
+    target3:
+        "goldTarget3",
 
-        stopLoss:
-            "commoditySL",
+    stopLoss:
+        "goldSL",
 
-        risk:
-            "commodityRisk"
+    risk:
+        "goldRisk"
 
-    },
-
+},
 
     intraday: {
 
