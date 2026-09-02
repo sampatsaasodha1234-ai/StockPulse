@@ -2781,7 +2781,6 @@ function normalizeSignalType(signal) {
             ]
         );
 
-
     const type =
         String(
             rawType || "BUY"
@@ -2794,9 +2793,7 @@ function normalizeSignalType(signal) {
         type.includes("SELL") ||
         type.includes("SHORT")
     ) {
-
         return "SELL";
-
     }
 
 
@@ -2804,14 +2801,11 @@ function normalizeSignalType(signal) {
         type.includes("HOLD") ||
         type.includes("WAIT")
     ) {
-
         return "HOLD";
-
     }
 
 
     return "BUY";
-
 }
 
 
@@ -2819,10 +2813,7 @@ function normalizeSignalType(signal) {
    SIGNAL CARD STYLE
 ========================================================= */
 
-function applySignalCardStyle(
-    card,
-    side
-) {
+function applySignalCardStyle(card, side) {
 
     if (!card) return;
 
@@ -2835,9 +2826,8 @@ function applySignalCardStyle(
 
 
     card.classList.add(
-        side.toLowerCase()
+        String(side || "BUY").toLowerCase()
     );
-
 }
 
 
@@ -2845,16 +2835,18 @@ function applySignalCardStyle(
    SIGNAL BADGE
 ========================================================= */
 
-function setSignalBadge(
-    badge,
-    side
-) {
+function setSignalBadge(badge, side) {
 
     if (!badge) return;
 
 
+    const safeSide =
+        String(side || "BUY")
+            .toUpperCase();
+
+
     badge.textContent =
-        side;
+        safeSide;
 
 
     badge.classList.remove(
@@ -2865,9 +2857,8 @@ function setSignalBadge(
 
 
     badge.classList.add(
-        `${side.toLowerCase()}-badge`
+        `${safeSide.toLowerCase()}-badge`
     );
-
 }
 
 
@@ -2882,7 +2873,17 @@ function normalizeSignal(signal) {
     }
 
 
-    const normalized = {
+    return {
+
+        category:
+            getSignalValue(
+                signal,
+                [
+                    "category",
+                    "typeCategory",
+                    "signalCategory"
+                ]
+            ),
 
         symbol:
             getSignalValue(
@@ -2908,9 +2909,7 @@ function normalizeSignal(signal) {
             ),
 
         type:
-            normalizeSignalType(
-                signal
-            ),
+            normalizeSignalType(signal),
 
         note:
             getSignalValue(
@@ -3013,410 +3012,538 @@ function normalizeSignal(signal) {
             )
 
     };
-
-
-    return normalized;
-
 }
 
 
 /* =========================================================
-   UPDATE STOCK SIGNAL
+   SIGNAL CATEGORY NORMALIZER
 ========================================================= */
 
-function updateStockSignalCard(signal) {
+function normalizeSignalCategory(signal) {
 
-    const card =
-        $("dailySignal");
-
-
-    if (!card) return;
+    if (!signal) {
+        return null;
+    }
 
 
     const normalized =
         normalizeSignal(signal);
 
 
-    if (!normalized) return;
+    const rawCategory =
+        String(
+            normalized.category || ""
+        )
+        .toLowerCase()
+        .trim();
 
 
-    const side =
-        normalized.type;
+    /*
+       IMPORTANT:
+       Backend category ko priority di jayegi.
+    */
+
+    if (
+        rawCategory === "stocks" ||
+        rawCategory === "stock" ||
+        rawCategory === "indian-stock" ||
+        rawCategory === "indian_stock"
+    ) {
+        return "stock";
+    }
 
 
-    applySignalCardStyle(
-        card,
-        side
-    );
+    if (
+        rawCategory === "crypto" ||
+        rawCategory === "cryptocurrency"
+    ) {
+        return "crypto";
+    }
 
 
-    setSignalBadge(
-        $("signalSide"),
-        side
-    );
+    if (
+        rawCategory === "commodity" ||
+        rawCategory === "commodities" ||
+        rawCategory === "gold"
+    ) {
+        return "commodity";
+    }
 
 
-    if ($("signalStock")) {
+    if (
+        rawCategory === "intraday" ||
+        rawCategory === "intra-day" ||
+        rawCategory === "intra_day"
+    ) {
+        return "intraday";
+    }
 
-        $("signalStock").textContent =
-            normalized.name ||
-            normalized.symbol ||
-            "Stock Signal";
+
+    /*
+       Backward compatibility:
+       Agar purane database signal me
+       category missing hai to symbol/name se
+       category identify karenge.
+    */
+
+    const symbol =
+        String(
+            normalized.symbol || ""
+        )
+        .toUpperCase();
+
+
+    const name =
+        String(
+            normalized.name || ""
+        )
+        .toUpperCase();
+
+
+    const combined =
+        `${symbol} ${name}`;
+
+
+    const isCrypto =
+        symbol.includes("BTC") ||
+        symbol.includes("ETH") ||
+        symbol.includes("SOL") ||
+        symbol.includes("XRP") ||
+        symbol.includes("USDT") ||
+        name.includes("BITCOIN") ||
+        name.includes("ETHEREUM") ||
+        name.includes("SOLANA") ||
+        name.includes("RIPPLE");
+
+
+    if (isCrypto) {
+        return "crypto";
+    }
+
+
+    const isCommodity =
+        symbol.includes("GOLD") ||
+        symbol.includes("XAU") ||
+        symbol.includes("GOLDM") ||
+        symbol.includes("SILVER") ||
+        symbol.includes("XAG") ||
+        name.includes("GOLD") ||
+        name.includes("SILVER") ||
+        name.includes("XAU") ||
+        name.includes("XAG");
+
+
+    if (isCommodity) {
+        return "commodity";
+    }
+
+
+    /*
+       Agar explicitly intraday field milta hai
+       to intraday category detect karo.
+    */
+
+    const setupText =
+        String(
+            normalized.note || ""
+        )
+        .toLowerCase();
+
+
+    if (
+        setupText.includes("intraday") ||
+        setupText.includes("scalp") ||
+        setupText.includes("same day")
+    ) {
+        return "intraday";
+    }
+
+
+    return "stock";
+}
+
+
+/* =========================================================
+   SIGNAL CARD CONFIG
+========================================================= */
+
+const SIGNAL_CARD_CONFIG = {
+
+    stock: {
+
+        card:
+            "stockSignal",
+
+        side:
+            "stockSide",
+
+        name:
+            "stockName",
+
+        setup:
+            "stockSetup",
+
+        entry:
+            "stockEntry",
+
+        target1:
+            "stockTarget1",
+
+        target2:
+            "stockTarget2",
+
+        target3:
+            "stockTarget3",
+
+        stopLoss:
+            "stockSL",
+
+        risk:
+            "stockRisk"
+
+    },
+
+
+    crypto: {
+
+        card:
+            "cryptoSignal",
+
+        side:
+            "cryptoSide",
+
+        name:
+            "cryptoName",
+
+        setup:
+            "cryptoSetup",
+
+        entry:
+            "cryptoEntry",
+
+        target1:
+            "cryptoTarget1",
+
+        target2:
+            "cryptoTarget2",
+
+        target3:
+            "cryptoTarget3",
+
+        stopLoss:
+            "cryptoSL",
+
+        risk:
+            "cryptoRisk"
+
+    },
+
+
+    commodity: {
+
+        card:
+            "commoditySignal",
+
+        side:
+            "commoditySide",
+
+        name:
+            "commodityName",
+
+        setup:
+            "commoditySetup",
+
+        entry:
+            "commodityEntry",
+
+        target1:
+            "commodityTarget1",
+
+        target2:
+            "commodityTarget2",
+
+        target3:
+            "commodityTarget3",
+
+        stopLoss:
+            "commoditySL",
+
+        risk:
+            "commodityRisk"
+
+    },
+
+
+    intraday: {
+
+        card:
+            "intradaySignal",
+
+        side:
+            "intradaySide",
+
+        name:
+            "intradayName",
+
+        setup:
+            "intradaySetup",
+
+        entry:
+            "intradayEntry",
+
+        target1:
+            "intradayTarget1",
+
+        target2:
+            "intradayTarget2",
+
+        target3:
+            "intradayTarget3",
+
+        stopLoss:
+            "intradaySL",
+
+        risk:
+            "intradayRisk"
+
+    }
+
+};
+
+
+/* =========================================================
+   CLEAR SIGNAL CARD
+========================================================= */
+
+function clearSignalCard(category) {
+
+    const config =
+        SIGNAL_CARD_CONFIG[category];
+
+
+    if (!config) return;
+
+
+    const card =
+        $(config.card);
+
+
+    if (card) {
+
+        applySignalCardStyle(
+            card,
+            "HOLD"
+        );
 
     }
 
 
-    if ($("signalSetup")) {
+    if ($(config.side)) {
 
-        $("signalSetup").textContent =
+        setSignalBadge(
+            $(config.side),
+            "HOLD"
+        );
+
+    }
+
+
+    if ($(config.name)) {
+
+        $(config.name).textContent =
+            category === "stock"
+                ? "No Stock Signal"
+                : category === "crypto"
+                    ? "No Crypto Signal"
+                    : category === "commodity"
+                        ? "No Commodity Signal"
+                        : "No Intraday Signal";
+
+    }
+
+
+    if ($(config.setup)) {
+
+        $(config.setup).textContent =
+            "Today's recommendation will be updated soon.";
+
+    }
+
+
+    if ($(config.entry)) {
+
+        $(config.entry).textContent =
+            "--";
+
+    }
+
+
+    if ($(config.target1)) {
+
+        $(config.target1).textContent =
+            "--";
+
+    }
+
+
+    if ($(config.target2)) {
+
+        $(config.target2).textContent =
+            "--";
+
+    }
+
+
+    if ($(config.target3)) {
+
+        $(config.target3).textContent =
+            "--";
+
+    }
+
+
+    if ($(config.stopLoss)) {
+
+        $(config.stopLoss).textContent =
+            "--";
+
+    }
+
+
+    if ($(config.risk)) {
+
+        $(config.risk).textContent =
+            "--";
+
+    }
+
+}
+
+
+/* =========================================================
+   UPDATE ONE FIXED SIGNAL CARD
+========================================================= */
+
+function updateSignalCard(category, signal) {
+
+    const config =
+        SIGNAL_CARD_CONFIG[category];
+
+
+    if (!config) return;
+
+
+    const normalized =
+        normalizeSignal(signal);
+
+
+    if (!normalized) {
+
+        clearSignalCard(category);
+
+        return;
+
+    }
+
+
+    const card =
+        $(config.card);
+
+
+    const side =
+        normalized.type ||
+        "BUY";
+
+
+    if (card) {
+
+        applySignalCardStyle(
+            card,
+            side
+        );
+
+    }
+
+
+    if ($(config.side)) {
+
+        setSignalBadge(
+            $(config.side),
+            side
+        );
+
+    }
+
+
+    if ($(config.name)) {
+
+        $(config.name).textContent =
+            normalized.name ||
+            normalized.symbol ||
+            "Market Signal";
+
+    }
+
+
+    if ($(config.setup)) {
+
+        $(config.setup).textContent =
             normalized.note ||
             "Updated market setup.";
 
     }
 
 
-    if ($("entryPrice")) {
+    if ($(config.entry)) {
 
-        $("entryPrice").textContent =
+        $(config.entry).textContent =
             normalized.entry ??
             "--";
 
     }
 
 
-    if ($("target1Price")) {
+    if ($(config.target1)) {
 
-        $("target1Price").textContent =
+        $(config.target1).textContent =
             normalized.target1 ??
             "--";
 
     }
 
 
-    if ($("target2Price")) {
+    if ($(config.target2)) {
 
-        $("target2Price").textContent =
+        $(config.target2).textContent =
             normalized.target2 ??
             "--";
 
     }
 
 
-    if ($("stopPrice")) {
+    if ($(config.target3)) {
 
-        $("stopPrice").textContent =
+        $(config.target3).textContent =
+            normalized.target3 ??
+            "--";
+
+    }
+
+
+    if ($(config.stopLoss)) {
+
+        $(config.stopLoss).textContent =
             normalized.stopLoss ??
             "--";
 
     }
 
 
-    if ($("riskText")) {
+    if ($(config.risk)) {
 
-        $("riskText").textContent =
+        $(config.risk).textContent =
             normalized.risk ||
             "Medium";
-
-    }
-
-
-    if ($("marketText")) {
-
-        $("marketText").textContent =
-            normalized.exchange ||
-            "NSE";
-
-    }
-
-}
-
-
-/* =========================================================
-   UPDATE CRYPTO SIGNAL
-========================================================= */
-
-function updateCryptoSignalCard(signal) {
-
-    const card =
-        $("bitcoinSignal");
-
-
-    if (!card) return;
-
-
-    const normalized =
-        normalizeSignal(signal);
-
-
-    if (!normalized) return;
-
-
-    const side =
-        normalized.type;
-
-
-    applySignalCardStyle(
-        card,
-        side
-    );
-
-
-    setSignalBadge(
-        card.querySelector(
-            ".signal-badge"
-        ),
-        side
-    );
-
-
-    const title =
-        card.querySelector("h2");
-
-
-    if (title) {
-
-        title.textContent =
-            normalized.name ||
-            normalized.symbol ||
-            "CRYPTO";
-
-    }
-
-
-    const paragraphs =
-        card.querySelectorAll(
-            ":scope > p"
-        );
-
-
-    if (paragraphs.length) {
-
-        paragraphs[0].textContent =
-            normalized.note ||
-            "Updated crypto market setup.";
-
-    }
-
-
-    const levelSpans =
-        card.querySelectorAll(
-            ".signal-levels p span"
-        );
-
-
-    if (levelSpans.length >= 4) {
-
-        levelSpans[0].textContent =
-            normalized.entry ?? "--";
-
-        levelSpans[1].textContent =
-            normalized.target1 ?? "--";
-
-        levelSpans[2].textContent =
-            normalized.target2 ?? "--";
-
-        levelSpans[3].textContent =
-            normalized.stopLoss ?? "--";
-
-    }
-
-
-    const infoSpans =
-        card.querySelectorAll(
-            ".signal-info p span"
-        );
-
-
-    if (infoSpans.length >= 3) {
-
-        infoSpans[0].textContent =
-            normalized.risk ||
-            "Medium";
-
-        infoSpans[1].textContent =
-            "Short Term";
-
-        infoSpans[2].textContent =
-            normalized.exchange ||
-            "CRYPTO";
-
-    }
-
-}
-
-
-/* =========================================================
-   UPDATE GOLD SIGNAL
-========================================================= */
-
-function updateGoldSignalCard(signal) {
-
-    const card =
-        $("goldSignal");
-
-
-    if (!card) return;
-
-
-    const normalized =
-        normalizeSignal(signal);
-
-
-    if (!normalized) return;
-
-
-    const side =
-        normalized.type;
-
-
-    applySignalCardStyle(
-        card,
-        side
-    );
-
-
-    setSignalBadge(
-        card.querySelector(
-            ".signal-badge"
-        ),
-        side
-    );
-
-
-    const title =
-        card.querySelector("h2");
-
-
-    if (title) {
-
-        title.textContent =
-            normalized.name ||
-            normalized.symbol ||
-            "GOLD";
-
-    }
-
-
-    const paragraphs =
-        card.querySelectorAll(
-            ":scope > p"
-        );
-
-
-    if (paragraphs.length) {
-
-        paragraphs[0].textContent =
-            normalized.note ||
-            "Updated gold market setup.";
-
-    }
-
-
-    const levelSpans =
-        card.querySelectorAll(
-            ".signal-levels p span"
-        );
-
-
-    if (levelSpans.length >= 4) {
-
-        levelSpans[0].textContent =
-            normalized.entry ?? "--";
-
-        levelSpans[1].textContent =
-            normalized.target1 ?? "--";
-
-        levelSpans[2].textContent =
-            normalized.target2 ?? "--";
-
-        levelSpans[3].textContent =
-            normalized.stopLoss ?? "--";
-
-    }
-
-
-    const infoSpans =
-        card.querySelectorAll(
-            ".signal-info p span"
-        );
-
-
-    if (infoSpans.length >= 3) {
-
-        infoSpans[0].textContent =
-            normalized.risk ||
-            "Medium";
-
-        infoSpans[1].textContent =
-            "Short Term";
-
-        infoSpans[2].textContent =
-            normalized.exchange ||
-            "COMMODITY";
-
-    }
-
-}
-
-
-/* =========================================================
-   FREE SIGNAL DISPLAY
-========================================================= */
-
-function showPremiumLock() {
-
-    const recommendation =
-        $("todayRecommendation");
-
-    const lock =
-        $("premiumLock");
-
-
-    /*
-       Old function name kept for
-       compatibility with existing HTML.
-       Website is completely FREE.
-    */
-
-    if (recommendation) {
-
-        recommendation.style.display =
-            "block";
-
-    }
-
-
-    if (lock) {
-
-        lock.style.display =
-            "none";
-
-    }
-
-}
-
-
-function showPremiumContent() {
-
-    const recommendation =
-        $("todayRecommendation");
-
-    const lock =
-        $("premiumLock");
-
-
-    if (lock) {
-
-        lock.style.display =
-            "none";
-
-    }
-
-
-    if (recommendation) {
-
-        recommendation.style.display =
-            "block";
 
     }
 
@@ -3425,15 +3552,22 @@ function showPremiumContent() {
 
 /* =========================================================
    RENDER TODAY SIGNALS
+   ---------------------------------------------------------
+   IMPORTANT:
+   Ab dynamic HTML cards generate nahi honge.
+   index.html ke fixed 4 cards update honge.
 ========================================================= */
 
 function renderTodaySignals(signals) {
 
-    const container =
-        $("todaySignals");
+    /*
+       Pehle saare 4 cards clear karo.
+    */
 
-
-    if (!container) return;
+    clearSignalCard("stock");
+    clearSignalCard("crypto");
+    clearSignalCard("commodity");
+    clearSignalCard("intraday");
 
 
     if (
@@ -3441,354 +3575,101 @@ function renderTodaySignals(signals) {
         signals.length === 0
     ) {
 
-        container.innerHTML = `
-
-            <div style="
-                padding:20px;
-                color:#9ca3af;
-                text-align:center;
-            ">
-
-                Today's recommendation
-                will be updated soon.
-
-            </div>
-
-        `;
-
         return;
 
     }
 
 
-    container.innerHTML =
-        signals
-            .map(signal => {
+    const categorySignals = {
 
-                const normalized =
-                    normalizeSignal(
-                        signal
-                    );
+        stock: null,
 
+        crypto: null,
 
-                if (!normalized) {
-                    return "";
-                }
+        commodity: null,
 
+        intraday: null
 
-                const side =
-                    normalized.type;
+    };
 
 
-                const sideClass =
-                    side === "BUY"
-                        ? "buy"
-                        : side === "SELL"
-                            ? "sell"
-                            : "hold";
+    /*
+       Har signal ki category identify karo.
+       Same category me pehla active signal use hoga.
+    */
 
+    signals.forEach(signal => {
 
-                const symbol =
-                    normalized.symbol ||
-                    "MARKET";
+        if (!signal) return;
 
 
-                const name =
-                    normalized.name ||
-                    "";
+        const category =
+            normalizeSignalCategory(signal);
 
 
-                const entry =
-                    normalized.entry ??
-                    "--";
+        if (!category) return;
 
 
-                const stopLoss =
-                    normalized.stopLoss ??
-                    "--";
+        if (
+            !categorySignals[category]
+        ) {
 
+            categorySignals[category] =
+                signal;
 
-                const target1 =
-                    normalized.target1 ??
-                    "--";
+        }
 
+    });
 
-                const target2 =
-                    normalized.target2 ??
-                    "--";
 
+    /*
+       Fixed 4 cards update.
+    */
 
-                const target3 =
-                    normalized.target3 ??
-                    "--";
+    if (categorySignals.stock) {
 
+        updateSignalCard(
+            "stock",
+            categorySignals.stock
+        );
 
-                const risk =
-                    normalized.risk ||
-                    "Medium";
+    }
 
 
-                const exchange =
-                    normalized.exchange ||
-                    "NSE";
+    if (categorySignals.crypto) {
 
+        updateSignalCard(
+            "crypto",
+            categorySignals.crypto
+        );
 
-                return `
+    }
 
-                    <div
-                        class="today-signal-card ${sideClass}"
-                        style="
-                            background:#0b1220;
-                            border:1px solid #263244;
-                            border-radius:15px;
-                            padding:20px;
-                            margin-top:15px;
-                        "
-                    >
-
-                        <div style="
-                            display:flex;
-                            justify-content:space-between;
-                            align-items:center;
-                            gap:10px;
-                            margin-bottom:12px;
-                        ">
 
-                            <div>
+    if (categorySignals.commodity) {
 
-                                <h3 style="
-                                    margin:0 0 5px 0;
-                                    font-size:20px;
-                                ">
-                                    ${escapeHTML(
-                                        symbol
-                                    )}
-                                </h3>
-
-                                <p style="
-                                    margin:0;
-                                    color:#9ca3af;
-                                    font-size:13px;
-                                ">
-                                    ${escapeHTML(
-                                        name
-                                    )}
-                                </p>
-
-                            </div>
-
-                            <span
-                                class="signal-badge ${side.toLowerCase()}-badge"
-                                style="
-                                    display:inline-flex;
-                                    align-items:center;
-                                    justify-content:center;
-                                    padding:7px 14px;
-                                    border-radius:20px;
-                                    font-weight:700;
-                                    font-size:13px;
-                                "
-                            >
-                                ${escapeHTML(side)}
-                            </span>
-
-                        </div>
-
-
-                        ${
-                            normalized.note
-                                ? `
-
-                                    <p style="
-                                        margin:10px 0 18px;
-                                        color:#d1d5db;
-                                        line-height:1.5;
-                                    ">
-                                        ${escapeHTML(
-                                            normalized.note
-                                        )}
-                                    </p>
-
-                                `
-                                : ""
-                        }
-
-
-                        <div style="
-                            display:grid;
-                            grid-template-columns:
-                                repeat(
-                                    auto-fit,
-                                    minmax(120px,1fr)
-                                );
-                            gap:10px;
-                            margin-top:10px;
-                        ">
-
-
-                            <div style="
-                                padding:12px;
-                                border:1px solid #263244;
-                                border-radius:10px;
-                            ">
-
-                                <small style="
-                                    display:block;
-                                    color:#9ca3af;
-                                    margin-bottom:5px;
-                                ">
-                                    Entry
-                                </small>
-
-                                <strong>
-                                    ${escapeHTML(
-                                        entry
-                                    )}
-                                </strong>
-
-                            </div>
-
-
-                            <div style="
-                                padding:12px;
-                                border:1px solid #263244;
-                                border-radius:10px;
-                            ">
-
-                                <small style="
-                                    display:block;
-                                    color:#9ca3af;
-                                    margin-bottom:5px;
-                                ">
-                                    Stop Loss
-                                </small>
-
-                                <strong>
-                                    ${escapeHTML(
-                                        stopLoss
-                                    )}
-                                </strong>
-
-                            </div>
-
-
-                            <div style="
-                                padding:12px;
-                                border:1px solid #263244;
-                                border-radius:10px;
-                            ">
-
-                                <small style="
-                                    display:block;
-                                    color:#9ca3af;
-                                    margin-bottom:5px;
-                                ">
-                                    Target 1
-                                </small>
-
-                                <strong>
-                                    ${escapeHTML(
-                                        target1
-                                    )}
-                                </strong>
-
-                            </div>
-
-
-                            <div style="
-                                padding:12px;
-                                border:1px solid #263244;
-                                border-radius:10px;
-                            ">
-
-                                <small style="
-                                    display:block;
-                                    color:#9ca3af;
-                                    margin-bottom:5px;
-                                ">
-                                    Target 2
-                                </small>
-
-                                <strong>
-                                    ${escapeHTML(
-                                        target2
-                                    )}
-                                </strong>
-
-                            </div>
-
-
-                            <div style="
-                                padding:12px;
-                                border:1px solid #263244;
-                                border-radius:10px;
-                            ">
-
-                                <small style="
-                                    display:block;
-                                    color:#9ca3af;
-                                    margin-bottom:5px;
-                                ">
-                                    Target 3
-                                </small>
-
-                                <strong>
-                                    ${escapeHTML(
-                                        target3
-                                    )}
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div style="
-                            display:flex;
-                            flex-wrap:wrap;
-                            gap:15px;
-                            margin-top:18px;
-                            padding-top:14px;
-                            border-top:1px solid #263244;
-                            color:#9ca3af;
-                            font-size:13px;
-                        ">
-
-                            <span>
-                                Risk:
-                                <strong style="color:#fff;">
-                                    ${escapeHTML(
-                                        risk
-                                    )}
-                                </strong>
-                            </span>
-
-
-                            <span>
-                                Exchange:
-                                <strong style="color:#fff;">
-                                    ${escapeHTML(
-                                        exchange
-                                    )}
-                                </strong>
-                            </span>
-
-
-                            <span>
-                                Setup:
-                                <strong style="color:#fff;">
-                                    ${escapeHTML(side)}
-                                </strong>
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                `;
-
-            })
-            .join("");
+        updateSignalCard(
+            "commodity",
+            categorySignals.commodity
+        );
+
+    }
+
+
+    if (categorySignals.intraday) {
+
+        updateSignalCard(
+            "intraday",
+            categorySignals.intraday
+        );
+
+    }
+
+
+    console.log(
+        "📊 Today signal cards updated:",
+        categorySignals
+    );
 
 }
 
@@ -3802,10 +3683,10 @@ async function loadSignals() {
     try {
 
         /*
-           IMPORTANT:
-           No token.
-           No Authorization header.
-           No payment check.
+           FREE WEBSITE
+           No token
+           No authorization
+           No payment
         */
 
         const response =
@@ -3865,6 +3746,10 @@ async function loadSignals() {
 
         }
 
+
+        /*
+           Website completely FREE.
+        */
 
         showPremiumContent();
 
@@ -3929,137 +3814,41 @@ async function loadSignals() {
         }
 
 
+        /*
+           Sirf active signals use karo
+           agar backend active field bhej raha hai.
+        */
+
+        signals =
+            signals.filter(signal => {
+
+                if (
+                    signal &&
+                    signal.active === false
+                ) {
+
+                    return false;
+
+                }
+
+                return true;
+
+            });
+
+
         console.log(
             "📊 Normalized signals:",
             signals
         );
 
 
+        /*
+           Fixed 4 recommendation cards update.
+        */
+
         renderTodaySignals(
             signals
         );
-
-
-        let stockSignal =
-            null;
-
-        let cryptoSignal =
-            null;
-
-        let goldSignal =
-            null;
-
-
-        signals.forEach(
-            signal => {
-
-                if (!signal) return;
-
-
-                const normalized =
-                    normalizeSignal(
-                        signal
-                    );
-
-
-                if (!normalized) return;
-
-
-                const symbol =
-                    String(
-                        normalized.symbol || ""
-                    )
-                    .toUpperCase();
-
-
-                const name =
-                    String(
-                        normalized.name || ""
-                    )
-                    .toUpperCase();
-
-
-                const isCrypto =
-                    symbol.includes("BTC") ||
-                    symbol.includes("ETH") ||
-                    symbol.includes("SOL") ||
-                    symbol.includes("XRP") ||
-                    symbol.includes("USDT") ||
-                    name.includes("BITCOIN") ||
-                    name.includes("ETHEREUM") ||
-                    name.includes("SOLANA") ||
-                    name.includes("RIPPLE") ||
-                    name.includes("XRP");
-
-
-                const isGold =
-                    symbol.includes("GOLD") ||
-                    symbol.includes("XAU") ||
-                    symbol.includes("GOLDM") ||
-                    name.includes("GOLD") ||
-                    name.includes("XAU");
-
-
-                if (
-                    isGold &&
-                    !goldSignal
-                ) {
-
-                    goldSignal =
-                        signal;
-
-                }
-
-                else if (
-                    isCrypto &&
-                    !cryptoSignal
-                ) {
-
-                    cryptoSignal =
-                        signal;
-
-                }
-
-                else if (
-                    !isCrypto &&
-                    !isGold &&
-                    !stockSignal
-                ) {
-
-                    stockSignal =
-                        signal;
-
-                }
-
-            }
-        );
-
-
-        if (stockSignal) {
-
-            updateStockSignalCard(
-                stockSignal
-            );
-
-        }
-
-
-        if (cryptoSignal) {
-
-            updateCryptoSignalCard(
-                cryptoSignal
-            );
-
-        }
-
-
-        if (goldSignal) {
-
-            updateGoldSignalCard(
-                goldSignal
-            );
-
-        }
 
 
         console.log(
@@ -4078,13 +3867,17 @@ async function loadSignals() {
         showPremiumContent();
 
 
+        /*
+           Error hone par existing cards ko
+           blank/default state me rakho.
+        */
+
         renderTodaySignals([]);
 
 
     }
 
 }
-
 
 /* =========================================================
    OLD PREMIUM BUTTONS

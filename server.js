@@ -1,11 +1,13 @@
 // ======================================================
 // STOCKPULSE - SERVER
-// Upstox + Delta Exchange + Razorpay
+// FREE VERSION
+// Upstox + Delta Exchange
 // MongoDB REMOVED
+// Razorpay REMOVED
+// Premium REMOVED
 // Live Prices + Real Candles
 // Dynamic NSE Search
-// Premium Payments
-// Admin Login
+// Admin Signals
 // ======================================================
 
 "use strict";
@@ -16,7 +18,6 @@ const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const path = require("path");
-const Razorpay = require("razorpay");
 
 const app = express();
 
@@ -30,23 +31,17 @@ app.use(cors());
 app.use(express.json());
 
 // ======================================================
-// ENV CONFIGURATION
+// ENV
 // ======================================================
 
 const UPSTOX_ACCESS_TOKEN =
     process.env.UPSTOX_ACCESS_TOKEN || "";
 
-const RAZORPAY_KEY_ID =
-    process.env.RAZORPAY_KEY_ID || "";
-
-const RAZORPAY_KEY_SECRET =
-    process.env.RAZORPAY_KEY_SECRET || "";
-
 const ADMIN_PASSWORD =
     process.env.ADMIN_PASSWORD || "";
 
 // ======================================================
-// CONFIGURATION STATUS
+// CONFIG
 // ======================================================
 
 console.log("");
@@ -55,36 +50,22 @@ console.log("       STOCKPULSE CONFIGURATION");
 console.log("==========================================");
 
 console.log(
-    "UPSTOX: " +
-    (
-        UPSTOX_ACCESS_TOKEN
-            ? "Configured"
-            : "NOT CONFIGURED"
-    )
+    "UPSTOX:",
+    UPSTOX_ACCESS_TOKEN
+        ? "Configured"
+        : "NOT CONFIGURED"
 );
 
 console.log(
-    "RAZORPAY: " +
-    (
-        RAZORPAY_KEY_ID &&
-        RAZORPAY_KEY_SECRET
-            ? "Configured"
-            : "NOT CONFIGURED"
-    )
+    "ADMIN PASSWORD:",
+    ADMIN_PASSWORD
+        ? "Configured"
+        : "NOT CONFIGURED"
 );
 
-console.log(
-    "ADMIN PASSWORD: " +
-    (
-        ADMIN_PASSWORD
-            ? "Configured"
-            : "NOT CONFIGURED"
-    )
-);
-
-console.log(
-    "MONGODB: REMOVED"
-);
+console.log("MONGODB: REMOVED");
+console.log("RAZORPAY: REMOVED");
+console.log("PREMIUM: REMOVED");
 
 console.log("==========================================");
 
@@ -98,15 +79,10 @@ const UPSTOX_API =
 function upstoxHeaders() {
 
     return {
-        Accept:
-            "application/json",
-
-        "Content-Type":
-            "application/json",
-
+        Accept: "application/json",
+        "Content-Type": "application/json",
         Authorization:
-            "Bearer " +
-            UPSTOX_ACCESS_TOKEN
+            "Bearer " + UPSTOX_ACCESS_TOKEN
     };
 }
 
@@ -132,8 +108,7 @@ async function upstoxFetch(url) {
 
     try {
 
-        data =
-            await response.json();
+        data = await response.json();
 
     } catch {
 
@@ -172,9 +147,7 @@ async function getUpstoxData(
             instrumentKey
         );
 
-    return await upstoxFetch(
-        url
-    );
+    return await upstoxFetch(url);
 }
 
 // ======================================================
@@ -239,9 +212,7 @@ async function sendIndexPrice(
         }
 
         const price =
-            Number(
-                index.last_price
-            );
+            Number(index.last_price);
 
         if (!Number.isFinite(price)) {
 
@@ -258,26 +229,21 @@ async function sendIndexPrice(
         res.json({
 
             success: true,
-
             name,
-
             price
         });
 
     } catch (error) {
 
         console.error(
-            name +
-            " ERROR:",
+            name + " ERROR:",
             error.message
         );
 
         res.status(500).json({
 
             success: false,
-
-            error:
-                error.message
+            error: error.message
         });
     }
 }
@@ -342,9 +308,7 @@ app.get(
 // FIND NSE INSTRUMENT
 // ======================================================
 
-async function findNSEInstrument(
-    symbol
-) {
+async function findNSEInstrument(symbol) {
 
     const query =
         String(symbol || "")
@@ -366,14 +330,11 @@ async function findNSEInstrument(
             instrumentKey:
                 STATIC_INSTRUMENTS[query],
 
-            symbol:
-                query,
+            symbol: query,
 
-            name:
-                query,
+            name: query,
 
-            exchange:
-                "NSE"
+            exchange: "NSE"
         };
     }
 
@@ -388,9 +349,7 @@ async function findNSEInstrument(
         "&records=30";
 
     const data =
-        await upstoxFetch(
-            url
-        );
+        await upstoxFetch(url);
 
     const results =
         Array.isArray(data.data)
@@ -407,13 +366,11 @@ async function findNSEInstrument(
                 String(
                     item.trading_symbol || ""
                 )
-                    .toUpperCase() ===
-                query &&
+                    .toUpperCase() === query &&
                 String(
                     item.segment || ""
                 )
-                    .toUpperCase() ===
-                "NSE_EQ"
+                    .toUpperCase() === "NSE_EQ"
         );
 
     if (!match) {
@@ -524,9 +481,7 @@ app.get(
                 "&records=20";
 
             const data =
-                await upstoxFetch(
-                    url
-                );
+                await upstoxFetch(url);
 
             const results =
                 Array.isArray(data.data)
@@ -571,14 +526,9 @@ app.get(
             res.json({
 
                 success: true,
-
                 query,
-
-                count:
-                    stocks.length,
-
-                results:
-                    stocks
+                count: stocks.length,
+                results: stocks
             });
 
         } catch (error) {
@@ -591,9 +541,7 @@ app.get(
             res.status(500).json({
 
                 success: false,
-
-                error:
-                    error.message
+                error: error.message
             });
         }
     }
@@ -669,9 +617,7 @@ app.get(
             }
 
             const price =
-                Number(
-                    stock.last_price
-                );
+                Number(stock.last_price);
 
             if (!Number.isFinite(price)) {
 
@@ -688,7 +634,6 @@ app.get(
             res.json({
 
                 success: true,
-
                 symbol,
 
                 name:
@@ -697,6 +642,10 @@ app.get(
 
                 instrumentKey:
                     instrument.instrumentKey,
+
+                exchange:
+                    instrument.exchange ||
+                    "NSE",
 
                 price
             });
@@ -711,9 +660,7 @@ app.get(
             res.status(500).json({
 
                 success: false,
-
-                error:
-                    error.message
+                error: error.message
             });
         }
     }
@@ -726,9 +673,7 @@ app.get(
 const DELTA_API_URL =
     "https://api.india.delta.exchange";
 
-async function getDeltaTicker(
-    symbol
-) {
+async function getDeltaTicker(symbol) {
 
     const url =
         DELTA_API_URL +
@@ -739,15 +684,10 @@ async function getDeltaTicker(
         await fetch(
             url,
             {
-
-                method:
-                    "GET",
+                method: "GET",
 
                 headers: {
-
-                    Accept:
-                        "application/json",
-
+                    Accept: "application/json",
                     "User-Agent":
                         "StockPulse/1.0"
                 }
@@ -776,7 +716,6 @@ async function getDeltaTicker(
     ) {
 
         throw new Error(
-
             data.error?.message ||
             data.error ||
             "Delta ticker API failed"
@@ -792,17 +731,10 @@ async function getDeltaTicker(
 
 const CRYPTO_SYMBOLS = {
 
-    BTC:
-        "BTCUSD",
-
-    ETH:
-        "ETHUSD",
-
-    SOL:
-        "SOLUSD",
-
-    XRP:
-        "XRPUSD"
+    BTC: "BTCUSD",
+    ETH: "ETHUSD",
+    SOL: "SOLUSD",
+    XRP: "XRPUSD"
 };
 
 // ======================================================
@@ -834,9 +766,7 @@ app.get(
             }
 
             const deltaSymbol =
-                CRYPTO_SYMBOLS[
-                    symbol
-                ];
+                CRYPTO_SYMBOLS[symbol];
 
             if (!deltaSymbol) {
 
@@ -879,13 +809,9 @@ app.get(
             res.json({
 
                 success: true,
-
                 symbol,
-
                 deltaSymbol,
-
-                price:
-                    Number(price)
+                price: Number(price)
             });
 
         } catch (error) {
@@ -898,9 +824,7 @@ app.get(
             res.status(500).json({
 
                 success: false,
-
-                error:
-                    error.message
+                error: error.message
             });
         }
     }
@@ -910,9 +834,7 @@ app.get(
 // TIMEFRAME CONFIG
 // ======================================================
 
-function getTimeframeConfig(
-    timeframe
-) {
+function getTimeframeConfig(timeframe) {
 
     const tf =
         String(
@@ -996,12 +918,9 @@ function getTimeframeConfig(
 // IST DATE
 // ======================================================
 
-function getISTDate(
-    daysAgo = 0
-) {
+function getISTDate(daysAgo = 0) {
 
-    const now =
-        new Date();
+    const now = new Date();
 
     now.setUTCDate(
         now.getUTCDate() -
@@ -1011,18 +930,10 @@ function getISTDate(
     return new Intl.DateTimeFormat(
         "en-CA",
         {
-
-            timeZone:
-                "Asia/Kolkata",
-
-            year:
-                "numeric",
-
-            month:
-                "2-digit",
-
-            day:
-                "2-digit"
+            timeZone: "Asia/Kolkata",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
         }
     ).format(now);
 }
@@ -1049,12 +960,8 @@ async function getUpstoxCandles(
     }
 
     if (
-        [
-            "minutes",
-            "hours"
-        ].includes(
-            config.unit
-        )
+        ["minutes", "hours"]
+            .includes(config.unit)
     ) {
 
         const url =
@@ -1068,38 +975,24 @@ async function getUpstoxCandles(
             "/" +
             config.interval;
 
-        return await upstoxFetch(
-            url
-        );
+        return await upstoxFetch(url);
     }
 
     let daysBack = 365;
 
-    if (
-        config.unit ===
-        "weeks"
-    ) {
-
-        daysBack =
-            365 * 3;
+    if (config.unit === "weeks") {
+        daysBack = 365 * 3;
     }
 
-    if (
-        config.unit ===
-        "months"
-    ) {
-
-        daysBack =
-            365 * 5;
+    if (config.unit === "months") {
+        daysBack = 365 * 5;
     }
 
     const toDate =
         getISTDate(0);
 
     const fromDate =
-        getISTDate(
-            daysBack
-        );
+        getISTDate(daysBack);
 
     const url =
         UPSTOX_API +
@@ -1116,9 +1009,7 @@ async function getUpstoxCandles(
         "/" +
         fromDate;
 
-    return await upstoxFetch(
-        url
-    );
+    return await upstoxFetch(url);
 }
 
 // ======================================================
@@ -1129,100 +1020,51 @@ function formatUpstoxCandles(
     rawCandles
 ) {
 
-    if (
-        !Array.isArray(
-            rawCandles
-        )
-    ) {
-
+    if (!Array.isArray(rawCandles)) {
         return [];
     }
 
     return rawCandles
-        .map(
-            candle => {
+        .map(candle => {
 
-                if (
-                    !Array.isArray(
-                        candle
-                    ) ||
-                    candle.length < 5
-                ) {
-
-                    return null;
-                }
-
-                const time =
-                    candle[0];
-
-                const open =
-                    Number(
-                        candle[1]
-                    );
-
-                const high =
-                    Number(
-                        candle[2]
-                    );
-
-                const low =
-                    Number(
-                        candle[3]
-                    );
-
-                const close =
-                    Number(
-                        candle[4]
-                    );
-
-                const volume =
-                    Number(
-                        candle[5] || 0
-                    );
-
-                if (
-                    !time ||
-                    !Number.isFinite(open) ||
-                    !Number.isFinite(high) ||
-                    !Number.isFinite(low) ||
-                    !Number.isFinite(close)
-                ) {
-
-                    return null;
-                }
-
-                return {
-
-                    time,
-
-                    open,
-
-                    high,
-
-                    low,
-
-                    close,
-
-                    volume
-                };
+            if (
+                !Array.isArray(candle) ||
+                candle.length < 5
+            ) {
+                return null;
             }
-        )
+
+            const time = candle[0];
+            const open = Number(candle[1]);
+            const high = Number(candle[2]);
+            const low = Number(candle[3]);
+            const close = Number(candle[4]);
+            const volume = Number(candle[5] || 0);
+
+            if (
+                !time ||
+                !Number.isFinite(open) ||
+                !Number.isFinite(high) ||
+                !Number.isFinite(low) ||
+                !Number.isFinite(close)
+            ) {
+                return null;
+            }
+
+            return {
+                time,
+                open,
+                high,
+                low,
+                close,
+                volume
+            };
+        })
         .filter(Boolean)
         .sort(
-            (a, b) => {
-
-                const ta =
-                    new Date(
-                        a.time
-                    ).getTime();
-
-                const tb =
-                    new Date(
-                        b.time
-                    ).getTime();
-
-                return ta - tb;
-            }
+            (a, b) =>
+                new Date(a.time).getTime() -
+                new Date(b.time).getTime()
         );
 }
 
@@ -1278,9 +1120,7 @@ app.get(
             }
 
             let instrumentKey =
-                STATIC_INSTRUMENTS[
-                    symbol
-                ];
+                STATIC_INSTRUMENTS[symbol];
 
             let instrumentName =
                 symbol;
@@ -1344,14 +1184,12 @@ app.get(
             res.json({
 
                 success: true,
-
                 symbol,
 
                 name:
                     instrumentName,
 
                 instrumentKey,
-
                 timeframe,
 
                 count:
@@ -1370,9 +1208,7 @@ app.get(
             res.status(500).json({
 
                 success: false,
-
-                error:
-                    error.message
+                error: error.message
             });
         }
     }
@@ -1384,101 +1220,37 @@ app.get(
 
 const DELTA_RESOLUTIONS = {
 
-    "1m": {
-        seconds: 60
-    },
-
-    "3m": {
-        seconds: 180
-    },
-
-    "5m": {
-        seconds: 300
-    },
-
-    "15m": {
-        seconds: 900
-    },
-
-    "30m": {
-        seconds: 1800
-    },
-
-    "1h": {
-        seconds: 3600
-    },
-
-    "2h": {
-        seconds: 7200
-    },
-
-    "4h": {
-        seconds: 14400
-    },
-
-    "6h": {
-        seconds: 21600
-    },
-
-    "1d": {
-        seconds: 86400
-    },
-
-    "1w": {
-        seconds: 604800
-    }
+    "1m": { seconds: 60 },
+    "3m": { seconds: 180 },
+    "5m": { seconds: 300 },
+    "15m": { seconds: 900 },
+    "30m": { seconds: 1800 },
+    "1h": { seconds: 3600 },
+    "2h": { seconds: 7200 },
+    "4h": { seconds: 14400 },
+    "6h": { seconds: 21600 },
+    "1d": { seconds: 86400 },
+    "1w": { seconds: 604800 }
 };
 
 // ======================================================
 // NORMALIZE DELTA CANDLE
 // ======================================================
 
-function normalizeDeltaCandle(
-    candle
-) {
+function normalizeDeltaCandle(candle) {
 
-    if (
-        Array.isArray(
-            candle
-        )
-    ) {
+    if (Array.isArray(candle)) {
 
-        if (
-            candle.length < 5
-        ) {
-
+        if (candle.length < 5) {
             return null;
         }
 
-        const time =
-            Number(
-                candle[0]
-            );
-
-        const open =
-            Number(
-                candle[1]
-            );
-
-        const high =
-            Number(
-                candle[2]
-            );
-
-        const low =
-            Number(
-                candle[3]
-            );
-
-        const close =
-            Number(
-                candle[4]
-            );
-
-        const volume =
-            Number(
-                candle[5] || 0
-            );
+        const time = Number(candle[0]);
+        const open = Number(candle[1]);
+        const high = Number(candle[2]);
+        const low = Number(candle[3]);
+        const close = Number(candle[4]);
+        const volume = Number(candle[5] || 0);
 
         if (
             !Number.isFinite(time) ||
@@ -1487,7 +1259,6 @@ function normalizeDeltaCandle(
             !Number.isFinite(low) ||
             !Number.isFinite(close)
         ) {
-
             return null;
         }
 
@@ -1495,58 +1266,40 @@ function normalizeDeltaCandle(
 
             time:
                 time > 100000000000
-                    ? Math.floor(
-                        time / 1000
-                    )
+                    ? Math.floor(time / 1000)
                     : time,
 
             open,
-
             high,
-
             low,
-
             close,
-
             volume
         };
     }
 
     if (
         candle &&
-        typeof candle ===
-            "object"
+        typeof candle === "object"
     ) {
-
-        const rawTime =
-            candle.time ??
-            candle.timestamp ??
-            candle.ts;
 
         const time =
             Number(
-                rawTime
+                candle.time ??
+                candle.timestamp ??
+                candle.ts
             );
 
         const open =
-            Number(
-                candle.open
-            );
+            Number(candle.open);
 
         const high =
-            Number(
-                candle.high
-            );
+            Number(candle.high);
 
         const low =
-            Number(
-                candle.low
-            );
+            Number(candle.low);
 
         const close =
-            Number(
-                candle.close
-            );
+            Number(candle.close);
 
         const volume =
             Number(
@@ -1562,7 +1315,6 @@ function normalizeDeltaCandle(
             !Number.isFinite(low) ||
             !Number.isFinite(close)
         ) {
-
             return null;
         }
 
@@ -1570,19 +1322,13 @@ function normalizeDeltaCandle(
 
             time:
                 time > 100000000000
-                    ? Math.floor(
-                        time / 1000
-                    )
+                    ? Math.floor(time / 1000)
                     : time,
 
             open,
-
             high,
-
             low,
-
             close,
-
             volume
         };
     }
@@ -1615,9 +1361,7 @@ app.get(
                     .trim();
 
             const deltaSymbol =
-                CRYPTO_SYMBOLS[
-                    symbol
-                ];
+                CRYPTO_SYMBOLS[symbol];
 
             if (!deltaSymbol) {
 
@@ -1648,13 +1392,11 @@ app.get(
                 });
             }
 
-            const candleCount =
-                200;
+            const candleCount = 200;
 
             const end =
                 Math.floor(
-                    Date.now() /
-                    1000
+                    Date.now() / 1000
                 );
 
             const start =
@@ -1668,13 +1410,9 @@ app.get(
                 DELTA_API_URL +
                 "/v2/history/candles" +
                 "?resolution=" +
-                encodeURIComponent(
-                    resolution
-                ) +
+                encodeURIComponent(resolution) +
                 "&symbol=" +
-                encodeURIComponent(
-                    deltaSymbol
-                ) +
+                encodeURIComponent(deltaSymbol) +
                 "&start=" +
                 start +
                 "&end=" +
@@ -1684,15 +1422,11 @@ app.get(
                 await fetch(
                     url,
                     {
-
-                        method:
-                            "GET",
+                        method: "GET",
 
                         headers: {
-
                             Accept:
                                 "application/json",
-
                             "User-Agent":
                                 "StockPulse/1.0"
                         }
@@ -1730,10 +1464,7 @@ app.get(
                 });
             }
 
-            if (
-                data.success ===
-                false
-            ) {
+            if (data.success === false) {
 
                 return res.status(502).json({
 
@@ -1747,9 +1478,7 @@ app.get(
             }
 
             const rawCandles =
-                Array.isArray(
-                    data.result
-                )
+                Array.isArray(data.result)
                     ? data.result
                     : [];
 
@@ -1761,8 +1490,7 @@ app.get(
                     .filter(Boolean)
                     .sort(
                         (a, b) =>
-                            a.time -
-                            b.time
+                            a.time - b.time
                     );
 
             if (!candles.length) {
@@ -1779,11 +1507,8 @@ app.get(
             res.json({
 
                 success: true,
-
                 symbol,
-
                 deltaSymbol,
-
                 resolution,
 
                 count:
@@ -1802,455 +1527,7 @@ app.get(
             res.status(500).json({
 
                 success: false,
-
-                error:
-                    error.message
-            });
-        }
-    }
-);
-
-// ======================================================
-// RAZORPAY
-// ======================================================
-
-const razorpay =
-    RAZORPAY_KEY_ID &&
-    RAZORPAY_KEY_SECRET
-        ? new Razorpay({
-
-            key_id:
-                RAZORPAY_KEY_ID,
-
-            key_secret:
-                RAZORPAY_KEY_SECRET
-
-        })
-        : null;
-
-const PREMIUM_AMOUNT =
-    200000;
-
-const PREMIUM_CURRENCY =
-    "INR";
-
-// ======================================================
-// PREMIUM TOKEN
-// ======================================================
-
-function createPremiumToken(
-    paymentId,
-    expiry
-) {
-
-    const payload = {
-
-        paymentId,
-
-        premium:
-            true,
-
-        expiry:
-            new Date(
-                expiry
-            ).getTime(),
-
-        issuedAt:
-            Date.now()
-    };
-
-    const payloadString =
-        Buffer
-            .from(
-                JSON.stringify(
-                    payload
-                )
-            )
-            .toString(
-                "base64url"
-            );
-
-    const signature =
-        crypto
-            .createHmac(
-                "sha256",
-                RAZORPAY_KEY_SECRET
-            )
-            .update(
-                payloadString
-            )
-            .digest(
-                "hex"
-            );
-
-    return (
-        payloadString +
-        "." +
-        signature
-    );
-}
-
-// ======================================================
-// VERIFY PREMIUM TOKEN
-// ======================================================
-
-function verifyPremiumToken(
-    token
-) {
-
-    try {
-
-        if (!token) {
-            return false;
-        }
-
-        if (!RAZORPAY_KEY_SECRET) {
-            return false;
-        }
-
-        const parts =
-            token.split(".");
-
-        if (
-            parts.length !== 2
-        ) {
-            return false;
-        }
-
-        const payloadString =
-            parts[0];
-
-        const signature =
-            parts[1];
-
-        const expectedSignature =
-            crypto
-                .createHmac(
-                    "sha256",
-                    RAZORPAY_KEY_SECRET
-                )
-                .update(
-                    payloadString
-                )
-                .digest(
-                    "hex"
-                );
-
-        if (
-            signature.length !==
-            expectedSignature.length
-        ) {
-            return false;
-        }
-
-        if (
-            !crypto.timingSafeEqual(
-                Buffer.from(
-                    signature
-                ),
-                Buffer.from(
-                    expectedSignature
-                )
-            )
-        ) {
-            return false;
-        }
-
-        const payload =
-            JSON.parse(
-
-                Buffer
-                    .from(
-                        payloadString,
-                        "base64url"
-                    )
-                    .toString(
-                        "utf8"
-                    )
-            );
-
-        if (
-            !payload.premium
-        ) {
-            return false;
-        }
-
-        if (
-            payload.expiry &&
-            Date.now() >
-                Number(
-                    payload.expiry
-                )
-        ) {
-            return false;
-        }
-
-        return true;
-
-    } catch {
-
-        return false;
-    }
-}
-
-// ======================================================
-// CREATE RAZORPAY ORDER
-// ======================================================
-
-app.post(
-    "/api/payment/create-order",
-    async (req, res) => {
-
-        try {
-
-            if (
-                !RAZORPAY_KEY_ID ||
-                !RAZORPAY_KEY_SECRET ||
-                !razorpay
-            ) {
-
-                return res.status(500).json({
-
-                    success: false,
-
-                    error:
-                        "Razorpay keys are not configured"
-                });
-            }
-
-            const order =
-                await razorpay.orders.create({
-
-                    amount:
-                        PREMIUM_AMOUNT,
-
-                    currency:
-                        PREMIUM_CURRENCY,
-
-                    receipt:
-                        "stockpulse_" +
-                        Date.now(),
-
-                    notes: {
-
-                        product:
-                            "StockPulse Premium",
-
-                        plan:
-                            "6 Month Premium Membership"
-                    }
-                });
-
-            res.json({
-
-                success: true,
-
-                keyId:
-                    RAZORPAY_KEY_ID,
-
-                order
-            });
-
-        } catch (error) {
-
-            console.error(
-                "RAZORPAY ORDER ERROR:",
-                error
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    error.error?.description ||
-                    error.message ||
-                    "Unable to create payment order"
-            });
-        }
-    }
-);
-
-// ======================================================
-// VERIFY RAZORPAY PAYMENT
-// ======================================================
-
-app.post(
-    "/api/payment/verify",
-    async (req, res) => {
-
-        try {
-
-            if (
-                !RAZORPAY_KEY_SECRET ||
-                !razorpay
-            ) {
-
-                return res.status(500).json({
-
-                    success: false,
-
-                    paid: false,
-
-                    error:
-                        "Razorpay is not configured"
-                });
-            }
-
-            const {
-
-                razorpay_order_id,
-
-                razorpay_payment_id,
-
-                razorpay_signature
-
-            } = req.body;
-
-            if (
-                !razorpay_order_id ||
-                !razorpay_payment_id ||
-                !razorpay_signature
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    paid: false,
-
-                    error:
-                        "Payment verification data missing"
-                });
-            }
-
-            const body =
-                razorpay_order_id +
-                "|" +
-                razorpay_payment_id;
-
-            const expectedSignature =
-                crypto
-                    .createHmac(
-                        "sha256",
-                        RAZORPAY_KEY_SECRET
-                    )
-                    .update(
-                        body
-                    )
-                    .digest(
-                        "hex"
-                    );
-
-            if (
-                expectedSignature !==
-                razorpay_signature
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    paid: false,
-
-                    error:
-                        "Payment verification failed"
-                });
-            }
-
-            let paymentDetails =
-                null;
-
-            try {
-
-                paymentDetails =
-                    await razorpay.payments.fetch(
-                        razorpay_payment_id
-                    );
-
-            } catch (error) {
-
-                console.error(
-                    "PAYMENT FETCH ERROR:",
-                    error.message
-                );
-            }
-
-            if (
-                paymentDetails &&
-                paymentDetails.status &&
-                paymentDetails.status !==
-                    "captured"
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    paid: false,
-
-                    error:
-                        "Payment status is " +
-                        paymentDetails.status
-                });
-            }
-
-            const premiumStartDate =
-                new Date();
-
-            const premiumExpiry =
-                new Date(
-                    premiumStartDate
-                );
-
-            premiumExpiry.setMonth(
-                premiumExpiry.getMonth() +
-                6
-            );
-
-            const premiumToken =
-                createPremiumToken(
-                    razorpay_payment_id,
-                    premiumExpiry
-                );
-
-            console.log(
-                "PAYMENT VERIFIED:",
-                razorpay_payment_id
-            );
-
-            res.json({
-
-                success: true,
-
-                paid: true,
-
-                message:
-                    "Payment verified successfully",
-
-                paymentId:
-                    razorpay_payment_id,
-
-                premiumExpiry,
-
-                premiumToken
-            });
-
-        } catch (error) {
-
-            console.error(
-                "PAYMENT VERIFY ERROR:",
-                error
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                paid: false,
-
-                error:
-                    "Payment verification error"
+                error: error.message
             });
         }
     }
@@ -2307,8 +1584,7 @@ function verifyAdmin(
 
     if (
         !password ||
-        password !==
-            ADMIN_PASSWORD
+        password !== ADMIN_PASSWORD
     ) {
 
         return res.status(401).json({
@@ -2322,6 +1598,44 @@ function verifyAdmin(
 
     next();
 }
+
+// ======================================================
+// HEALTH
+// ======================================================
+
+app.get(
+    "/api/health",
+    (req, res) => {
+
+        res.json({
+
+            success: true,
+
+            status: "OK",
+
+            server:
+                "StockPulse",
+
+            database:
+                "MongoDB disabled",
+
+            payments:
+                "Disabled",
+
+            premium:
+                "Disabled",
+
+            signals:
+                "Enabled",
+
+            signalCount:
+                signals.length,
+
+            timestamp:
+                new Date().toISOString()
+        });
+    }
+);
 
 // ======================================================
 // ADMIN LOGIN
@@ -2352,8 +1666,7 @@ app.post(
 
             if (
                 !password ||
-                password !==
-                    ADMIN_PASSWORD
+                password !== ADMIN_PASSWORD
             ) {
 
                 return res.status(401).json({
@@ -2401,17 +1714,15 @@ app.post(
 app.get(
     "/api/admin/status",
     verifyAdmin,
-    async (req, res) => {
+    (req, res) => {
 
         res.json({
 
             success: true,
 
-            authenticated:
-                true,
+            authenticated: true,
 
-            mongoConnected:
-                false,
+            mongoConnected: false,
 
             message:
                 "Admin authentication successful"
@@ -2420,108 +1731,181 @@ app.get(
 );
 
 // ======================================================
-// ADMIN STATS
+// SIGNAL STORAGE
 // ======================================================
-// MongoDB removed.
-// Payment/customer database statistics unavailable.
-// ======================================================
-
-app.get(
-    "/api/admin/stats",
-    verifyAdmin,
-    async (req, res) => {
-
-        res.json({
-
-            success: true,
-
-            stats: {
-
-                totalCustomers:
-                    0,
-
-                totalPayments:
-                    0,
-
-                successfulPayments:
-                    0,
-
-                totalRevenue:
-                    0,
-
-                activePremium:
-                    0,
-
-                totalSignals:
-                    0,
-
-                activeSignals:
-                    0
-            },
-
-            message:
-                "MongoDB removed. Database statistics are disabled."
-        });
-    }
-);
-
-// ======================================================
-// ADMIN CUSTOMERS
-// ======================================================
-
-app.get(
-    "/api/admin/customers",
-    verifyAdmin,
-    async (req, res) => {
-
-        res.json({
-
-            success: true,
-
-            count:
-                0,
-
-            customers: [],
-
-            message:
-                "Customer database is disabled because MongoDB was removed."
-        });
-    }
-);
-
-// ======================================================
-// ADMIN PAYMENTS
-// ======================================================
-
-app.get(
-    "/api/admin/payments",
-    verifyAdmin,
-    async (req, res) => {
-
-        res.json({
-
-            success: true,
-
-            count:
-                0,
-
-            payments: [],
-
-            message:
-                "Payment database is disabled because MongoDB was removed."
-        });
-    }
-);
-
-// ======================================================
-// ADMIN SIGNALS
-// ======================================================
-// Signals are kept temporarily in memory.
-// IMPORTANT:
-// Server restart/redeploy will clear them.
+//
+// Temporary memory storage.
+// MongoDB intentionally disabled.
+//
+// Railway restart/redeploy = signals reset.
 // ======================================================
 
 let signals = [];
+
+// ======================================================
+// CATEGORY NORMALIZER
+// ======================================================
+
+function normalizeCategory(category) {
+
+    const value =
+        String(
+            category || ""
+        )
+            .toLowerCase()
+            .trim();
+
+    const map = {
+
+        stock: "stocks",
+        stocks: "stocks",
+
+        crypto: "crypto",
+
+        gold: "commodity",
+        commodity: "commodity",
+
+        intraday: "intraday"
+    };
+
+    return map[value] || "";
+}
+
+// ======================================================
+// CLEAN SIGNAL
+// ======================================================
+
+function cleanSignal(body) {
+
+    const category =
+        normalizeCategory(
+            body.category
+        );
+
+    const symbol =
+        String(
+            body.symbol ||
+            body.name ||
+            ""
+        )
+            .trim()
+            .toUpperCase();
+
+    const name =
+        String(
+            body.name ||
+            symbol
+        )
+            .trim()
+            .toUpperCase();
+
+    const type =
+        String(
+            body.type ||
+            "BUY"
+        )
+            .trim()
+            .toUpperCase();
+
+    const exchange =
+        String(
+            body.exchange ||
+            (
+                category === "crypto"
+                    ? "CRYPTO"
+                    : category === "commodity"
+                        ? "MCX"
+                        : "NSE"
+            )
+        )
+            .trim()
+            .toUpperCase();
+
+    const entry =
+        body.entry === undefined ||
+        body.entry === null
+            ? ""
+            : String(body.entry).trim();
+
+    const stopLoss =
+        body.stopLoss === undefined ||
+        body.stopLoss === null
+            ? ""
+            : String(body.stopLoss).trim();
+
+    const target1 =
+        body.target1 === undefined ||
+        body.target1 === null
+            ? ""
+            : String(body.target1).trim();
+
+    const target2 =
+        body.target2 === undefined ||
+        body.target2 === null
+            ? ""
+            : String(body.target2).trim();
+
+    const target3 =
+        body.target3 === undefined ||
+        body.target3 === null
+            ? ""
+            : String(body.target3).trim();
+
+    const risk =
+        String(
+            body.risk ||
+            "Medium"
+        ).trim();
+
+    const note =
+        String(
+            body.note ||
+            body.setup ||
+            ""
+        ).trim();
+
+    const active =
+        body.active !== false;
+
+    return {
+
+        id:
+            body.id ||
+            crypto.randomUUID(),
+
+        category,
+
+        symbol,
+
+        name,
+
+        type,
+
+        exchange,
+
+        entry,
+
+        stopLoss,
+
+        target1,
+
+        target2,
+
+        target3,
+
+        risk,
+
+        note,
+
+        setup:
+            note,
+
+        active,
+
+        updatedAt:
+            new Date().toISOString()
+    };
+}
 
 // ======================================================
 // GET ADMIN SIGNALS
@@ -2530,7 +1914,7 @@ let signals = [];
 app.get(
     "/api/admin/signals",
     verifyAdmin,
-    async (req, res) => {
+    (req, res) => {
 
         res.json({
 
@@ -2539,90 +1923,28 @@ app.get(
             count:
                 signals.length,
 
-            signals:
-                signals
+            signals
         });
     }
 );
 
 // ======================================================
-// SAVE / UPDATE PREMIUM SIGNAL
+// SAVE / UPDATE SIGNAL
 // ======================================================
 
 app.post(
     "/api/admin/signals",
     verifyAdmin,
-    async (req, res) => {
+    (req, res) => {
 
         try {
 
-            const {
+            const signal =
+                cleanSignal(
+                    req.body || {}
+                );
 
-                id,
-
-                category,
-
-                symbol,
-
-                name,
-
-                type,
-
-                entry,
-
-                stopLoss,
-
-                target1,
-
-                target2,
-
-                target3,
-
-                risk,
-
-                note,
-
-                active
-
-            } = req.body;
-
-            const cleanCategory =
-                String(
-                    category || ""
-                )
-                    .toLowerCase()
-                    .trim();
-
-            const cleanSymbol =
-                String(
-                    symbol || ""
-                )
-                    .toUpperCase()
-                    .trim();
-
-            const cleanType =
-                String(
-                    type || ""
-                )
-                    .toUpperCase()
-                    .trim();
-
-            const allowedCategories = [
-
-                "stocks",
-
-                "crypto",
-
-                "commodity",
-
-                "intraday"
-            ];
-
-            if (
-                !allowedCategories.includes(
-                    cleanCategory
-                )
-            ) {
+            if (!signal.category) {
 
                 return res.status(400).json({
 
@@ -2633,7 +1955,7 @@ app.post(
                 });
             }
 
-            if (!cleanSymbol) {
+            if (!signal.symbol) {
 
                 return res.status(400).json({
 
@@ -2645,9 +1967,8 @@ app.post(
             }
 
             if (
-                !["BUY", "SELL"].includes(
-                    cleanType
-                )
+                !["BUY", "SELL"]
+                    .includes(signal.type)
             ) {
 
                 return res.status(400).json({
@@ -2659,92 +1980,92 @@ app.post(
                 });
             }
 
-            const signalData = {
+            if (!signal.entry) {
 
-                id:
-                    id ||
-                    crypto.randomUUID(),
+                return res.status(400).json({
 
-                category:
-                    cleanCategory,
+                    success: false,
 
-                symbol:
-                    cleanSymbol,
+                    error:
+                        "Entry is required"
+                });
+            }
 
-                name:
-                    name ||
-                    cleanSymbol,
+            if (!signal.stopLoss) {
 
-                type:
-                    cleanType,
+                return res.status(400).json({
 
-                entry:
-                    entry ||
-                    "",
+                    success: false,
 
-                stopLoss:
-                    stopLoss ||
-                    "",
+                    error:
+                        "Stop Loss is required"
+                });
+            }
 
-                target1:
-                    target1 ||
-                    "",
+            if (!signal.target1) {
 
-                target2:
-                    target2 ||
-                    "",
+                return res.status(400).json({
 
-                target3:
-                    target3 ||
-                    "",
+                    success: false,
 
-                risk:
-                    risk ||
-                    "Medium",
+                    error:
+                        "Target 1 is required"
+                });
+            }
 
-                note:
-                    note ||
-                    "",
+            if (!signal.target2) {
 
-                active:
-                    active !== false,
+                return res.status(400).json({
 
-                updatedAt:
-                    new Date().toISOString()
-            };
+                    success: false,
+
+                    error:
+                        "Target 2 is required"
+                });
+            }
+
+            if (!signal.target3) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    error:
+                        "Target 3 is required"
+                });
+            }
 
             const existingIndex =
                 signals.findIndex(
                     item =>
-                        item.id ===
-                        signalData.id
+                        item.id === signal.id
                 );
 
-            if (
-                existingIndex >= 0
-            ) {
+            if (existingIndex >= 0) {
 
-                signals[
-                    existingIndex
-                ] =
-                    signalData;
+                signals[existingIndex] =
+                    signal;
 
             } else {
 
-                signals.push(
-                    signalData
-                );
+                signals.push(signal);
             }
+
+            console.log(
+                "SIGNAL SAVED:",
+                JSON.stringify(signal)
+            );
 
             res.json({
 
                 success: true,
 
                 message:
-                    "Premium signal saved successfully",
+                    "Signal saved successfully",
 
-                signal:
-                    signalData
+                signal,
+
+                signals
             });
 
         } catch (error) {
@@ -2766,15 +2087,20 @@ app.post(
 );
 
 // ======================================================
-// DELETE PREMIUM SIGNAL
+// DELETE SIGNAL
 // ======================================================
 
 app.delete(
     "/api/admin/signals/:id",
     verifyAdmin,
-    async (req, res) => {
+    (req, res) => {
 
         try {
+
+            const id =
+                String(
+                    req.params.id || ""
+                ).trim();
 
             const oldLength =
                 signals.length;
@@ -2782,13 +2108,11 @@ app.delete(
             signals =
                 signals.filter(
                     item =>
-                        item.id !==
-                        req.params.id
+                        item.id !== id
                 );
 
             if (
-                signals.length ===
-                oldLength
+                signals.length === oldLength
             ) {
 
                 return res.status(404).json({
@@ -2800,12 +2124,20 @@ app.delete(
                 });
             }
 
+            console.log(
+                "SIGNAL DELETED:",
+                id
+            );
+
             res.json({
 
                 success: true,
 
                 message:
-                    "Signal deleted successfully"
+                    "Signal deleted successfully",
+
+                count:
+                    signals.length
             });
 
         } catch (error) {
@@ -2832,16 +2164,30 @@ app.delete(
 
 app.get(
     "/api/signals",
-    async (req, res) => {
+    (req, res) => {
 
         try {
 
             const activeSignals =
                 signals.filter(
                     signal =>
-                        signal.active ===
-                        true
+                        signal.active === true
                 );
+
+            res.setHeader(
+                "Cache-Control",
+                "no-store, no-cache, must-revalidate, proxy-revalidate"
+            );
+
+            res.setHeader(
+                "Pragma",
+                "no-cache"
+            );
+
+            res.setHeader(
+                "Expires",
+                "0"
+            );
 
             res.json({
 
@@ -2857,7 +2203,7 @@ app.get(
         } catch (error) {
 
             console.error(
-                "PUBLIC SIGNALS ERROR:",
+                "PUBLIC SIGNAL ERROR:",
                 error.message
             );
 
@@ -2873,27 +2219,90 @@ app.get(
 );
 
 // ======================================================
-// ADMIN PAGE
+// ADMIN STATS
 // ======================================================
 
 app.get(
-    [
-        "/admin",
-        "/admin.html"
-    ],
+    "/api/admin/stats",
+    verifyAdmin,
     (req, res) => {
 
-        res.sendFile(
-            path.join(
-                __dirname,
-                "admin.html"
-            )
-        );
+        res.json({
+
+            success: true,
+
+            stats: {
+
+                totalCustomers: 0,
+                totalPayments: 0,
+                successfulPayments: 0,
+                totalRevenue: 0,
+                activePremium: 0,
+
+                totalSignals:
+                    signals.length,
+
+                activeSignals:
+                    signals.filter(
+                        signal =>
+                            signal.active
+                    ).length
+            },
+
+            message:
+                "MongoDB and payment system are disabled."
+        });
     }
 );
 
 // ======================================================
-// SERVER STATUS
+// ADMIN CUSTOMERS
+// ======================================================
+
+app.get(
+    "/api/admin/customers",
+    verifyAdmin,
+    (req, res) => {
+
+        res.json({
+
+            success: true,
+
+            count: 0,
+
+            customers: [],
+
+            message:
+                "Customer database is disabled."
+        });
+    }
+);
+
+// ======================================================
+// ADMIN PAYMENTS
+// ======================================================
+
+app.get(
+    "/api/admin/payments",
+    verifyAdmin,
+    (req, res) => {
+
+        res.json({
+
+            success: true,
+
+            count: 0,
+
+            payments: [],
+
+            message:
+                "Payment system is disabled."
+        });
+    }
+);
+
+// ======================================================
+// ROOT
 // ======================================================
 
 app.get(
@@ -2907,42 +2316,27 @@ app.get(
             message:
                 "StockPulse API Server is running",
 
+            version:
+                "Free",
+
             database:
-                "MongoDB Removed",
-
-            chartEngine:
-                "TradingView Lightweight Charts",
-
-            marketData:
-                "Upstox",
-
-            cryptoData:
-                "Delta Exchange",
+                "MongoDB Disabled",
 
             payment:
-                "Razorpay",
+                "Disabled",
 
-            premiumPrice:
-                "2000 INR",
-
-            premiumDuration:
-                "6 Months",
+            premium:
+                "Disabled",
 
             signalsStorage:
                 "Temporary Memory",
 
-            signalCategories: [
-
-                "Indian Stocks",
-
-                "Crypto",
-
-                "Commodity",
-
-                "Intraday"
-            ],
+            signalCount:
+                signals.length,
 
             endpoints: [
+
+                "/api/health",
 
                 "/api/nifty",
 
@@ -2954,43 +2348,21 @@ app.get(
 
                 "/api/stock?symbol=RELIANCE",
 
-                "/api/stock?symbol=INFY",
-
                 "/api/search?q=RELIANCE",
 
                 "/api/candles?symbol=NIFTY50&timeframe=1m",
-
-                "/api/candles?symbol=RELIANCE&timeframe=1m",
-
-                "/api/candles?symbol=INFY&timeframe=5m",
-
-                "/api/candles?symbol=NIFTY50&timeframe=1d",
 
                 "/api/crypto?symbol=BTC",
 
                 "/api/crypto/candles?symbol=BTC&resolution=1m",
 
-                "/api/crypto/candles?symbol=ETH&resolution=5m",
-
-                "/api/crypto/candles?symbol=SOL&resolution=15m",
-
-                "/api/crypto/candles?symbol=XRP&resolution=1h",
-
-                "/api/payment/create-order",
-
-                "/api/payment/verify",
-
                 "/api/signals",
 
                 "/api/admin/login",
 
-                "/api/admin/customers",
+                "/api/admin/signals",
 
-                "/api/admin/payments",
-
-                "/api/admin/stats",
-
-                "/api/admin/signals"
+                "/api/admin/stats"
             ]
         });
     }
@@ -3003,49 +2375,46 @@ app.get(
 function startServer() {
 
     console.log("");
+    console.log("==========================================");
+    console.log("       STOCKPULSE SERVER STARTING");
+    console.log("==========================================");
 
     console.log(
-        "=========================================="
+        "Port:",
+        PORT
     );
 
     console.log(
-        "STOCKPULSE SERVER STARTING"
+        "Upstox:",
+        UPSTOX_ACCESS_TOKEN
+            ? "READY"
+            : "NOT CONFIGURED"
     );
 
     console.log(
-        "=========================================="
+        "Admin:",
+        ADMIN_PASSWORD
+            ? "READY"
+            : "NOT CONFIGURED"
     );
 
     console.log(
-        "MongoDB: REMOVED"
+        "MongoDB: DISABLED"
     );
 
     console.log(
-        "Upstox: " +
-        (
-            UPSTOX_ACCESS_TOKEN
-                ? "READY"
-                : "NOT CONFIGURED"
-        )
+        "Razorpay: DISABLED"
     );
 
     console.log(
-        "Razorpay: " +
-        (
-            razorpay
-                ? "READY"
-                : "NOT CONFIGURED"
-        )
+        "Premium: DISABLED"
     );
 
     console.log(
-        "Admin: " +
-        (
-            ADMIN_PASSWORD
-                ? "READY"
-                : "NOT CONFIGURED"
-        )
+        "Signals: ENABLED"
     );
+
+    console.log("==========================================");
 
     app.listen(
         PORT,
@@ -3053,87 +2422,25 @@ function startServer() {
         () => {
 
             console.log("");
-
-            console.log(
-                "=========================================="
-            );
-
             console.log(
                 "STOCKPULSE SERVER STARTED"
             );
 
             console.log(
-                "=========================================="
-            );
-
-            console.log(
-                "Port:",
+                "Listening on port:",
                 PORT
             );
 
             console.log(
-                "MongoDB: REMOVED"
+                "Health: /api/health"
             );
 
             console.log(
-                "NIFTY: /api/nifty"
+                "Signals: /api/signals"
             );
 
             console.log(
-                "BANKNIFTY: /api/banknifty"
-            );
-
-            console.log(
-                "SENSEX: /api/sensex"
-            );
-
-            console.log(
-                "NIFTY IT: /api/niftyit"
-            );
-
-            console.log(
-                "Dynamic NSE Search: /api/search"
-            );
-
-            console.log(
-                "Real Candles: /api/candles"
-            );
-
-            console.log(
-                "CRYPTO: /api/crypto"
-            );
-
-            console.log(
-                "CRYPTO CANDLES: /api/crypto/candles"
-            );
-
-            console.log(
-                "RAZORPAY: " +
-                (
-                    razorpay
-                        ? "ENABLED"
-                        : "DISABLED"
-                )
-            );
-
-            console.log(
-                "PREMIUM SIGNALS: ENABLED"
-            );
-
-            console.log(
-                "ADMIN PANEL: ENABLED"
-            );
-
-            console.log(
-                "CUSTOMER DATABASE: DISABLED"
-            );
-
-            console.log(
-                "PAYMENT DATABASE: DISABLED"
-            );
-
-            console.log(
-                "PREMIUM: 2000 INR / 6 MONTHS"
+                "Admin Signals: /api/admin/signals"
             );
 
             console.log(
@@ -3142,9 +2449,5 @@ function startServer() {
         }
     );
 }
-
-// ======================================================
-// RUN SERVER
-// ======================================================
 
 startServer();
