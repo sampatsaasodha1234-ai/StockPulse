@@ -1,1226 +1,1822 @@
-
-// ======================================================
-// STOCKPULSE - SERVER
-// FREE VERSION
-// Upstox + Delta Exchange
-// MongoDB CONNECTED
-// Razorpay REMOVED
-// Premium REMOVED
-// Live Prices + Real Candles
-// Dynamic NSE Search
-// Admin Signals
-// ======================================================
-
-"use strict";
-
 require("dotenv").config();
+// ============================================================
+// STOCKPULSE - COMPLETE SERVER
+// MongoDB + Admin Signals + Upstox + Delta Exchange
+// FREE WEBSITE - NO PAYMENT / RAZORPAY
+// ============================================================
 
 const express = require("express");
 const cors = require("cors");
-const crypto = require("crypto");
-const path = require("path");
 const mongoose = require("mongoose");
-const Signal = require("./models/Signal");
 
 const app = express();
 
-const PORT = Number(process.env.PORT) || 8080;
+const PORT =
+    process.env.PORT || 3000;
 
-// ======================================================
-// STATIC WEBSITE FILES
-// ======================================================
-
-app.use(express.static(__dirname));
-
-// ======================================================
-// MIDDLEWARE
-// ======================================================
-
-app.use(cors());
-app.use(express.json());
-
-// ======================================================
-// ENV
-// ======================================================
-
-const UPSTOX_ACCESS_TOKEN =
-    process.env.UPSTOX_ACCESS_TOKEN || "";
+const MONGODB_URI =
+    process.env.MONGODB_URI ||
+    process.env.MONGO_URI ||
+    "";
 
 const ADMIN_PASSWORD =
-    process.env.ADMIN_PASSWORD || "";
+    process.env.ADMIN_PASSWORD ||
+    "stockpulse-admin";
 
-// ======================================================
+const UPSTOX_ACCESS_TOKEN =
+    process.env.UPSTOX_ACCESS_TOKEN ||
+    "";
+
+const DELTA_API_URL =
+    "https://api.india.delta.exchange";
+
+
+// ============================================================
+// MIDDLEWARE
+// ============================================================
+
+app.use(cors());
+
+app.use(
+    express.json({
+        limit: "1mb"
+    })
+);
+
+
+// ============================================================
 // MONGODB
-// ======================================================
+// ============================================================
 
-async function connectMongoDB() {
+const signalSchema =
+    new mongoose.Schema(
+        {
+            category:{
+                type:String,
+                required:true,
+                index:true
+            },
 
-    if (!process.env.MONGODB_URI) {
+            symbol:{
+                type:String,
+                required:true
+            },
 
-        throw new Error(
-            "MONGODB_URI is not configured"
-        );
+            name:{
+                type:String,
+                default:""
+            },
+
+            side:{
+                type:String,
+                default:"BUY"
+            },
+
+            entry:{
+                type:String,
+                default:""
+            },
+
+            stopLoss:{
+                type:String,
+                default:""
+            },
+
+            target1:{
+                type:String,
+                default:""
+            },
+
+            target2:{
+                type:String,
+                default:""
+            },
+
+            target3:{
+                type:String,
+                default:""
+            },
+
+            risk:{
+                type:String,
+                default:"Medium"
+            },
+
+            exchange:{
+                type:String,
+                default:"NSE"
+            },
+
+            setup:{
+                type:String,
+                default:""
+            },
+
+            active:{
+                type:Boolean,
+                default:true
+            }
+        },
+        {
+            timestamps:true
+        }
+    );
+
+
+const Signal =
+    mongoose.model(
+        "Signal",
+        signalSchema
+    );
+
+
+// ============================================================
+// CATEGORY NORMALIZATION
+// ============================================================
+
+function normalizeCategory(value){
+
+    const v =
+        String(value || "")
+        .trim()
+        .toLowerCase();
+
+    if(
+        v === "stock" ||
+        v === "stocks"
+    ){
+        return "stocks";
     }
 
-    await mongoose.connect(
-        process.env.MONGODB_URI
-    );
+    if(
+        v === "crypto"
+    ){
+        return "crypto";
+    }
 
-    console.log(
-        "MONGODB CONNECTED SUCCESSFULLY ✅"
-    );
+    if(
+        v === "gold" ||
+        v === "goldg" ||
+        v === "gold g" ||
+        v === "gold/g" ||
+        v === "commodity"
+    ){
+        return "commodity";
+    }
+
+    if(
+        v === "intraday"
+    ){
+        return "intraday";
+    }
+
+    return v;
 }
 
-// ======================================================
-// CONFIG
-// ======================================================
 
-console.log("");
-console.log("==========================================");
-console.log("       STOCKPULSE CONFIGURATION");
-console.log("==========================================");
+// ============================================================
+// SYMBOL NORMALIZATION
+// ============================================================
 
-console.log(
-    "UPSTOX:",
-    UPSTOX_ACCESS_TOKEN
-        ? "Configured"
-        : "NOT CONFIGURED"
-);
+function normalizeSymbol(
+    symbol,
+    category
+){
 
-console.log(
-    "ADMIN PASSWORD:",
-    ADMIN_PASSWORD
-        ? "Configured"
-        : "NOT CONFIGURED"
-);
+    let value =
+        String(symbol || "")
+        .trim()
+        .toUpperCase();
 
-console.log("MONGODB: ENABLED");
-console.log("RAZORPAY: REMOVED");
-console.log("PREMIUM: REMOVED");
+    if(category === "commodity"){
 
-console.log("==========================================");
+        if(
+            value === "GOLD" ||
+            value === "GOLDG" ||
+            value === "GOLD G" ||
+            value === "GOLD/G"
+        ){
 
-// ======================================================
-// UPSTOX
-// ======================================================
+            return "GOLDG";
+        }
+    }
 
-const UPSTOX_API =
-    "https://api.upstox.com";
+    return value;
+}
 
-function upstoxHeaders() {
+
+// ============================================================
+// SIGNAL OUTPUT
+// ============================================================
+
+function signalOutput(signal){
 
     return {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization:
-            "Bearer " + UPSTOX_ACCESS_TOKEN
+
+        _id:
+            signal._id,
+
+        id:
+            signal._id,
+
+        category:
+            signal.category,
+
+        symbol:
+            signal.symbol,
+
+        name:
+            signal.name,
+
+        side:
+            signal.side,
+
+        type:
+            signal.side,
+
+        advice:
+            signal.side,
+
+        entry:
+            signal.entry,
+
+        target:
+            signal.target1,
+
+        target1:
+            signal.target1,
+
+        target2:
+            signal.target2,
+
+        target3:
+            signal.target3,
+
+        stopLoss:
+            signal.stopLoss,
+
+        sl:
+            signal.stopLoss,
+
+        stop:
+            signal.stopLoss,
+
+        risk:
+            signal.risk,
+
+        exchange:
+            signal.exchange,
+
+        setup:
+            signal.setup,
+
+        note:
+            signal.setup,
+
+        active:
+            signal.active,
+
+        createdAt:
+            signal.createdAt,
+
+        updatedAt:
+            signal.updatedAt
     };
 }
 
-async function upstoxFetch(url) {
 
-    if (!UPSTOX_ACCESS_TOKEN) {
+// ============================================================
+// ADMIN AUTH
+// ============================================================
 
-        throw new Error(
-            "UPSTOX_ACCESS_TOKEN is not configured"
-        );
+function requireAdmin(
+    req,
+    res,
+    next
+){
+
+    const password =
+        req.headers[
+            "x-admin-password"
+        ];
+
+    if(
+        !password ||
+        password !== ADMIN_PASSWORD
+    ){
+
+        return res.status(401).json({
+            success:false,
+            error:"Unauthorized"
+        });
     }
 
-    const response =
-        await fetch(
-            url,
-            {
-                method: "GET",
-                headers: upstoxHeaders()
-            }
-        );
-
-    let data;
-
-    try {
-
-        data = await response.json();
-
-    } catch {
-
-        throw new Error(
-            "Upstox returned invalid response (" +
-            response.status +
-            ")"
-        );
-    }
-
-    if (!response.ok) {
-
-        throw new Error(
-            data.errors?.[0]?.message ||
-            data.message ||
-            "Upstox API request failed"
-        );
-    }
-
-    return data;
+    next();
 }
 
-// ======================================================
-// UPSTOX LTP
-// ======================================================
+
+// ============================================================
+// ADMIN LOGIN
+// ============================================================
+
+app.post(
+    "/api/admin/login",
+    (req,res)=>{
+
+        const password =
+            req.body?.password || "";
+
+        if(
+            password !==
+            ADMIN_PASSWORD
+        ){
+
+            return res.status(401).json({
+                success:false,
+                error:"Invalid admin password"
+            });
+        }
+
+        res.json({
+            success:true,
+            message:"Admin login successful"
+        });
+    }
+);
+
+
+// ============================================================
+// ADMIN STATUS
+// ============================================================
+
+app.get(
+    "/api/admin/status",
+    requireAdmin,
+    async(req,res)=>{
+
+        res.json({
+            success:true,
+            mongo:
+                mongoose.connection.readyState === 1,
+            message:
+                "Admin authenticated"
+        });
+    }
+);
+
+
+// ============================================================
+// GET ADMIN SIGNALS
+// ============================================================
+
+app.get(
+    "/api/admin/signals",
+    requireAdmin,
+    async(req,res)=>{
+
+        try{
+
+            const signals =
+                await Signal.find({})
+                .sort({
+                    updatedAt:-1
+                })
+                .lean();
+
+            res.json({
+                success:true,
+                signals:
+                    signals.map(
+                        signalOutput
+                    )
+            });
+
+        }catch(error){
+
+            console.error(
+                "ADMIN SIGNAL GET ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// CREATE / UPDATE SIGNAL
+// ============================================================
+
+app.post(
+    "/api/admin/signals",
+    requireAdmin,
+    async(req,res)=>{
+
+        try{
+
+            const body =
+                req.body || {};
+
+            const category =
+                normalizeCategory(
+                    body.category ||
+                    body.type
+                );
+
+            if(!category){
+
+                return res.status(400).json({
+                    success:false,
+                    error:
+                        "Category is required"
+                });
+            }
+
+
+            const symbol =
+                normalizeSymbol(
+                    body.symbol ||
+                    body.name,
+                    category
+                );
+
+
+            if(!symbol){
+
+                return res.status(400).json({
+                    success:false,
+                    error:
+                        "Symbol is required"
+                });
+            }
+
+
+            const name =
+                String(
+                    body.name ||
+                    symbol
+                ).trim();
+
+
+            const side =
+                String(
+                    body.side ||
+                    body.type ||
+                    "BUY"
+                )
+                .trim()
+                .toUpperCase();
+
+
+            const update = {
+
+                category,
+
+                symbol,
+
+                name,
+
+                side,
+
+                entry:
+                    String(
+                        body.entry || ""
+                    ).trim(),
+
+                stopLoss:
+                    String(
+                        body.stopLoss ||
+                        body.sl ||
+                        body.stop ||
+                        ""
+                    ).trim(),
+
+                target1:
+                    String(
+                        body.target1 ||
+                        body.target ||
+                        ""
+                    ).trim(),
+
+                target2:
+                    String(
+                        body.target2 || ""
+                    ).trim(),
+
+                target3:
+                    String(
+                        body.target3 || ""
+                    ).trim(),
+
+                risk:
+                    String(
+                        body.risk ||
+                        "Medium"
+                    ).trim(),
+
+                exchange:
+                    String(
+                        body.exchange ||
+                        (
+                            category ===
+                            "commodity"
+                                ? "MCX"
+                                : category ===
+                                  "crypto"
+                                    ? "Crypto"
+                                    : "NSE"
+                        )
+                    ).trim(),
+
+                setup:
+                    String(
+                        body.setup ||
+                        body.note ||
+                        ""
+                    ).trim(),
+
+                active:
+                    body.active !== false
+            };
+
+
+            let signal;
+
+
+            // ------------------------------------------------
+            // UPDATE BY ID
+            // ------------------------------------------------
+
+            if(
+                body.id &&
+                mongoose.Types.ObjectId.isValid(
+                    body.id
+                )
+            ){
+
+                signal =
+                    await Signal.findByIdAndUpdate(
+                        body.id,
+                        update,
+                        {
+                            new:true,
+                            runValidators:true
+                        }
+                    );
+            }
+
+
+            // ------------------------------------------------
+            // UPDATE EXISTING CATEGORY + SYMBOL
+            // ------------------------------------------------
+
+            if(!signal){
+
+                signal =
+                    await Signal.findOneAndUpdate(
+                        {
+                            category,
+                            symbol
+                        },
+                        update,
+                        {
+                            new:true,
+                            upsert:true,
+                            runValidators:true,
+                            setDefaultsOnInsert:true
+                        }
+                    );
+            }
+
+
+            res.json({
+
+                success:true,
+
+                message:
+                    "Signal saved successfully",
+
+                signal:
+                    signalOutput(signal)
+            });
+
+        }catch(error){
+
+            console.error(
+                "ADMIN SIGNAL SAVE ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// UPDATE SIGNAL BY ID
+// ============================================================
+
+app.put(
+    "/api/admin/signals/:id",
+    requireAdmin,
+    async(req,res)=>{
+
+        try{
+
+            const id =
+                req.params.id;
+
+            if(
+                !mongoose.Types.ObjectId
+                .isValid(id)
+            ){
+
+                return res.status(400).json({
+                    success:false,
+                    error:
+                        "Invalid signal ID"
+                });
+            }
+
+
+            const body =
+                req.body || {};
+
+
+            const category =
+                normalizeCategory(
+                    body.category
+                );
+
+
+            const update = {};
+
+
+            if(category)
+                update.category =
+                    category;
+
+
+            if(
+                body.symbol ||
+                body.name
+            ){
+
+                update.symbol =
+                    normalizeSymbol(
+                        body.symbol ||
+                        body.name,
+                        category
+                    );
+            }
+
+
+            if(body.name)
+                update.name =
+                    String(
+                        body.name
+                    ).trim();
+
+
+            if(
+                body.side ||
+                body.type
+            ){
+
+                update.side =
+                    String(
+                        body.side ||
+                        body.type
+                    )
+                    .trim()
+                    .toUpperCase();
+            }
+
+
+            if(body.entry !== undefined)
+                update.entry =
+                    String(
+                        body.entry
+                    ).trim();
+
+
+            if(
+                body.stopLoss !== undefined ||
+                body.sl !== undefined
+            ){
+
+                update.stopLoss =
+                    String(
+                        body.stopLoss ??
+                        body.sl ??
+                        ""
+                    ).trim();
+            }
+
+
+            if(
+                body.target1 !== undefined ||
+                body.target !== undefined
+            ){
+
+                update.target1 =
+                    String(
+                        body.target1 ??
+                        body.target ??
+                        ""
+                    ).trim();
+            }
+
+
+            if(body.target2 !== undefined)
+                update.target2 =
+                    String(
+                        body.target2
+                    ).trim();
+
+
+            if(body.target3 !== undefined)
+                update.target3 =
+                    String(
+                        body.target3
+                    ).trim();
+
+
+            if(body.setup !== undefined)
+                update.setup =
+                    String(
+                        body.setup
+                    ).trim();
+
+
+            if(body.note !== undefined)
+                update.setup =
+                    String(
+                        body.note
+                    ).trim();
+
+
+            if(body.risk !== undefined)
+                update.risk =
+                    String(
+                        body.risk
+                    ).trim();
+
+
+            if(body.exchange !== undefined)
+                update.exchange =
+                    String(
+                        body.exchange
+                    ).trim();
+
+
+            if(body.active !== undefined)
+                update.active =
+                    Boolean(
+                        body.active
+                    );
+
+
+            const signal =
+                await Signal.findByIdAndUpdate(
+                    id,
+                    update,
+                    {
+                        new:true,
+                        runValidators:true
+                    }
+                );
+
+
+            if(!signal){
+
+                return res.status(404).json({
+                    success:false,
+                    error:
+                        "Signal not found"
+                });
+            }
+
+
+            res.json({
+                success:true,
+                signal:
+                    signalOutput(signal)
+            });
+
+        }catch(error){
+
+            console.error(
+                "SIGNAL UPDATE ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// DELETE SIGNAL BY ID
+// ============================================================
+
+app.delete(
+    "/api/admin/signals/:id",
+    requireAdmin,
+    async(req,res)=>{
+
+        try{
+
+            const id =
+                req.params.id;
+
+
+            if(
+                !mongoose.Types.ObjectId
+                .isValid(id)
+            ){
+
+                return res.status(400).json({
+                    success:false,
+                    error:
+                        "Invalid signal ID"
+                });
+            }
+
+
+            const deleted =
+                await Signal.findByIdAndDelete(
+                    id
+                );
+
+
+            if(!deleted){
+
+                return res.status(404).json({
+                    success:false,
+                    error:
+                        "Signal not found"
+                });
+            }
+
+
+            res.json({
+
+                success:true,
+
+                message:
+                    "Signal deleted successfully",
+
+                id
+            });
+
+        }catch(error){
+
+            console.error(
+                "DELETE SIGNAL ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// DELETE BY CATEGORY + SYMBOL
+// ============================================================
+
+app.delete(
+    "/api/admin/signals",
+    requireAdmin,
+    async(req,res)=>{
+
+        try{
+
+            const category =
+                normalizeCategory(
+                    req.query.category
+                );
+
+            const symbol =
+                normalizeSymbol(
+                    req.query.symbol,
+                    category
+                );
+
+
+            if(!category || !symbol){
+
+                return res.status(400).json({
+                    success:false,
+                    error:
+                        "Category and symbol required"
+                });
+            }
+
+
+            const result =
+                await Signal.deleteMany({
+                    category,
+                    symbol
+                });
+
+
+            res.json({
+
+                success:true,
+
+                message:
+                    "Signal deleted successfully",
+
+                deletedCount:
+                    result.deletedCount
+            });
+
+        }catch(error){
+
+            console.error(
+                "DELETE SIGNAL ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// PUBLIC SIGNALS
+// ============================================================
+
+app.get(
+    "/api/signals",
+    async(req,res)=>{
+
+        try{
+
+            const signals =
+                await Signal.find({
+                    active:true
+                })
+                .sort({
+                    updatedAt:-1
+                })
+                .lean();
+
+            res.json({
+                success:true,
+                signals:
+                    signals.map(
+                        signalOutput
+                    )
+            });
+
+        }catch(error){
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// PUBLIC CATEGORY SIGNALS
+// ============================================================
+
+app.get(
+    "/api/signals/:category",
+    async(req,res)=>{
+
+        try{
+
+            const category =
+                normalizeCategory(
+                    req.params.category
+                );
+
+
+            const signals =
+                await Signal.find({
+                    category,
+                    active:true
+                })
+                .sort({
+                    updatedAt:-1
+                })
+                .lean();
+
+
+            res.json({
+
+                success:true,
+
+                category,
+
+                signals:
+                    signals.map(
+                        signalOutput
+                    )
+            });
+
+        }catch(error){
+
+            console.error(
+                "PUBLIC SIGNAL ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// RECOMMENDATIONS
+// ============================================================
+
+app.get(
+    "/api/recommendations",
+    async(req,res)=>{
+
+        try{
+
+            const signals =
+                await Signal.find({
+                    active:true
+                })
+                .sort({
+                    updatedAt:-1
+                })
+                .lean();
+
+
+            const result = {
+
+                stocks:null,
+
+                crypto:null,
+
+                gold:null,
+
+                commodity:null,
+
+                intraday:null
+            };
+
+
+            for(
+                const signal of signals
+            ){
+
+                const output =
+                    signalOutput(signal);
+
+
+                if(
+                    signal.category ===
+                    "stocks" &&
+                    !result.stocks
+                ){
+
+                    result.stocks =
+                        output;
+                }
+
+
+                if(
+                    signal.category ===
+                    "crypto" &&
+                    !result.crypto
+                ){
+
+                    result.crypto =
+                        output;
+                }
+
+
+                if(
+                    signal.category ===
+                    "commodity" &&
+                    !result.commodity
+                ){
+
+                    result.commodity =
+                        output;
+
+                    result.gold =
+                        output;
+                }
+
+
+                if(
+                    signal.category ===
+                    "intraday" &&
+                    !result.intraday
+                ){
+
+                    result.intraday =
+                        output;
+                }
+            }
+
+
+            res.json({
+
+                success:true,
+
+                recommendations:
+                    result,
+
+                stocks:
+                    result.stocks,
+
+                crypto:
+                    result.crypto,
+
+                gold:
+                    result.gold,
+
+                commodity:
+                    result.commodity,
+
+                intraday:
+                    result.intraday
+            });
+
+        }catch(error){
+
+            console.error(
+                "RECOMMENDATION ERROR:",
+                error
+            );
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// UPSTOX HELPER
+// ============================================================
 
 async function getUpstoxData(
     instrumentKey
-) {
+){
+
+    if(!UPSTOX_ACCESS_TOKEN){
+
+        throw new Error(
+            "UPSTOX_ACCESS_TOKEN is missing"
+        );
+    }
+
 
     const url =
-        UPSTOX_API +
-        "/v2/market-quote/ltp" +
+        "https://api.upstox.com/v2/market-quote/ltp" +
         "?instrument_key=" +
         encodeURIComponent(
             instrumentKey
         );
 
-    return await upstoxFetch(url);
-}
-
-// ======================================================
-// STATIC INSTRUMENTS
-// ======================================================
-
-const STATIC_INSTRUMENTS = {
-
-    NIFTY50:
-        "NSE_INDEX|Nifty 50",
-
-    BANKNIFTY:
-        "NSE_INDEX|Nifty Bank",
-
-    NIFTYIT:
-        "NSE_INDEX|Nifty IT",
-
-    SENSEX:
-        "BSE_INDEX|SENSEX",
-
-    RELIANCE:
-        "NSE_EQ|INE002A01018",
-
-    TCS:
-        "NSE_EQ|INE467B01029",
-
-    ITC:
-        "NSE_EQ|INE154A01025"
-};
-
-// ======================================================
-// INDEX PRICE HELPER
-// ======================================================
-
-async function sendIndexPrice(
-    res,
-    name,
-    instrumentKey,
-    responseKey
-) {
-
-    try {
-
-        const data =
-            await getUpstoxData(
-                instrumentKey
-            );
-
-        const index =
-            data.data?.[responseKey];
-
-        if (!index) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                error:
-                    name +
-                    " data not found"
-            });
-        }
-
-        const price =
-            Number(index.last_price);
-
-        if (!Number.isFinite(price)) {
-
-            return res.status(502).json({
-
-                success: false,
-
-                error:
-                    name +
-                    " price is invalid"
-            });
-        }
-
-        res.json({
-
-            success: true,
-            name,
-            price
-        });
-
-    } catch (error) {
-
-        console.error(
-            name + " ERROR:",
-            error.message
-        );
-
-        res.status(500).json({
-
-            success: false,
-            error: error.message
-        });
-    }
-}
-
-// ======================================================
-// INDEX ROUTES
-// ======================================================
-
-app.get(
-    "/api/nifty",
-    async (req, res) => {
-
-        await sendIndexPrice(
-            res,
-            "NIFTY 50",
-            "NSE_INDEX|Nifty 50",
-            "NSE_INDEX:Nifty 50"
-        );
-    }
-);
-
-app.get(
-    "/api/banknifty",
-    async (req, res) => {
-
-        await sendIndexPrice(
-            res,
-            "BANK NIFTY",
-            "NSE_INDEX|Nifty Bank",
-            "NSE_INDEX:Nifty Bank"
-        );
-    }
-);
-
-app.get(
-    "/api/niftyit",
-    async (req, res) => {
-
-        await sendIndexPrice(
-            res,
-            "NIFTY IT",
-            "NSE_INDEX|Nifty IT",
-            "NSE_INDEX:Nifty IT"
-        );
-    }
-);
-
-app.get(
-    "/api/sensex",
-    async (req, res) => {
-
-        await sendIndexPrice(
-            res,
-            "SENSEX",
-            "BSE_INDEX|SENSEX",
-            "BSE_INDEX:SENSEX"
-        );
-    }
-);
-
-// ======================================================
-// FIND NSE INSTRUMENT
-// ======================================================
-
-async function findNSEInstrument(symbol) {
-
-    const query =
-        String(symbol || "")
-            .trim()
-            .toUpperCase();
-
-    if (!query) {
-        return null;
-    }
-
-    if (
-        STATIC_INSTRUMENTS[query] &&
-        STATIC_INSTRUMENTS[query]
-            .startsWith("NSE_EQ|")
-    ) {
-
-        return {
-
-            instrumentKey:
-                STATIC_INSTRUMENTS[query],
-
-            symbol: query,
-
-            name: query,
-
-            exchange: "NSE"
-        };
-    }
-
-    const url =
-        UPSTOX_API +
-        "/v2/instruments/search" +
-        "?query=" +
-        encodeURIComponent(query) +
-        "&exchanges=NSE" +
-        "&segments=EQ" +
-        "&page_number=1" +
-        "&records=30";
-
-    const data =
-        await upstoxFetch(url);
-
-    const results =
-        Array.isArray(data.data)
-            ? data.data
-            : [];
-
-    if (!results.length) {
-        return null;
-    }
-
-    let match =
-        results.find(
-            item =>
-                String(
-                    item.trading_symbol || ""
-                )
-                    .toUpperCase() === query &&
-                String(
-                    item.segment || ""
-                )
-                    .toUpperCase() === "NSE_EQ"
-        );
-
-    if (!match) {
-
-        match =
-            results.find(
-                item => {
-
-                    const tradingSymbol =
-                        String(
-                            item.trading_symbol || ""
-                        )
-                            .toUpperCase();
-
-                    const shortName =
-                        String(
-                            item.short_name || ""
-                        )
-                            .toUpperCase();
-
-                    const name =
-                        String(
-                            item.name || ""
-                        )
-                            .toUpperCase();
-
-                    return (
-                        tradingSymbol === query ||
-                        shortName === query ||
-                        name === query
-                    );
-                }
-            );
-    }
-
-    if (!match) {
-
-        match =
-            results.find(
-                item =>
-                    String(
-                        item.segment || ""
-                    )
-                        .toUpperCase() ===
-                    "NSE_EQ"
-            );
-    }
-
-    if (!match) {
-        return null;
-    }
-
-    return {
-
-        instrumentKey:
-            match.instrument_key,
-
-        symbol:
-            match.trading_symbol ||
-            query,
-
-        name:
-            match.name ||
-            query,
-
-        exchange:
-            match.exchange ||
-            "NSE"
-    };
-}
-
-// ======================================================
-// SEARCH
-// ======================================================
-
-app.get(
-    "/api/search",
-    async (req, res) => {
-
-        try {
-
-            const query =
-                String(
-                    req.query.q || ""
-                )
-                    .trim()
-                    .toUpperCase();
-
-            if (!query) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        "Please provide search query"
-                });
-            }
-
-            const url =
-                UPSTOX_API +
-                "/v2/instruments/search" +
-                "?query=" +
-                encodeURIComponent(query) +
-                "&exchanges=NSE" +
-                "&segments=EQ" +
-                "&page_number=1" +
-                "&records=20";
-
-            const data =
-                await upstoxFetch(url);
-
-            const results =
-                Array.isArray(data.data)
-                    ? data.data
-                    : [];
-
-            const stocks =
-                results
-                    .filter(
-                        item =>
-                            String(
-                                item.segment || ""
-                            )
-                                .toUpperCase() ===
-                            "NSE_EQ"
-                    )
-                    .map(
-                        item => ({
-
-                            symbol:
-                                item.trading_symbol ||
-                                item.short_name ||
-                                "",
-
-                            name:
-                                item.name ||
-                                "",
-
-                            instrumentKey:
-                                item.instrument_key,
-
-                            exchange:
-                                item.exchange ||
-                                "NSE"
-                        })
-                    )
-                    .filter(
-                        item =>
-                            item.symbol
-                    );
-
-            res.json({
-
-                success: true,
-                query,
-                count: stocks.length,
-                results: stocks
-            });
-
-        } catch (error) {
-
-            console.error(
-                "SEARCH ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-                error: error.message
-            });
-        }
-    }
-);
-
-// ======================================================
-// STOCK PRICE
-// ======================================================
-
-app.get(
-    "/api/stock",
-    async (req, res) => {
-
-        try {
-
-            const symbol =
-                String(
-                    req.query.symbol || ""
-                )
-                    .toUpperCase()
-                    .trim();
-
-            if (!symbol) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        "Please provide stock symbol"
-                });
-            }
-
-            const instrument =
-                await findNSEInstrument(
-                    symbol
-                );
-
-            if (!instrument) {
-
-                return res.status(404).json({
-
-                    success: false,
-
-                    error:
-                        "Stock " +
-                        symbol +
-                        " not found on NSE"
-                });
-            }
-
-            const data =
-                await getUpstoxData(
-                    instrument.instrumentKey
-                );
-
-            const stock =
-                Object.values(
-                    data.data || {}
-                )[0];
-
-            if (!stock) {
-
-                return res.status(404).json({
-
-                    success: false,
-
-                    error:
-                        "Stock " +
-                        symbol +
-                        " data not found"
-                });
-            }
-
-            const price =
-                Number(stock.last_price);
-
-            if (!Number.isFinite(price)) {
-
-                return res.status(502).json({
-
-                    success: false,
-
-                    error:
-                        symbol +
-                        " price is invalid"
-                });
-            }
-
-            res.json({
-
-                success: true,
-                symbol,
-
-                name:
-                    instrument.name ||
-                    symbol,
-
-                instrumentKey:
-                    instrument.instrumentKey,
-
-                exchange:
-                    instrument.exchange ||
-                    "NSE",
-
-                price
-            });
-
-        } catch (error) {
-
-            console.error(
-                "STOCK ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-                error: error.message
-            });
-        }
-    }
-);
-
-// ======================================================
-// DELTA EXCHANGE
-// ======================================================
-
-const DELTA_API_URL =
-    "https://api.india.delta.exchange";
-
-async function getDeltaTicker(symbol) {
-
-    const url =
-        DELTA_API_URL +
-        "/v2/tickers/" +
-        encodeURIComponent(symbol);
 
     const response =
         await fetch(
             url,
             {
-                method: "GET",
+                headers:{
+                    Accept:
+                        "application/json",
 
-                headers: {
-                    Accept: "application/json",
-                    "User-Agent":
-                        "StockPulse/1.0"
+                    Authorization:
+                        `Bearer ${UPSTOX_ACCESS_TOKEN}`
                 }
             }
         );
 
-    let data;
 
-    try {
+    const data =
+        await response.json();
 
-        data =
-            await response.json();
 
-    } catch {
+    if(!response.ok){
 
         throw new Error(
-            "Delta returned invalid response (" +
-            response.status +
-            ")"
+            data.errors?.[0]?.message ||
+            "Upstox API failed"
         );
     }
 
-    if (
-        !response.ok ||
-        !data.success
-    ) {
 
-        throw new Error(
-            data.error?.message ||
-            data.error ||
-            "Delta ticker API failed"
-        );
-    }
-
-    return data.result;
+    return data;
 }
 
-// ======================================================
-// CRYPTO SYMBOLS
-// ======================================================
 
-const CRYPTO_SYMBOLS = {
-
-    BTC: "BTCUSD",
-    ETH: "ETHUSD",
-    SOL: "SOLUSD",
-    XRP: "XRPUSD"
-};
-
-// ======================================================
-// CRYPTO PRICE
-// ======================================================
+// ============================================================
+// NIFTY
+// ============================================================
 
 app.get(
-    "/api/crypto",
-    async (req, res) => {
+    "/api/nifty",
+    async(req,res)=>{
 
-        try {
+        try{
+
+            const data =
+                await getUpstoxData(
+                    "NSE_INDEX|Nifty 50"
+                );
+
+
+            const item =
+                data.data?.[
+                    "NSE_INDEX:Nifty 50"
+                ];
+
+
+            if(!item)
+                throw new Error(
+                    "NIFTY data not found"
+                );
+
+
+            res.json({
+                success:true,
+                name:"NIFTY 50",
+                price:
+                    Number(
+                        item.last_price
+                    )
+            });
+
+        }catch(error){
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// BANK NIFTY
+// ============================================================
+
+app.get(
+    "/api/banknifty",
+    async(req,res)=>{
+
+        try{
+
+            const data =
+                await getUpstoxData(
+                    "NSE_INDEX|Nifty Bank"
+                );
+
+
+            const item =
+                data.data?.[
+                    "NSE_INDEX:Nifty Bank"
+                ];
+
+
+            if(!item)
+                throw new Error(
+                    "BANK NIFTY data not found"
+                );
+
+
+            res.json({
+                success:true,
+                name:"BANK NIFTY",
+                price:
+                    Number(
+                        item.last_price
+                    )
+            });
+
+        }catch(error){
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// NIFTY IT
+// ============================================================
+
+app.get(
+    "/api/niftyit",
+    async(req,res)=>{
+
+        try{
+
+            const data =
+                await getUpstoxData(
+                    "NSE_INDEX|Nifty IT"
+                );
+
+
+            const item =
+                data.data?.[
+                    "NSE_INDEX:Nifty IT"
+                ];
+
+
+            if(!item)
+                throw new Error(
+                    "NIFTY IT data not found"
+                );
+
+
+            res.json({
+                success:true,
+                name:"NIFTY IT",
+                price:
+                    Number(
+                        item.last_price
+                    )
+            });
+
+        }catch(error){
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// SENSEX
+// ============================================================
+
+app.get(
+    "/api/sensex",
+    async(req,res)=>{
+
+        try{
+
+            const data =
+                await getUpstoxData(
+                    "BSE_INDEX|SENSEX"
+                );
+
+
+            const item =
+                data.data?.[
+                    "BSE_INDEX:SENSEX"
+                ];
+
+
+            if(!item)
+                throw new Error(
+                    "SENSEX data not found"
+                );
+
+
+            res.json({
+                success:true,
+                name:"SENSEX",
+                price:
+                    Number(
+                        item.last_price
+                    )
+            });
+
+        }catch(error){
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// STOCK PRICE
+// ============================================================
+
+app.get(
+    "/api/stock",
+    async(req,res)=>{
+
+        try{
 
             const symbol =
                 String(
                     req.query.symbol || ""
                 )
-                    .toUpperCase()
-                    .trim();
+                .toUpperCase()
+                .trim();
 
-            if (!symbol) {
 
-                return res.status(400).json({
+            const stockKeys = {
 
-                    success: false,
+                RELIANCE:
+                    "NSE_EQ|INE002A01018",
 
-                    error:
-                        "Please provide crypto symbol"
-                });
-            }
+                TCS:
+                    "NSE_EQ|INE467B01029",
 
-            const deltaSymbol =
-                CRYPTO_SYMBOLS[symbol];
+                ITC:
+                    "NSE_EQ|INE154A01025"
+            };
 
-            if (!deltaSymbol) {
+
+            const key =
+                stockKeys[symbol];
+
+
+            if(!key){
 
                 return res.status(404).json({
-
-                    success: false,
-
+                    success:false,
                     error:
-                        "Crypto " +
-                        symbol +
-                        " is not configured"
+                        `Stock ${symbol} not configured`
                 });
             }
+
+
+            const data =
+                await getUpstoxData(
+                    key
+                );
+
+
+            const item =
+                Object.values(
+                    data.data || {}
+                )[0];
+
+
+            res.json({
+
+                success:true,
+
+                symbol,
+
+                price:
+                    Number(
+                        item.last_price
+                    )
+            });
+
+        }catch(error){
+
+            res.status(500).json({
+                success:false,
+                error:error.message
+            });
+        }
+    }
+);
+
+
+// ============================================================
+// DELTA TICKER
+// ============================================================
+
+async function getDeltaTicker(
+    symbol
+){
+
+    const response =
+        await fetch(
+            `${DELTA_API_URL}/v2/tickers/${encodeURIComponent(symbol)}`
+        );
+
+
+    const data =
+        await response.json();
+
+
+    if(
+        !response.ok ||
+        !data.success
+    ){
+
+        throw new Error(
+            data.error?.message ||
+            data.error ||
+            "Delta API failed"
+        );
+    }
+
+
+    return data.result;
+}
+
+
+// ============================================================
+// CRYPTO PRICE
+// ============================================================
+
+app.get(
+    "/api/crypto",
+    async(req,res)=>{
+
+        try{
+
+            const symbol =
+                String(
+                    req.query.symbol || ""
+                )
+                .toUpperCase()
+                .trim();
+
+
+            const symbols = {
+
+                BTC:"BTCUSD",
+
+                ETH:"ETHUSD",
+
+                SOL:"SOLUSD",
+
+                XRP:"XRPUSD"
+            };
+
+
+            const deltaSymbol =
+                symbols[symbol];
+
+
+            if(!deltaSymbol){
+
+                return res.status(404).json({
+                    success:false,
+                    error:
+                        `Crypto ${symbol} not configured`
+                });
+            }
+
 
             const ticker =
                 await getDeltaTicker(
                     deltaSymbol
                 );
 
+
             const price =
                 ticker.close ??
                 ticker.mark_price ??
                 ticker.last_price;
 
-            if (
-                price === undefined ||
-                price === null
-            ) {
-
-                return res.status(404).json({
-
-                    success: false,
-
-                    error:
-                        symbol +
-                        " price not available"
-                });
-            }
 
             res.json({
 
-                success: true,
+                success:true,
+
                 symbol,
+
                 deltaSymbol,
-                price: Number(price)
+
+                price:
+                    Number(price)
             });
 
-        } catch (error) {
-
-            console.error(
-                "CRYPTO ERROR:",
-                error.message
-            );
+        }catch(error){
 
             res.status(500).json({
-
-                success: false,
-                error: error.message
+                success:false,
+                error:error.message
             });
         }
     }
 );
 
-// ======================================================
-// TIMEFRAME CONFIG
-// ======================================================
 
-function getTimeframeConfig(timeframe) {
-
-    const tf =
-        String(
-            timeframe || "1m"
-        )
-            .toLowerCase()
-            .trim();
-
-    const configs = {
-
-        "1m": {
-            unit: "minutes",
-            interval: "1"
-        },
-
-        "2m": {
-            unit: "minutes",
-            interval: "2"
-        },
-
-        "3m": {
-            unit: "minutes",
-            interval: "3"
-        },
-
-        "5m": {
-            unit: "minutes",
-            interval: "5"
-        },
-
-        "10m": {
-            unit: "minutes",
-            interval: "10"
-        },
-
-        "15m": {
-            unit: "minutes",
-            interval: "15"
-        },
-
-        "30m": {
-            unit: "minutes",
-            interval: "30"
-        },
-
-        "1h": {
-            unit: "hours",
-            interval: "1"
-        },
-
-        "2h": {
-            unit: "hours",
-            interval: "2"
-        },
-
-        "4h": {
-            unit: "hours",
-            interval: "4"
-        },
-
-        "1d": {
-            unit: "days",
-            interval: "1"
-        },
-
-        "1w": {
-            unit: "weeks",
-            interval: "1"
-        },
-
-        "1mth": {
-            unit: "months",
-            interval: "1"
-        }
-    };
-
-    return configs[tf] || null;
-}
-
-// ======================================================
-// IST DATE
-// ======================================================
-
-function getISTDate(daysAgo = 0) {
-
-    const now = new Date();
-
-    now.setUTCDate(
-        now.getUTCDate() -
-        daysAgo
-    );
-
-    return new Intl.DateTimeFormat(
-        "en-CA",
-        {
-            timeZone: "Asia/Kolkata",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit"
-        }
-    ).format(now);
-}
-
-// ======================================================
+// ============================================================
 // UPSTOX CANDLES
-// ======================================================
-
-async function getUpstoxCandles(
-    instrumentKey,
-    timeframe
-) {
-
-    const config =
-        getTimeframeConfig(
-            timeframe
-        );
-
-    if (!config) {
-
-        throw new Error(
-            "Invalid timeframe"
-        );
-    }
-
-    if (
-        ["minutes", "hours"]
-            .includes(config.unit)
-    ) {
-
-        const url =
-            UPSTOX_API +
-            "/v3/historical-candle/intraday/" +
-            encodeURIComponent(
-                instrumentKey
-            ) +
-            "/" +
-            config.unit +
-            "/" +
-            config.interval;
-
-        return await upstoxFetch(url);
-    }
-
-    let daysBack = 365;
-
-    if (config.unit === "weeks") {
-        daysBack = 365 * 3;
-    }
-
-    if (config.unit === "months") {
-        daysBack = 365 * 5;
-    }
-
-    const toDate =
-        getISTDate(0);
-
-    const fromDate =
-        getISTDate(daysBack);
-
-    const url =
-        UPSTOX_API +
-        "/v3/historical-candle/" +
-        encodeURIComponent(
-            instrumentKey
-        ) +
-        "/" +
-        config.unit +
-        "/" +
-        config.interval +
-        "/" +
-        toDate +
-        "/" +
-        fromDate;
-
-    return await upstoxFetch(url);
-}
-
-// ======================================================
-// FORMAT UPSTOX CANDLES
-// ======================================================
-
-function formatUpstoxCandles(
-    rawCandles
-) {
-
-    if (!Array.isArray(rawCandles)) {
-        return [];
-    }
-
-    return rawCandles
-        .map(candle => {
-
-            if (
-                !Array.isArray(candle) ||
-                candle.length < 5
-            ) {
-                return null;
-            }
-
-            const time = candle[0];
-            const open = Number(candle[1]);
-            const high = Number(candle[2]);
-            const low = Number(candle[3]);
-            const close = Number(candle[4]);
-            const volume = Number(candle[5] || 0);
-
-            if (
-                !time ||
-                !Number.isFinite(open) ||
-                !Number.isFinite(high) ||
-                !Number.isFinite(low) ||
-                !Number.isFinite(close)
-            ) {
-                return null;
-            }
-
-            return {
-                time,
-                open,
-                high,
-                low,
-                close,
-                volume
-            };
-        })
-        .filter(Boolean)
-        .sort(
-            (a, b) =>
-                new Date(a.time).getTime() -
-                new Date(b.time).getTime()
-        );
-}
-
-// ======================================================
-// STOCK / INDEX CANDLES
-// ======================================================
+// ============================================================
 
 app.get(
     "/api/candles",
-    async (req, res) => {
+    async(req,res)=>{
 
-        try {
+        try{
 
             const symbol =
                 String(
                     req.query.symbol || ""
                 )
-                    .toUpperCase()
-                    .trim();
+                .toUpperCase()
+                .trim();
+
 
             const timeframe =
                 String(
-                    req.query.timeframe || "1m"
+                    req.query.timeframe ||
+                    "1m"
                 )
-                    .toLowerCase()
-                    .trim();
+                .toLowerCase()
+                .trim();
 
-            if (!symbol) {
 
-                return res.status(400).json({
+            const keys = {
 
-                    success: false,
+                NIFTY50:
+                    "NSE_INDEX|Nifty 50",
 
+                BANKNIFTY:
+                    "NSE_INDEX|Nifty Bank",
+
+                NIFTYIT:
+                    "NSE_INDEX|Nifty IT",
+
+                SENSEX:
+                    "BSE_INDEX|SENSEX",
+
+                RELIANCE:
+                    "NSE_EQ|INE002A01018",
+
+                TCS:
+                    "NSE_EQ|INE467B01029",
+
+                ITC:
+                    "NSE_EQ|INE154A01025"
+            };
+
+
+            const key =
+                keys[symbol];
+
+
+            if(!key){
+
+                return res.status(404).json({
+                    success:false,
                     error:
-                        "Please provide symbol"
+                        `${symbol} not configured`
                 });
             }
 
-            const config =
-                getTimeframeConfig(
-                    timeframe
-                );
 
-            if (!config) {
+            const map = {
+
+                "1m":["minutes","1"],
+
+                "2m":["minutes","2"],
+
+                "3m":["minutes","3"],
+
+                "5m":["minutes","5"],
+
+                "10m":["minutes","10"],
+
+                "15m":["minutes","15"],
+
+                "30m":["minutes","30"],
+
+                "1h":["hours","1"],
+
+                "2h":["hours","2"],
+
+                "4h":["hours","4"]
+            };
+
+
+            const config =
+                map[timeframe];
+
+
+            if(!config){
 
                 return res.status(400).json({
-
-                    success: false,
-
+                    success:false,
                     error:
                         "Invalid timeframe"
                 });
             }
 
-            let instrumentKey =
-                STATIC_INSTRUMENTS[symbol];
 
-            let instrumentName =
-                symbol;
+            const url =
+                "https://api.upstox.com/v3/historical-candle/intraday/" +
+                encodeURIComponent(key) +
+                "/" +
+                config[0] +
+                "/" +
+                config[1];
 
-            if (!instrumentKey) {
 
-                const instrument =
-                    await findNSEInstrument(
-                        symbol
-                    );
+            const response =
+                await fetch(
+                    url,
+                    {
+                        headers:{
+                            Accept:
+                                "application/json",
 
-                if (!instrument) {
+                            Authorization:
+                                `Bearer ${UPSTOX_ACCESS_TOKEN}`
+                        }
+                    }
+                );
 
-                    return res.status(404).json({
-
-                        success: false,
-
-                        error:
-                            symbol +
-                            " instrument not found on NSE"
-                    });
-                }
-
-                instrumentKey =
-                    instrument.instrumentKey;
-
-                instrumentName =
-                    instrument.name ||
-                    symbol;
-            }
 
             const data =
-                await getUpstoxCandles(
-                    instrumentKey,
-                    timeframe
-                );
+                await response.json();
 
-            const rawCandles =
-                Array.isArray(
-                    data.data?.candles
-                )
-                    ? data.data.candles
-                    : [];
 
-            const candles =
-                formatUpstoxCandles(
-                    rawCandles
-                );
+            if(!response.ok){
 
-            if (!candles.length) {
+                return res.status(
+                    response.status
+                ).json({
 
-                return res.status(502).json({
-
-                    success: false,
+                    success:false,
 
                     error:
-                        "Upstox returned no valid candles"
+                        data.errors?.[0]?.message ||
+                        "Upstox candle API failed"
                 });
             }
 
+
+            const raw =
+                data.data?.candles || [];
+
+
+            const candles =
+                raw.map(c => {
+
+                    if(
+                        !Array.isArray(c) ||
+                        c.length < 5
+                    ){
+                        return null;
+                    }
+
+
+                    return {
+
+                        time:c[0],
+
+                        open:Number(c[1]),
+
+                        high:Number(c[2]),
+
+                        low:Number(c[3]),
+
+                        close:Number(c[4]),
+
+                        volume:Number(c[5] || 0)
+                    };
+
+                })
+                .filter(Boolean)
+                .reverse();
+
+
             res.json({
 
-                success: true,
+                success:true,
+
                 symbol,
 
-                name:
-                    instrumentName,
-
-                instrumentKey,
                 timeframe,
 
                 count:
@@ -1229,264 +1825,144 @@ app.get(
                 candles
             });
 
-        } catch (error) {
-
-            console.error(
-                "UPSTOX CANDLE ERROR:",
-                error.message
-            );
+        }catch(error){
 
             res.status(500).json({
-
-                success: false,
-                error: error.message
+                success:false,
+                error:error.message
             });
         }
     }
 );
 
-// ======================================================
-// DELTA RESOLUTIONS
-// ======================================================
 
-const DELTA_RESOLUTIONS = {
-
-    "1m": { seconds: 60 },
-    "3m": { seconds: 180 },
-    "5m": { seconds: 300 },
-    "15m": { seconds: 900 },
-    "30m": { seconds: 1800 },
-    "1h": { seconds: 3600 },
-    "2h": { seconds: 7200 },
-    "4h": { seconds: 14400 },
-    "6h": { seconds: 21600 },
-    "1d": { seconds: 86400 },
-    "1w": { seconds: 604800 }
-};
-
-// ======================================================
-// NORMALIZE DELTA CANDLE
-// ======================================================
-
-function normalizeDeltaCandle(candle) {
-
-    if (Array.isArray(candle)) {
-
-        if (candle.length < 5) {
-            return null;
-        }
-
-        const time = Number(candle[0]);
-        const open = Number(candle[1]);
-        const high = Number(candle[2]);
-        const low = Number(candle[3]);
-        const close = Number(candle[4]);
-        const volume = Number(candle[5] || 0);
-
-        if (
-            !Number.isFinite(time) ||
-            !Number.isFinite(open) ||
-            !Number.isFinite(high) ||
-            !Number.isFinite(low) ||
-            !Number.isFinite(close)
-        ) {
-            return null;
-        }
-
-        return {
-
-            time:
-                time > 100000000000
-                    ? Math.floor(time / 1000)
-                    : time,
-
-            open,
-            high,
-            low,
-            close,
-            volume
-        };
-    }
-
-    if (
-        candle &&
-        typeof candle === "object"
-    ) {
-
-        const time =
-            Number(
-                candle.time ??
-                candle.timestamp ??
-                candle.ts
-            );
-
-        const open =
-            Number(candle.open);
-
-        const high =
-            Number(candle.high);
-
-        const low =
-            Number(candle.low);
-
-        const close =
-            Number(candle.close);
-
-        const volume =
-            Number(
-                candle.volume ??
-                candle.v ??
-                0
-            );
-
-        if (
-            !Number.isFinite(time) ||
-            !Number.isFinite(open) ||
-            !Number.isFinite(high) ||
-            !Number.isFinite(low) ||
-            !Number.isFinite(close)
-        ) {
-            return null;
-        }
-
-        return {
-
-            time:
-                time > 100000000000
-                    ? Math.floor(time / 1000)
-                    : time,
-
-            open,
-            high,
-            low,
-            close,
-            volume
-        };
-    }
-
-    return null;
-}
-
-// ======================================================
+// ============================================================
 // DELTA CRYPTO CANDLES
-// ======================================================
+// ============================================================
 
 app.get(
     "/api/crypto/candles",
-    async (req, res) => {
+    async(req,res)=>{
 
-        try {
+        try{
 
             const symbol =
                 String(
-                    req.query.symbol || "BTC"
+                    req.query.symbol ||
+                    "BTC"
                 )
-                    .toUpperCase()
-                    .trim();
+                .toUpperCase()
+                .trim();
+
 
             const resolution =
                 String(
-                    req.query.resolution || "1m"
+                    req.query.resolution ||
+                    "1m"
                 )
-                    .toLowerCase()
-                    .trim();
+                .trim();
+
+
+            const symbols = {
+
+                BTC:"BTCUSD",
+
+                ETH:"ETHUSD",
+
+                SOL:"SOLUSD",
+
+                XRP:"XRPUSD"
+            };
+
 
             const deltaSymbol =
-                CRYPTO_SYMBOLS[symbol];
+                symbols[symbol];
 
-            if (!deltaSymbol) {
+
+            if(!deltaSymbol){
 
                 return res.status(404).json({
-
-                    success: false,
-
+                    success:false,
                     error:
-                        "Crypto " +
-                        symbol +
-                        " is not configured"
+                        "Crypto not configured"
                 });
             }
 
-            const config =
-                DELTA_RESOLUTIONS[
-                    resolution
-                ];
 
-            if (!config) {
+            const secondsMap = {
+
+                "1m":60,
+
+                "3m":180,
+
+                "5m":300,
+
+                "15m":900,
+
+                "30m":1800,
+
+                "1h":3600,
+
+                "2h":7200,
+
+                "4h":14400,
+
+                "6h":21600,
+
+                "1d":86400,
+
+                "1w":604800
+            };
+
+
+            const seconds =
+                secondsMap[resolution];
+
+
+            if(!seconds){
 
                 return res.status(400).json({
-
-                    success: false,
-
+                    success:false,
                     error:
-                        "Invalid crypto resolution"
+                        "Invalid resolution"
                 });
             }
 
-            const candleCount = 200;
 
             const end =
                 Math.floor(
-                    Date.now() / 1000
+                    Date.now()/1000
                 );
+
 
             const start =
                 end -
-                (
-                    config.seconds *
-                    candleCount
-                );
+                seconds * 200;
+
 
             const url =
-                DELTA_API_URL +
-                "/v2/history/candles" +
-                "?resolution=" +
-                encodeURIComponent(resolution) +
-                "&symbol=" +
-                encodeURIComponent(deltaSymbol) +
-                "&start=" +
-                start +
-                "&end=" +
-                end;
+                `${DELTA_API_URL}/v2/history/candles` +
+                `?resolution=${encodeURIComponent(resolution)}` +
+                `&symbol=${encodeURIComponent(deltaSymbol)}` +
+                `&start=${start}` +
+                `&end=${end}`;
+
 
             const response =
-                await fetch(
-                    url,
-                    {
-                        method: "GET",
+                await fetch(url);
 
-                        headers: {
-                            Accept:
-                                "application/json",
-                            "User-Agent":
-                                "StockPulse/1.0"
-                        }
-                    }
-                );
 
-            let data;
+            const data =
+                await response.json();
 
-            try {
 
-                data =
-                    await response.json();
-
-            } catch {
-
-                throw new Error(
-                    "Delta returned invalid response (" +
-                    response.status +
-                    ")"
-                );
-            }
-
-            if (!response.ok) {
+            if(!response.ok){
 
                 return res.status(
                     response.status
                 ).json({
 
-                    success: false,
+                    success:false,
 
                     error:
                         data.error?.message ||
@@ -1495,51 +1971,65 @@ app.get(
                 });
             }
 
-            if (data.success === false) {
 
-                return res.status(502).json({
-
-                    success: false,
-
-                    error:
-                        data.error?.message ||
-                        data.error ||
-                        "Delta API returned an error"
-                });
-            }
-
-            const rawCandles =
-                Array.isArray(data.result)
+            const raw =
+                Array.isArray(
+                    data.result
+                )
                     ? data.result
                     : [];
 
+
             const candles =
-                rawCandles
-                    .map(
-                        normalizeDeltaCandle
-                    )
-                    .filter(Boolean)
-                    .sort(
-                        (a, b) =>
-                            a.time - b.time
-                    );
+                raw
+                .map(c => {
 
-            if (!candles.length) {
+                    if(
+                        !Array.isArray(c) ||
+                        c.length < 5
+                    ){
+                        return null;
+                    }
 
-                return res.status(502).json({
 
-                    success: false,
+                    return {
 
-                    error:
-                        "Delta returned no valid candles"
-                });
-            }
+                        time:Number(c[0]),
+
+                        open:Number(c[1]),
+
+                        high:Number(c[2]),
+
+                        low:Number(c[3]),
+
+                        close:Number(c[4]),
+
+                        volume:Number(c[5] || 0)
+                    };
+
+                })
+                .filter(c =>
+                    c &&
+                    Number.isFinite(c.time) &&
+                    Number.isFinite(c.open) &&
+                    Number.isFinite(c.high) &&
+                    Number.isFinite(c.low) &&
+                    Number.isFinite(c.close)
+                )
+                .sort(
+                    (a,b) =>
+                        a.time-b.time
+                );
+
 
             res.json({
 
-                success: true,
+                success:true,
+
                 symbol,
+
                 deltaSymbol,
+
                 resolution,
 
                 count:
@@ -1548,1110 +2038,315 @@ app.get(
                 candles
             });
 
-        } catch (error) {
-
-            console.error(
-                "DELTA CRYPTO CANDLE ERROR:",
-                error.message
-            );
+        }catch(error){
 
             res.status(500).json({
-
-                success: false,
-                error: error.message
+                success:false,
+                error:error.message
             });
         }
     }
 );
 
-// ======================================================
-// ADMIN AUTH
-// ======================================================
 
-function verifyAdmin(
-    req,
-    res,
-    next
-) {
-
-    const headerPassword =
-        String(
-            req.headers["x-admin-password"] ||
-            ""
-        ).trim();
-
-    const authorization =
-        String(
-            req.headers.authorization ||
-            ""
-        ).trim();
-
-    let password =
-        headerPassword;
-
-    if (
-        !password &&
-        authorization
-            .toLowerCase()
-            .startsWith("bearer ")
-    ) {
-
-        password =
-            authorization
-                .slice(7)
-                .trim();
-    }
-
-    if (!ADMIN_PASSWORD) {
-
-        return res.status(500).json({
-
-            success: false,
-
-            error:
-                "ADMIN_PASSWORD is not configured on server"
-        });
-    }
-
-    if (
-        !password ||
-        password !== ADMIN_PASSWORD
-    ) {
-
-        return res.status(401).json({
-
-            success: false,
-
-            error:
-                "Unauthorized admin access"
-        });
-    }
-
-    next();
-}
-
-// ======================================================
-// SIGNAL STORAGE
-// ======================================================
-
-let signals = [];
-
-// ======================================================
-// LOAD SIGNALS FROM MONGODB
-// ======================================================
-
-async function loadSignalsFromMongoDB() {
-
-    try {
-
-        const mongoSignals =
-            await Signal.find({})
-                .sort({ updatedAt: -1 })
-                .lean();
-
-        signals =
-            mongoSignals.map(
-                signal => ({
-
-                    id:
-                        signal.id,
-
-                    category:
-                        signal.category,
-
-                    symbol:
-                        signal.symbol,
-
-                    name:
-                        signal.name,
-
-                    type:
-                        signal.type,
-
-                    exchange:
-                        signal.exchange,
-
-                    entry:
-                        signal.entry,
-
-                    stopLoss:
-                        signal.stopLoss,
-
-                    target1:
-                        signal.target1,
-
-                    target2:
-                        signal.target2,
-
-                    target3:
-                        signal.target3,
-
-                    risk:
-                        signal.risk,
-
-                    note:
-                        signal.note,
-
-                    setup:
-                        signal.setup,
-
-                    active:
-                        signal.active,
-
-                    updatedAt:
-                        signal.updatedAt
-                })
-            );
-
-        console.log(
-    "SIGNALS LOADED FROM MONGODB: " +
-    signals.length +
-    " OK"
-);
-    } catch (error) {
-
-        console.error(
-            "MONGODB SIGNAL LOAD ERROR ❌:",
-            error.message
-        );
-
-        throw error;
-    }
-}
-
-// ======================================================
-// CATEGORY NORMALIZER
-// ======================================================
-
-function normalizeCategory(category) {
-
-    const value =
-        String(
-            category || ""
-        )
-            .toLowerCase()
-            .trim();
-
-    const map = {
-
-        stock: "stocks",
-        stocks: "stocks",
-
-        crypto: "crypto",
-
-        gold: "commodity",
-        commodity: "commodity",
-
-        intraday: "intraday"
-    };
-
-    return map[value] || "";
-}
-
-// ======================================================
-// CLEAN SIGNAL
-// ======================================================
-
-function cleanSignal(body) {
-
-    const category =
-        normalizeCategory(
-            body.category
-        );
-
-    const symbol =
-        String(
-            body.symbol ||
-            body.name ||
-            ""
-        )
-            .trim()
-            .toUpperCase();
-
-    const name =
-        String(
-            body.name ||
-            symbol
-        )
-            .trim()
-            .toUpperCase();
-
-    const type =
-        String(
-            body.type ||
-            "BUY"
-        )
-            .trim()
-            .toUpperCase();
-
-    const exchange =
-        String(
-            body.exchange ||
-            (
-                category === "crypto"
-                    ? "CRYPTO"
-                    : category === "commodity"
-                        ? "MCX"
-                        : "NSE"
-            )
-        )
-            .trim()
-            .toUpperCase();
-
-    const entry =
-        body.entry === undefined ||
-        body.entry === null
-            ? ""
-            : String(body.entry).trim();
-
-    const stopLoss =
-        body.stopLoss === undefined ||
-        body.stopLoss === null
-            ? ""
-            : String(body.stopLoss).trim();
-
-    const target1 =
-        body.target1 === undefined ||
-        body.target1 === null
-            ? ""
-            : String(body.target1).trim();
-
-    const target2 =
-        body.target2 === undefined ||
-        body.target2 === null
-            ? ""
-            : String(body.target2).trim();
-
-    const target3 =
-        body.target3 === undefined ||
-        body.target3 === null
-            ? ""
-            : String(body.target3).trim();
-
-    const risk =
-        String(
-            body.risk ||
-            "Medium"
-        ).trim();
-
-    const note =
-        String(
-            body.note ||
-            body.setup ||
-            ""
-        ).trim();
-
-    const active =
-        body.active !== false;
-
-    return {
-
-        id:
-            body.id ||
-            crypto.randomUUID(),
-
-        category,
-
-        symbol,
-
-        name,
-
-        type,
-
-        exchange,
-
-        entry,
-
-        stopLoss,
-
-        target1,
-
-        target2,
-
-        target3,
-
-        risk,
-
-        note,
-
-        setup:
-            note,
-
-        active,
-
-        updatedAt:
-            new Date()
-    };
-}
-
-// ======================================================
-// GET ADMIN SIGNALS
-// ======================================================
+// ============================================================
+// OLD CRYPTO CANDLE COMPATIBILITY ROUTE
+// ============================================================
 
 app.get(
-    "/api/admin/signals",
-    verifyAdmin,
-    async (req, res) => {
+    "/api/crypto-candles",
+    async(req,res)=>{
 
-        try {
-
-            const mongoSignals =
-                await Signal.find({})
-                    .sort({ updatedAt: -1 })
-                    .lean();
-
-            res.json({
-
-                success: true,
-
-                count:
-                    mongoSignals.length,
-
-                signals:
-                    mongoSignals
-            });
-
-        } catch (error) {
-
-            console.error(
-                "GET ADMIN SIGNALS ERROR:",
-                error.message
+        req.url =
+            req.url.replace(
+                "/api/crypto-candles",
+                "/api/crypto/candles"
             );
 
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    "Failed to load signals from MongoDB"
-            });
-        }
+        return app._router.handle(
+            req,
+            res,
+            () => {}
+        );
     }
 );
 
-// ======================================================
-// SAVE / UPDATE SIGNAL
-// ======================================================
 
-app.post(
-    "/api/admin/signals",
-    verifyAdmin,
-    async (req, res) => {
-
-        try {
-
-            const signal =
-                cleanSignal(
-                    req.body || {}
-                );
-
-            if (!signal.category) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        "Invalid signal category"
-                });
-            }
-
-            if (!signal.symbol) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        "Symbol is required"
-                });
-            }
-
-            if (
-                !["BUY", "SELL"]
-                    .includes(signal.type)
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        "BUY or SELL is required"
-                });
-            }
-
-            if (!signal.entry) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        "Entry is required"
-                });
-            }
-
-            if (!signal.stopLoss) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        "Stop Loss is required"
-                });
-            }
-
-            if (!signal.target1) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        "Target 1 is required"
-                });
-            }
-
-            if (!signal.target2) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        "Target 2 is required"
-                });
-            }
-
-            if (!signal.target3) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        "Target 3 is required"
-                });
-            }
-
-            await Signal.findOneAndUpdate(
-
-                {
-                    id: signal.id
-                },
-
-                signal,
-
-                {
-                    upsert: true,
-                    new: true,
-                    setDefaultsOnInsert: true
-                }
-            );
-
-            await loadSignalsFromMongoDB();
-
-            console.log(
-                "SIGNAL SAVED TO MONGODB:",
-                JSON.stringify(signal)
-            );
-
-            res.json({
-
-                success: true,
-
-                message:
-                    "Signal saved successfully",
-
-                signal,
-
-                signals
-            });
-
-        } catch (error) {
-
-            console.error(
-                "SAVE SIGNAL ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    error.message
-            });
-        }
-    }
-);
-
-// ======================================================
-// DELETE SIGNAL
-// ======================================================
-
-app.delete(
-    "/api/admin/signals/:id",
-    verifyAdmin,
-    async (req, res) => {
-
-        try {
-
-            const id =
-                String(
-                    req.params.id || ""
-                ).trim();
-
-            const result =
-                await Signal.deleteOne({
-                    id
-                });
-
-            if (
-                result.deletedCount === 0
-            ) {
-
-                return res.status(404).json({
-
-                    success: false,
-
-                    error:
-                        "Signal not found"
-                });
-            }
-
-            await loadSignalsFromMongoDB();
-
-            console.log(
-                "SIGNAL DELETED FROM MONGODB:",
-                id
-            );
-
-            res.json({
-
-                success: true,
-
-                message:
-                    "Signal deleted successfully",
-
-                count:
-                    signals.length
-            });
-
-        } catch (error) {
-
-            console.error(
-                "DELETE SIGNAL ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    error.message
-            });
-        }
-    }
-);
-
-// ======================================================
-// PUBLIC SIGNAL API
-// ======================================================
-
-app.get(
-    "/api/signals",
-    async (req, res) => {
-
-        try {
-
-            const mongoSignals =
-                await Signal.find({
-                    active: true
-                })
-                    .sort({
-                        updatedAt: -1
-                    })
-                    .lean();
-
-            res.setHeader(
-                "Cache-Control",
-                "no-store, no-cache, must-revalidate, proxy-revalidate"
-            );
-
-            res.setHeader(
-                "Pragma",
-                "no-cache"
-            );
-
-            res.setHeader(
-                "Expires",
-                "0"
-            );
-
-            res.json({
-
-                success: true,
-
-                count:
-                    mongoSignals.length,
-
-                signals:
-                    mongoSignals
-            });
-
-        } catch (error) {
-
-            console.error(
-                "PUBLIC SIGNAL ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    error.message
-            });
-        }
-    }
-);
-
-// ======================================================
+// ============================================================
 // HEALTH
-// ======================================================
+// ============================================================
 
 app.get(
     "/api/health",
-    async (req, res) => {
-
-        const mongoConnected =
-            mongoose.connection.readyState === 1;
+    (req,res)=>{
 
         res.json({
 
-            success: true,
+            success:true,
 
-            status: "OK",
+            server:"running",
 
-            server:
-                "StockPulse",
+            mongodb:
+                mongoose.connection.readyState === 1,
 
-            database:
-                mongoConnected
-                    ? "MongoDB Connected"
-                    : "MongoDB Disconnected",
-
-            mongoConnected,
-
-            payments:
-                "Disabled",
-
-            premium:
-                "Disabled",
-
-            signals:
-                "Enabled",
-
-            signalCount:
-                signals.length,
-
-            timestamp:
-                new Date().toISOString()
+            uptime:
+                process.uptime()
         });
     }
 );
 
-// ======================================================
-// ADMIN LOGIN
-// ======================================================
 
-app.post(
-    "/api/admin/login",
-    (req, res) => {
-
-        try {
-
-            const password =
-                String(
-                    req.body?.password ||
-                    ""
-                ).trim();
-
-            if (!ADMIN_PASSWORD) {
-
-                return res.status(500).json({
-
-                    success: false,
-
-                    error:
-                        "ADMIN_PASSWORD is not configured on server"
-                });
-            }
-
-            if (
-                !password ||
-                password !== ADMIN_PASSWORD
-            ) {
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    error:
-                        "Invalid admin password"
-                });
-            }
-
-            res.json({
-
-                success: true,
-
-                message:
-                    "Admin login successful",
-
-                adminPassword:
-                    password
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ADMIN LOGIN ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    "Admin login failed"
-            });
-        }
-    }
-);
-
-// ======================================================
-// ADMIN STATUS
-// ======================================================
-
-app.get(
-    "/api/admin/status",
-    verifyAdmin,
-    (req, res) => {
-
-        const mongoConnected =
-            mongoose.connection.readyState === 1;
-
-        res.json({
-
-            success: true,
-
-            authenticated: true,
-
-            mongoConnected,
-
-            message:
-                mongoConnected
-                    ? "Admin authentication successful - MongoDB connected"
-                    : "Admin authentication successful - MongoDB disconnected"
-        });
-    }
-);
-
-// ======================================================
-// ADMIN STATS
-// ======================================================
-
-app.get(
-    "/api/admin/stats",
-    verifyAdmin,
-    async (req, res) => {
-
-        try {
-
-            const totalSignals =
-                await Signal.countDocuments();
-
-            const activeSignals =
-                await Signal.countDocuments({
-                    active: true
-                });
-
-            res.json({
-
-                success: true,
-
-                stats: {
-
-                    totalCustomers: 0,
-
-                    totalPayments: 0,
-
-                    successfulPayments: 0,
-
-                    totalRevenue: 0,
-
-                    activePremium: 0,
-
-                    totalSignals,
-
-                    activeSignals
-                },
-
-                message:
-                    "StockPulse is running in free mode. Payment and premium systems are disabled."
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ADMIN STATS ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    error.message
-            });
-        }
-    }
-);
-
-// ======================================================
-// ADMIN CUSTOMERS
-// ======================================================
-
-app.get(
-    "/api/admin/customers",
-    verifyAdmin,
-    (req, res) => {
-
-        res.json({
-
-            success: true,
-
-            count: 0,
-
-            customers: [],
-
-            message:
-                "Customer database is disabled because StockPulse is free."
-        });
-    }
-);
-
-// ======================================================
-// ADMIN PAYMENTS
-// ======================================================
-
-app.get(
-    "/api/admin/payments",
-    verifyAdmin,
-    (req, res) => {
-
-        res.json({
-
-            success: true,
-
-            count: 0,
-
-            payments: [],
-
-            message:
-                "Payment system is disabled."
-        });
-    }
-);
-
-// ======================================================
+// ============================================================
 // ROOT
-// ======================================================
+// ============================================================
 
 app.get(
     "/",
-    (req, res) => {
-
-        const mongoConnected =
-            mongoose.connection.readyState === 1;
+    (req,res)=>{
 
         res.json({
 
-            success: true,
+            success:true,
 
             message:
                 "StockPulse API Server is running",
 
-            version:
-                "Free",
+            mongodb:
+                mongoose.connection.readyState === 1,
 
-            database:
-                mongoConnected
-                    ? "MongoDB Connected"
-                    : "MongoDB Disconnected",
-
-            payment:
-                "Disabled",
-
-            premium:
-                "Disabled",
-
-            signalsStorage:
-                "MongoDB",
-
-            signalCount:
-                signals.length,
-
-            endpoints: [
-
-                "/api/health",
+            endpoints:[
 
                 "/api/nifty",
 
                 "/api/banknifty",
 
-                "/api/sensex",
-
                 "/api/niftyit",
 
-                "/api/stock?symbol=RELIANCE",
+                "/api/sensex",
 
-                "/api/search?q=RELIANCE",
-
-                "/api/candles?symbol=NIFTY50&timeframe=1m",
+                "/api/stock?symbol=TCS",
 
                 "/api/crypto?symbol=BTC",
 
-                "/api/crypto/candles?symbol=BTC&resolution=1m",
-
                 "/api/signals",
 
-                "/api/admin/login",
+                "/api/signals/commodity",
 
-                "/api/admin/signals",
+                "/api/signals/gold",
 
-                "/api/admin/stats"
+                "/api/recommendations",
+
+                "/api/health"
             ]
         });
     }
 );
 
-// ======================================================
-// START SERVER
-// ======================================================
 
-async function startServer() {
+// ============================================================
+// 404
+// ============================================================
 
-    try {
+app.use(
+    (req,res)=>{
 
-        await connectMongoDB();
+        res.status(404).json({
 
-        await loadSignalsFromMongoDB();
+            success:false,
 
-        console.log("");
-        console.log("==========================================");
-        console.log("       STOCKPULSE SERVER STARTING");
-        console.log("==========================================");
+            error:
+                "API route not found",
 
-        console.log(
-            "Port:",
-            PORT
-        );
+            path:req.originalUrl
+        });
+    }
+);
 
-        console.log(
-            "Upstox:",
-            UPSTOX_ACCESS_TOKEN
-                ? "READY"
-                : "NOT CONFIGURED"
-        );
 
-        console.log(
-            "Admin:",
-            ADMIN_PASSWORD
-                ? "READY"
-                : "NOT CONFIGURED"
-        );
+// ============================================================
+// ERROR HANDLER
+// ============================================================
 
-        console.log(
-            "MongoDB: CONNECTED"
-        );
-
-        console.log(
-            "Razorpay: DISABLED"
-        );
-
-        console.log(
-            "Premium: DISABLED"
-        );
-
-        console.log(
-            "Signals: ENABLED"
-        );
-
-        console.log("==========================================");
-
-        app.listen(
-            PORT,
-            "0.0.0.0",
-            () => {
-
-                console.log("");
-                console.log(
-                    "STOCKPULSE SERVER STARTED"
-                );
-
-                console.log(
-                    "Listening on port:",
-                    PORT
-                );
-
-                console.log(
-                    "Health: /api/health"
-                );
-
-                console.log(
-                    "Signals: /api/signals"
-                );
-
-                console.log(
-                    "Admin Signals: /api/admin/signals"
-                );
-
-                console.log(
-                    "=========================================="
-                );
-            }
-        );
-
-    } catch (error) {
-
-        console.error("");
-        console.error(
-            "=========================================="
-        );
+app.use(
+    (error,req,res,next)=>{
 
         console.error(
-            "STOCKPULSE SERVER FAILED TO START ❌"
+            "SERVER ERROR:",
+            error
         );
 
-        console.error(
-            error.message
-        );
+        res.status(500).json({
+
+            success:false,
+
+            error:
+                error.message ||
+                "Internal server error"
+        });
+    }
+);
+
+
+// ============================================================
+// MONGODB CONNECT + START
+// ============================================================
+
+async function startServer(){
+
+    if(!MONGODB_URI){
 
         console.error(
-            "=========================================="
+            "❌ MONGODB_URI / MONGO_URI missing"
         );
 
         process.exit(1);
     }
+
+
+    try{
+
+        console.log(
+            "MongoDB: CONNECTING..."
+        );
+
+
+        await mongoose.connect(
+            MONGODB_URI,
+            {
+                serverSelectionTimeoutMS:
+                    10000
+            }
+        );
+
+
+        console.log(
+            "MongoDB CONNECTED SUCCESSFULLY ✅"
+        );
+
+
+        // ----------------------------------------------------
+        // CLEAN OLD GOLD DUPLICATES
+        // ----------------------------------------------------
+
+        const goldSignals =
+            await Signal.find({
+                $or:[
+                    {
+                        category:"gold"
+                    },
+                    {
+                        category:"commodity",
+                        symbol:{
+                            $in:[
+                                "GOLD",
+                                "GOLD G",
+                                "GOLD/G",
+                                "GOLDG"
+                            ]
+                        }
+                    }
+                ]
+            })
+            .sort({
+                updatedAt:-1
+            });
+
+
+        if(goldSignals.length > 0){
+
+            const keep =
+                goldSignals[0];
+
+
+            await Signal.updateOne(
+                {
+                    _id:
+                        keep._id
+                },
+                {
+                    $set:{
+                        category:
+                            "commodity",
+
+                        symbol:
+                            "GOLDG"
+                    }
+                }
+            );
+
+
+            if(
+                goldSignals.length > 1
+            ){
+
+                await Signal.deleteMany({
+                    _id:{
+                        $in:
+                            goldSignals
+                            .slice(1)
+                            .map(
+                                x => x._id
+                            )
+                    }
+                });
+
+                console.log(
+                    "Old GOLD duplicates cleaned ✅"
+                );
+            }
+        }
+
+
+        app.listen(
+            PORT,
+            ()=>{
+                console.log("");
+                console.log(
+                    "======================================"
+                );
+                console.log(
+                    "🚀 STOCKPULSE SERVER STARTED"
+                );
+                console.log(
+                    "======================================"
+                );
+                console.log(
+                    `🌐 Port: ${PORT}`
+                );
+                console.log(
+                    "📊 MongoDB: CONNECTED"
+                );
+                console.log(
+                    "🪙 Commodity: GOLDG"
+                );
+                console.log(
+                    "🎯 Targets: T1 / T2 / T3"
+                );
+                console.log(
+                    "🗑️ Delete API: READY"
+                );
+                console.log(
+                    "======================================"
+                );
+                console.log("");
+            }
+        );
+
+
+    }catch(error){
+
+        console.error("");
+        console.error(
+            "❌ MONGODB CONNECTION FAILED"
+        );
+        console.error(
+            error.message
+        );
+        console.error("");
+
+        process.exit(1);
+    }
 }
+
 
 startServer();

@@ -1,20 +1,12 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>StockPulse Admin Panel | Sampat Singh Sodha</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<title>StockPulse Admin Panel</title>
 
 <style>
-
 *{
     margin:0;
     padding:0;
@@ -28,196 +20,73 @@ body{
         radial-gradient(circle at bottom right,rgba(0,200,255,.06),transparent 30%),
         #07111f;
     color:#fff;
-    font-family:"Inter",Arial,sans-serif;
-    padding:30px;
+    font-family:Arial,Helvetica,sans-serif;
+    padding:25px;
 }
 
-.admin-container{
-    width:100%;
+.container{
     max-width:1200px;
     margin:auto;
 }
 
-/* ================= LOGIN ================= */
-
-.login-overlay{
-    position:fixed;
-    inset:0;
-    z-index:10000;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    background:
-        radial-gradient(circle at top left,rgba(0,245,160,.10),transparent 35%),
-        #07111f;
-}
-
-.login-box{
-    width:100%;
-    max-width:420px;
-    padding:30px;
-    background:rgba(15,23,42,.97);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:22px;
-    box-shadow:0 25px 70px rgba(0,0,0,.45);
-}
-
-.login-icon{
-    width:60px;
-    height:60px;
-    margin:0 auto 18px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:18px;
-    background:linear-gradient(135deg,#00F5A0,#00c8ff);
-    font-size:28px;
-}
-
-.login-box h2{
-    text-align:center;
-    font-size:24px;
-    margin-bottom:8px;
-}
-
-.login-box h2 span{
-    color:#00F5A0;
-}
-
-.login-box p{
-    text-align:center;
-    color:#94a3b8;
-    font-size:13px;
-    margin-bottom:24px;
-}
-
-.login-input{
-    width:100%;
-    height:48px;
-    padding:0 14px;
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:11px;
-    background:#07111f;
-    color:#fff;
-    outline:none;
-    font-family:inherit;
-    margin-bottom:12px;
-}
-
-.login-input:focus{
-    border-color:#00F5A0;
-}
-
-.login-btn{
-    width:100%;
-    height:48px;
-    border:0;
-    border-radius:11px;
-    background:linear-gradient(135deg,#00F5A0,#00d9a0);
-    color:#03130d;
-    font-family:inherit;
-    font-weight:800;
-    cursor:pointer;
-}
-
-.login-btn:disabled{
-    opacity:.6;
-    cursor:not-allowed;
-}
-
-.login-error{
-    min-height:18px;
-    margin-top:12px;
-    text-align:center;
-    color:#ff7373;
-    font-size:12px;
-}
-
-/* ================= HEADER ================= */
-
-.admin-header{
+.header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    gap:20px;
-    padding:22px 25px;
-    margin-bottom:28px;
-    background:rgba(15,23,42,.82);
+    padding:22px;
+    margin-bottom:25px;
+    background:#0f172a;
     border:1px solid rgba(255,255,255,.08);
-    border-radius:20px;
-    backdrop-filter:blur(15px);
+    border-radius:18px;
 }
 
-.brand{
+.logo{
     display:flex;
     align-items:center;
-    gap:14px;
+    gap:12px;
 }
 
-.brand-icon{
-    width:52px;
-    height:52px;
+.logo-icon{
+    width:48px;
+    height:48px;
     display:flex;
-    align-items:center;
     justify-content:center;
-    border-radius:15px;
+    align-items:center;
+    border-radius:13px;
     background:linear-gradient(135deg,#00F5A0,#00c8ff);
-    font-size:25px;
-}
-
-.brand h1{
     font-size:24px;
-    font-weight:800;
 }
 
-.brand h1 span{
+.logo h1{
+    font-size:24px;
+}
+
+.logo h1 span{
     color:#00F5A0;
 }
 
-.brand p{
-    margin-top:4px;
+.logo p{
     color:#94a3b8;
     font-size:12px;
+    margin-top:3px;
 }
 
-.header-actions{
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-.admin-badge{
-    padding:9px 14px;
+.badge{
+    padding:9px 15px;
     border-radius:30px;
-    background:rgba(0,245,160,.10);
-    border:1px solid rgba(0,245,160,.25);
     color:#00F5A0;
+    background:rgba(0,245,160,.1);
+    border:1px solid rgba(0,245,160,.25);
     font-size:12px;
-    font-weight:700;
+    font-weight:bold;
 }
-
-.logout-btn{
-    padding:9px 14px;
-    border-radius:30px;
-    border:1px solid rgba(255,100,100,.25);
-    background:rgba(255,80,80,.08);
-    color:#ff8585;
-    cursor:pointer;
-    font-family:inherit;
-    font-size:12px;
-    font-weight:700;
-}
-
-/* ================= WELCOME ================= */
 
 .welcome{
     margin-bottom:25px;
 }
 
 .welcome h2{
-    font-size:28px;
-    margin-bottom:7px;
+    font-size:27px;
 }
 
 .welcome h2 span{
@@ -226,59 +95,24 @@ body{
 
 .welcome p{
     color:#94a3b8;
-    font-size:14px;
+    margin-top:6px;
 }
 
-/* ================= SERVER ================= */
-
-.server-status{
-    display:flex;
-    align-items:center;
-    gap:9px;
-    margin-bottom:22px;
-    padding:13px 16px;
-    border-radius:13px;
-    background:rgba(15,23,42,.80);
-    border:1px solid rgba(255,255,255,.07);
-    color:#94a3b8;
-    font-size:12px;
-}
-
-.status-dot{
-    width:9px;
-    height:9px;
-    border-radius:50%;
-    background:#64748b;
-}
-
-.status-dot.online{
-    background:#00F5A0;
-    box-shadow:0 0 12px rgba(0,245,160,.7);
-}
-
-.status-dot.offline{
-    background:#ff5555;
-}
-
-/* ================= SIGNAL GRID ================= */
-
-.signals-grid{
+.grid{
     display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-columns:repeat(2,1fr);
     gap:22px;
 }
 
-.signal-admin-card{
-    position:relative;
-    padding:24px;
-    background:linear-gradient(145deg,rgba(30,41,59,.96),rgba(15,23,42,.96));
+.card{
+    background:linear-gradient(145deg,#1e293b,#0f172a);
     border:1px solid rgba(255,255,255,.08);
     border-radius:20px;
-    overflow:hidden;
-    box-shadow:0 15px 40px rgba(0,0,0,.18);
+    padding:24px;
+    position:relative;
 }
 
-.signal-admin-card::before{
+.card:before{
     content:"";
     position:absolute;
     top:0;
@@ -288,56 +122,51 @@ body{
     background:linear-gradient(90deg,#00F5A0,#00c8ff);
 }
 
-.signal-card-title{
+.card-title{
     display:flex;
     align-items:center;
-    gap:13px;
-    margin-bottom:22px;
+    gap:12px;
+    margin-bottom:20px;
 }
 
-.signal-card-icon{
-    width:48px;
-    height:48px;
+.icon{
+    width:44px;
+    height:44px;
     display:flex;
-    align-items:center;
     justify-content:center;
-    border-radius:14px;
-    background:rgba(0,245,160,.09);
-    border:1px solid rgba(0,245,160,.15);
-    font-size:22px;
+    align-items:center;
+    border-radius:12px;
+    background:rgba(0,245,160,.1);
+    font-size:21px;
 }
 
-.signal-card-title h3{
-    font-size:18px;
+.card-title h3{
+    font-size:17px;
 }
 
-.signal-card-title span{
-    display:block;
-    margin-top:4px;
+.card-title p{
     color:#64748b;
     font-size:11px;
+    margin-top:3px;
 }
 
-/* ================= FORM ================= */
-
-.form-group{
+.group{
     margin-bottom:14px;
 }
 
-.form-row{
+label{
+    display:block;
+    color:#94a3b8;
+    font-size:11px;
+    font-weight:bold;
+    margin-bottom:7px;
+    text-transform:uppercase;
+}
+
+.row{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:12px;
-}
-
-.card-label{
-    display:block;
-    margin-bottom:7px;
-    color:#94a3b8;
-    font-size:11px;
-    font-weight:600;
-    text-transform:uppercase;
-    letter-spacing:.5px;
 }
 
 input,
@@ -345,1563 +174,860 @@ select{
     width:100%;
     height:44px;
     padding:0 13px;
-    border:1px solid rgba(255,255,255,.08);
     border-radius:10px;
-    background:rgba(7,17,31,.75);
+    border:1px solid rgba(255,255,255,.08);
+    background:#07111f;
     color:#fff;
     outline:none;
-    font-family:inherit;
-    font-size:13px;
-}
-
-input::placeholder{
-    color:#475569;
 }
 
 input:focus,
 select:focus{
     border-color:#00F5A0;
-    box-shadow:0 0 0 2px rgba(0,245,160,.05);
 }
 
-select{
-    cursor:pointer;
-}
-
-select option{
-    background:#0f172a;
-    color:#fff;
-}
-
-/* ================= SAVE ================= */
-
-.save-btn{
+button{
     width:100%;
     height:46px;
-    margin-top:6px;
     border:0;
     border-radius:11px;
     background:linear-gradient(135deg,#00F5A0,#00d9a0);
     color:#03130d;
-    font-family:inherit;
-    font-size:13px;
-    font-weight:800;
+    font-weight:bold;
     cursor:pointer;
+    margin-top:5px;
 }
 
-.save-btn:hover{
-    transform:translateY(-1px);
-}
-
-.save-btn:disabled{
+button:disabled{
     opacity:.6;
-    cursor:not-allowed;
+    cursor:wait;
 }
 
-/* ================= SAVED ================= */
-
-.saved-section{
-    margin-top:30px;
-    padding:22px;
-    background:rgba(15,23,42,.82);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:20px;
-}
-
-.saved-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    margin-bottom:18px;
-}
-
-.saved-header h3{
-    font-size:18px;
-}
-
-.refresh-btn{
-    border:1px solid rgba(255,255,255,.10);
-    background:rgba(255,255,255,.04);
-    color:#fff;
-    padding:9px 13px;
-    border-radius:9px;
-    cursor:pointer;
-    font-family:inherit;
-    font-size:12px;
-}
-
-.signal-list{
-    display:grid;
-    gap:10px;
-}
-
-.saved-signal{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    padding:14px;
-    border-radius:12px;
-    background:rgba(7,17,31,.65);
-    border:1px solid rgba(255,255,255,.06);
-}
-
-.saved-signal-main strong{
-    display:block;
-    font-size:14px;
-}
-
-.saved-signal-main small{
-    display:block;
-    margin-top:4px;
-    color:#64748b;
-    font-size:11px;
-    line-height:1.8;
-}
-
-.delete-btn{
-    border:1px solid rgba(255,80,80,.22);
-    background:rgba(255,80,80,.07);
-    color:#ff7777;
-    padding:8px 11px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:11px;
-}
-
-/* ================= STATUS MESSAGE ================= */
-
-.save-status{
+.status{
     position:fixed;
-    right:25px;
-    bottom:25px;
-    padding:13px 18px;
-    border-radius:12px;
+    right:20px;
+    bottom:20px;
+    padding:14px 18px;
     background:#10251f;
-    border:1px solid rgba(0,245,160,.25);
+    border:1px solid rgba(0,245,160,.3);
     color:#00F5A0;
-    font-size:13px;
-    font-weight:600;
+    border-radius:12px;
     opacity:0;
     transform:translateY(15px);
-    pointer-events:none;
     transition:.3s;
-    z-index:9999;
 }
 
-.save-status.show{
+.status.show{
     opacity:1;
     transform:translateY(0);
 }
 
-.save-status.error{
-    background:#2a1111;
-    border-color:rgba(255,80,80,.3);
-    color:#ff7373;
-}
-
-/* ================= FOOTER ================= */
-
-.admin-footer{
+.footer{
     text-align:center;
+    color:#64748b;
     margin-top:30px;
     padding-top:20px;
     border-top:1px solid rgba(255,255,255,.06);
-    color:#64748b;
-    font-size:11px;
 }
-
-.admin-footer strong{
-    color:#94a3b8;
-}
-
-/* ================= MOBILE ================= */
 
 @media(max-width:800px){
+    .grid{
+        grid-template-columns:1fr;
+    }
 
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+}
+
+@media(max-width:500px){
     body{
         padding:15px;
     }
 
-    .admin-header{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-
-    .header-actions{
-        width:100%;
-        justify-content:space-between;
-    }
-
-    .signals-grid{
+    .row{
         grid-template-columns:1fr;
     }
-
 }
-
-@media(max-width:500px){
-
-    .brand h1{
-        font-size:20px;
-    }
-
-    .welcome h2{
-        font-size:23px;
-    }
-
-    .form-row{
-        grid-template-columns:1fr;
-        gap:0;
-    }
-
-    .signal-admin-card{
-        padding:18px;
-    }
-
-    .saved-signal{
-        align-items:flex-start;
-        flex-direction:column;
-    }
-
-}
-
 </style>
 </head>
 
-
 <body>
 
-<!-- ========================================================= -->
-<!-- LOGIN -->
-<!-- ========================================================= -->
+<div class="container">
 
-<div id="loginOverlay" class="login-overlay">
+<header class="header">
 
-    <div class="login-box">
+<div class="logo">
+    <div class="logo-icon">📈</div>
 
-        <div class="login-icon">
-            🔐
-        </div>
-
-        <h2>
-            Stock<span>Pulse</span> Admin
-        </h2>
-
-        <p>
-            Enter your admin password to continue.
-        </p>
-
-        <input
-            id="adminPassword"
-            class="login-input"
-            type="password"
-            placeholder="Admin password"
-            autocomplete="current-password"
-        >
-
-        <button
-            id="loginButton"
-            class="login-btn"
-            type="button">
-            🔓 Login
-        </button>
-
-        <div
-            id="loginError"
-            class="login-error">
-        </div>
-
+    <div>
+        <h1>Stock<span>Pulse</span></h1>
+        <p>Admin Control Panel</p>
     </div>
-
 </div>
 
-
-<!-- ========================================================= -->
-<!-- ADMIN CONTAINER -->
-<!-- ========================================================= -->
-
-<div class="admin-container">
-
-<header class="admin-header">
-
-    <div class="brand">
-
-        <div class="brand-icon">
-            📈
-        </div>
-
-        <div>
-
-            <h1>
-                Stock<span>Pulse</span>
-            </h1>
-
-            <p>
-                Admin Control Panel
-            </p>
-
-        </div>
-
-    </div>
-
-    <div class="header-actions">
-
-        <div class="admin-badge">
-            ● ADMIN PANEL
-        </div>
-
-        <button
-            class="logout-btn"
-            id="logoutButton"
-            type="button">
-            Logout
-        </button>
-
-    </div>
+<div class="badge">● ADMIN PANEL</div>
 
 </header>
 
-
-<!-- WELCOME -->
-
 <div class="welcome">
+    <h2>Welcome, <span>Sampat Singh Sodha</span></h2>
+    <p>Manage today's free market recommendations.</p>
+</div>
 
-    <h2>
-        Welcome,
-        <span>Sampat Singh Sodha</span>
-    </h2>
+<div class="grid">
 
-    <p>
-        Manage today's free market recommendations from one place.
-    </p>
+<!-- STOCK -->
+<div class="card">
+
+<div class="card-title">
+    <div class="icon">🇮🇳</div>
+    <div>
+        <h3>Indian Stock</h3>
+        <p>NSE / BSE Recommendation</p>
+    </div>
+</div>
+
+<div class="group">
+<label>Stock Name</label>
+<input id="stockName" placeholder="RELIANCE">
+</div>
+
+<div class="row">
+
+<div class="group">
+<label>Signal</label>
+<select id="stockSide">
+<option>BUY</option>
+<option>SELL</option>
+</select>
+</div>
+
+<div class="group">
+<label>Entry</label>
+<input id="stockEntry" placeholder="1515">
+</div>
+
+</div>
+
+<div class="group">
+<label>Setup</label>
+<input id="stockSetup" placeholder="Bullish momentum">
+</div>
+
+<div class="row">
+
+<div class="group">
+<label>Target 1</label>
+<input id="stockTarget1" placeholder="1560">
+</div>
+
+<div class="group">
+<label>Target 2</label>
+<input id="stockTarget2" placeholder="1580">
+</div>
+
+</div>
+
+<div class="row">
+
+<div class="group">
+<label>Target 3</label>
+<input id="stockTarget3" placeholder="1600">
+</div>
+
+<div class="group">
+<label>Stop Loss</label>
+<input id="stockSL" placeholder="1490">
+</div>
+
+</div>
+
+<button onclick="saveSignal('stock',this)">
+💾 Save Indian Stock
+</button>
 
 </div>
 
 
-<!-- SERVER STATUS -->
-
-<div class="server-status">
-
-    <div
-        id="statusDot"
-        class="status-dot">
-    </div>
-
-    <span id="serverStatusText">
-        Checking StockPulse server...
-    </span>
-
-</div>
-
-
-<!-- ========================================================= -->
-<!-- 4 SIGNAL CARDS -->
-<!-- ========================================================= -->
-
-<div class="signals-grid">
-
-
-<!-- ========================================================= -->
-<!-- INDIAN STOCK -->
-<!-- ========================================================= -->
-
-<div class="signal-admin-card">
-
-    <div class="signal-card-title">
-
-        <div class="signal-card-icon">
-            🇮🇳
-        </div>
-
-        <div>
-
-            <h3>
-                Indian Stock
-            </h3>
-
-            <span>
-                NSE / BSE Recommendation
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label class="card-label">
-            Stock Name / Symbol
-        </label>
-
-        <input
-            id="stockName"
-            type="text"
-            placeholder="RELIANCE">
-
-    </div>
-
-
-    <div class="form-row">
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Signal
-            </label>
-
-            <select id="stockSide">
-
-                <option value="BUY">BUY</option>
-                <option value="SELL">SELL</option>
-                <option value="HOLD">HOLD</option>
-
-            </select>
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Entry
-            </label>
-
-            <input
-                id="stockEntry"
-                type="text"
-                placeholder="1515">
-
-        </div>
-
-    </div>
-
-
-    <!-- EXCHANGE -->
-
-    <div class="form-group">
-
-        <label class="card-label">
-            Exchange
-        </label>
-
-        <select id="stockExchange">
-
-            <option value="NSE" selected>
-                NSE
-            </option>
-
-            <option value="BSE">
-                BSE
-            </option>
-
-        </select>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label class="card-label">
-            Setup / Note
-        </label>
-
-        <input
-            id="stockSetup"
-            type="text"
-            placeholder="Bullish setup with positive momentum">
-
-    </div>
-
-
-    <div class="form-row">
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 1
-            </label>
-
-            <input
-                id="stockTarget1"
-                type="text"
-                placeholder="1540">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 2
-            </label>
-
-            <input
-                id="stockTarget2"
-                type="text"
-                placeholder="1560">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-row">
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 3
-            </label>
-
-            <input
-                id="stockTarget3"
-                type="text"
-                placeholder="1580">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Stop Loss
-            </label>
-
-            <input
-                id="stockSL"
-                type="text"
-                placeholder="1490">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label class="card-label">
-            Risk
-        </label>
-
-        <select id="stockRisk">
-
-            <option value="Low">Low</option>
-
-            <option value="Medium" selected>
-                Medium
-            </option>
-
-            <option value="High">High</option>
-
-        </select>
-
-    </div>
-
-
-    <button
-        class="save-btn"
-        type="button"
-        onclick="saveSignal('stock',this)">
-
-        💾 Save Indian Stock
-
-    </button>
-
-</div>
-
-
-<!-- ========================================================= -->
 <!-- CRYPTO -->
-<!-- ========================================================= -->
+<div class="card">
 
-<div class="signal-admin-card">
-
-    <div class="signal-card-title">
-
-        <div class="signal-card-icon">
-            ₿
-        </div>
-
-        <div>
-
-            <h3>
-                Crypto
-            </h3>
-
-            <span>
-                Crypto Market Recommendation
-            </span>
-
-        </div>
-
+<div class="card-title">
+    <div class="icon">₿</div>
+    <div>
+        <h3>Crypto</h3>
+        <p>Crypto Market Recommendation</p>
     </div>
+</div>
 
+<div class="group">
+<label>Crypto Name</label>
+<input id="cryptoName" placeholder="BTC/USDT">
+</div>
 
-    <div class="form-group">
+<div class="row">
 
-        <label class="card-label">
-            Crypto Name / Symbol
-        </label>
+<div class="group">
+<label>Signal</label>
+<select id="cryptoSide">
+<option>BUY</option>
+<option>SELL</option>
+</select>
+</div>
 
-        <input
-            id="cryptoName"
-            type="text"
-            placeholder="BTC/USDT">
+<div class="group">
+<label>Entry</label>
+<input id="cryptoEntry" placeholder="67450">
+</div>
 
-    </div>
+</div>
 
+<div class="group">
+<label>Setup</label>
+<input id="cryptoSetup" placeholder="Strong bullish momentum">
+</div>
 
-    <div class="form-row">
+<div class="row">
 
-        <div class="form-group">
+<div class="group">
+<label>Target 1</label>
+<input id="cryptoTarget1" placeholder="69800">
+</div>
 
-            <label class="card-label">
-                Signal
-            </label>
+<div class="group">
+<label>Target 2</label>
+<input id="cryptoTarget2" placeholder="71000">
+</div>
 
-            <select id="cryptoSide">
+</div>
 
-                <option value="BUY">BUY</option>
-                <option value="SELL">SELL</option>
-                <option value="HOLD">HOLD</option>
+<div class="row">
 
-            </select>
+<div class="group">
+<label>Target 3</label>
+<input id="cryptoTarget3" placeholder="72500">
+</div>
 
-        </div>
+<div class="group">
+<label>Stop Loss</label>
+<input id="cryptoSL" placeholder="64800">
+</div>
 
+</div>
 
-        <div class="form-group">
-
-            <label class="card-label">
-                Entry
-            </label>
-
-            <input
-                id="cryptoEntry"
-                type="text"
-                placeholder="67450">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label class="card-label">
-            Setup / Note
-        </label>
-
-        <input
-            id="cryptoSetup"
-            type="text"
-            placeholder="Strong bullish momentum">
-
-    </div>
-
-
-    <div class="form-row">
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 1
-            </label>
-
-            <input
-                id="cryptoTarget1"
-                type="text"
-                placeholder="68800">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 2
-            </label>
-
-            <input
-                id="cryptoTarget2"
-                type="text"
-                placeholder="69800">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-row">
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 3
-            </label>
-
-            <input
-                id="cryptoTarget3"
-                type="text"
-                placeholder="71000">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Stop Loss
-            </label>
-
-            <input
-                id="cryptoSL"
-                type="text"
-                placeholder="64800">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label class="card-label">
-            Risk
-        </label>
-
-        <select id="cryptoRisk">
-
-            <option value="Low">Low</option>
-
-            <option value="Medium" selected>
-                Medium
-            </option>
-
-            <option value="High">High</option>
-
-        </select>
-
-    </div>
-
-
-    <button
-        class="save-btn"
-        type="button"
-        onclick="saveSignal('crypto',this)">
-
-        💾 Save Crypto
-
-    </button>
+<button onclick="saveSignal('crypto',this)">
+💾 Save Crypto
+</button>
 
 </div>
 
 
-<!-- ========================================================= -->
-<!-- COMMODITY -->
-<!-- ========================================================= -->
+<!-- GOLD -->
+<div class="card">
 
-<div class="signal-admin-card">
-
-    <div class="signal-card-title">
-
-        <div class="signal-card-icon">
-            🪙
-        </div>
-
-        <div>
-
-            <h3>
-                Commodity
-            </h3>
-
-            <span>
-                Gold / Commodity Recommendation
-            </span>
-
-        </div>
-
+<div class="card-title">
+    <div class="icon">🪙</div>
+    <div>
+        <h3>Gold Commodity</h3>
+        <p>GOLDG / XAU Recommendation</p>
     </div>
+</div>
 
+<div class="group">
+<label>Gold Name</label>
+<input id="goldName" placeholder="GOLDG">
+</div>
 
-    <div class="form-group">
+<div class="row">
 
-        <label class="card-label">
-            Commodity Name / Symbol
-        </label>
+<div class="group">
+<label>Signal</label>
+<select id="goldSide">
+<option>BUY</option>
+<option>SELL</option>
+</select>
+</div>
 
-        <input
-            id="goldName"
-            type="text"
-            placeholder="GOLD">
+<div class="group">
+<label>Entry</label>
+<input id="goldEntry" placeholder="2332">
+</div>
 
-    </div>
+</div>
 
+<div class="group">
+<label>Setup</label>
+<input id="goldSetup" placeholder="Bullish gold setup">
+</div>
 
-    <div class="form-row">
+<div class="row">
 
-        <div class="form-group">
+<div class="group">
+<label>Target 1</label>
+<input id="goldTarget1" placeholder="2365">
+</div>
 
-            <label class="card-label">
-                Signal
-            </label>
+<div class="group">
+<label>Target 2</label>
+<input id="goldTarget2" placeholder="2380">
+</div>
 
-            <select id="goldSide">
+</div>
 
-                <option value="BUY">BUY</option>
-                <option value="SELL">SELL</option>
-                <option value="HOLD">HOLD</option>
+<div class="row">
 
-            </select>
+<div class="group">
+<label>Target 3</label>
+<input id="goldTarget3" placeholder="2400">
+</div>
 
-        </div>
+<div class="group">
+<label>Stop Loss</label>
+<input id="goldSL" placeholder="2290">
+</div>
 
+</div>
 
-        <div class="form-group">
-
-            <label class="card-label">
-                Entry
-            </label>
-
-            <input
-                id="goldEntry"
-                type="text"
-                placeholder="2332">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label class="card-label">
-            Setup / Note
-        </label>
-
-        <input
-            id="goldSetup"
-            type="text"
-            placeholder="Bullish gold setup">
-
-    </div>
-
-
-    <div class="form-row">
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 1
-            </label>
-
-            <input
-                id="goldTarget1"
-                type="text"
-                placeholder="2350">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 2
-            </label>
-
-            <input
-                id="goldTarget2"
-                type="text"
-                placeholder="2365">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-row">
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 3
-            </label>
-
-            <input
-                id="goldTarget3"
-                type="text"
-                placeholder="2380">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Stop Loss
-            </label>
-
-            <input
-                id="goldSL"
-                type="text"
-                placeholder="2290">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label class="card-label">
-            Risk
-        </label>
-
-        <select id="goldRisk">
-
-            <option value="Low">Low</option>
-
-            <option value="Medium" selected>
-                Medium
-            </option>
-
-            <option value="High">High</option>
-
-        </select>
-
-    </div>
-
-
-    <button
-        class="save-btn"
-        type="button"
-        onclick="saveSignal('gold',this)">
-
-        💾 Save Commodity
-
-    </button>
+<button onclick="saveSignal('gold',this)">
+💾 Save Gold
+</button>
 
 </div>
 
 
-<!-- ========================================================= -->
 <!-- INTRADAY -->
-<!-- ========================================================= -->
+<div class="card">
 
-<div class="signal-admin-card">
-
-    <div class="signal-card-title">
-
-        <div class="signal-card-icon">
-            ⚡
-        </div>
-
-        <div>
-
-            <h3>
-                Intraday
-            </h3>
-
-            <span>
-                Intraday Trading Recommendation
-            </span>
-
-        </div>
-
+<div class="card-title">
+    <div class="icon">⚡</div>
+    <div>
+        <h3>Intraday</h3>
+        <p>Intraday Trading Recommendation</p>
     </div>
+</div>
 
+<div class="group">
+<label>Stock Name</label>
+<input id="intradayName" placeholder="TATASTEEL">
+</div>
 
-    <div class="form-group">
+<div class="row">
 
-        <label class="card-label">
-            Stock Name / Symbol
-        </label>
+<div class="group">
+<label>Signal</label>
+<select id="intradaySide">
+<option>BUY</option>
+<option>SELL</option>
+</select>
+</div>
 
-        <input
-            id="intradayName"
-            type="text"
-            placeholder="TATASTEEL">
+<div class="group">
+<label>Entry</label>
+<input id="intradayEntry" placeholder="150">
+</div>
 
-    </div>
+</div>
 
+<div class="group">
+<label>Setup</label>
+<input id="intradaySetup" placeholder="Intraday momentum setup">
+</div>
 
-    <div class="form-row">
+<div class="row">
 
-        <div class="form-group">
+<div class="group">
+<label>Target 1</label>
+<input id="intradayTarget1" placeholder="155">
+</div>
 
-            <label class="card-label">
-                Signal
-            </label>
+<div class="group">
+<label>Target 2</label>
+<input id="intradayTarget2" placeholder="158">
+</div>
 
-            <select id="intradaySide">
+</div>
 
-                <option value="BUY">BUY</option>
-                <option value="SELL">SELL</option>
-                <option value="HOLD">HOLD</option>
+<div class="row">
 
-            </select>
+<div class="group">
+<label>Target 3</label>
+<input id="intradayTarget3" placeholder="162">
+</div>
 
-        </div>
+<div class="group">
+<label>Stop Loss</label>
+<input id="intradaySL" placeholder="147">
+</div>
 
+</div>
 
-        <div class="form-group">
-
-            <label class="card-label">
-                Entry
-            </label>
-
-            <input
-                id="intradayEntry"
-                type="text"
-                placeholder="150">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label class="card-label">
-            Setup / Note
-        </label>
-
-        <input
-            id="intradaySetup"
-            type="text"
-            placeholder="Intraday momentum setup">
-
-    </div>
-
-
-    <div class="form-row">
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 1
-            </label>
-
-            <input
-                id="intradayTarget1"
-                type="text"
-                placeholder="153">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 2
-            </label>
-
-            <input
-                id="intradayTarget2"
-                type="text"
-                placeholder="155">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-row">
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Target 3
-            </label>
-
-            <input
-                id="intradayTarget3"
-                type="text"
-                placeholder="158">
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label class="card-label">
-                Stop Loss
-            </label>
-
-            <input
-                id="intradaySL"
-                type="text"
-                placeholder="147">
-
-        </div>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label class="card-label">
-            Risk
-        </label>
-
-        <select id="intradayRisk">
-
-            <option value="Low">Low</option>
-
-            <option value="Medium" selected>
-                Medium
-            </option>
-
-            <option value="High">High</option>
-
-        </select>
-
-    </div>
-
-
-    <button
-        class="save-btn"
-        type="button"
-        onclick="saveSignal('intraday',this)">
-
-        💾 Save Intraday
-
-    </button>
+<button onclick="saveSignal('intraday',this)">
+💾 Save Intraday
+</button>
 
 </div>
 
 </div>
 
-
-<!-- ========================================================= -->
-<!-- SAVED SIGNALS -->
-<!-- ========================================================= -->
-
-<div class="saved-section">
-
-    <div class="saved-header">
-
-        <h3>
-            📋 Saved Signals
-        </h3>
-
-        <button
-            class="refresh-btn"
-            type="button"
-            onclick="loadSignals()">
-
-            🔄 Refresh
-
-        </button>
-
-    </div>
-
-
-    <div
-        id="signalList"
-        class="signal-list">
-
-        <div style="color:#64748b;font-size:12px;">
-            Login to load signals.
-        </div>
-
-    </div>
+<div class="footer">
+StockPulse Admin Panel • 2026
+</div>
 
 </div>
 
+<div id="status" class="status"></div>
 
-<!-- FOOTER -->
-
-<footer class="admin-footer">
-
-    StockPulse Admin Panel •
-    <strong>Sampat Singh Sodha</strong>
-    • 2026
-
-</footer>
-
-</div>
-
-
-<!-- STATUS -->
-
-<div
-    id="saveStatus"
-    class="save-status">
-</div>
-
-
-<!-- ========================================================= -->
-<!-- SCRIPT -->
-<!-- ========================================================= -->
 
 <script>
 
+"use strict";
+
 const API_BASE =
-"https://stockpulse-production-0709.up.railway.app";
+    window.STOCKPULSE_API_BASE ||
+    window.location.origin;
 
-let adminPassword =
-sessionStorage.getItem("stockpulse_admin_password") || "";
+const ADMIN_KEY =
+    "stockpulse-admin-password";
+
+const categoryMap = {
+    stock: "stocks",
+    crypto: "crypto",
+    gold: "commodity",
+    intraday: "intraday"
+};
+
+let latestSignals = {};
 
 
-/* ========================================================= */
-/* STATUS MESSAGE */
-/* ========================================================= */
+function getPassword(){
+    return sessionStorage.getItem(ADMIN_KEY) || "";
+}
 
-function showStatus(message,error=false){
 
-    const status =
-        document.getElementById("saveStatus");
-
-    status.textContent =
-        message;
-
-    status.classList.toggle(
-        "error",
-        error
+function setPassword(password){
+    sessionStorage.setItem(
+        ADMIN_KEY,
+        password
     );
-
-    status.classList.add("show");
-
-    setTimeout(()=>{
-        status.classList.remove("show");
-    },3500);
-
 }
 
 
-/* ========================================================= */
-/* AUTH HEADERS */
-/* ========================================================= */
-
-function authHeaders(){
-
-    return {
-
-        "Content-Type":
-            "application/json",
-
-        "x-admin-password":
-            adminPassword
-
-    };
-
+function clearPassword(){
+    sessionStorage.removeItem(
+        ADMIN_KEY
+    );
 }
 
 
-/* ========================================================= */
-/* LOGIN */
-/* ========================================================= */
+function showStatus(message){
 
-async function adminLogin(){
+    const box =
+        document.getElementById("status");
 
-    const passwordInput =
-        document.getElementById(
-            "adminPassword"
+    box.textContent = message;
+
+    box.classList.add("show");
+
+    clearTimeout(window.statusTimer);
+
+    window.statusTimer =
+        setTimeout(() => {
+            box.classList.remove("show");
+        },4000);
+}
+
+
+async function readJson(response){
+
+    const data =
+        await response
+        .json()
+        .catch(() => ({}));
+
+    if(
+        !response.ok ||
+        data.success !== true
+    ){
+
+        throw new Error(
+            data.error ||
+            data.message ||
+            `Request failed (${response.status})`
         );
+    }
 
-    const errorBox =
-        document.getElementById(
-            "loginError"
-        );
+    return data;
+}
 
-    const button =
-        document.getElementById(
-            "loginButton"
-        );
 
-    const password =
-        passwordInput.value.trim();
+async function loginAdmin(){
 
-    errorBox.textContent = "";
+    let password =
+        getPassword();
 
     if(!password){
 
-        errorBox.textContent =
-            "Please enter admin password.";
-
-        return;
-
+        password =
+            window.prompt(
+                "Enter StockPulse Admin Password:"
+            );
     }
 
-    button.disabled = true;
-
-    button.textContent =
-        "⏳ Checking...";
-
-    try{
-
-        const response =
-            await fetch(
-                API_BASE +
-                "/api/admin/login",
-                {
-                    method:"POST",
-                    headers:{
-                        "Content-Type":
-                            "application/json"
-                    },
-                    body:
-                        JSON.stringify({
-                            password
-                        })
-                }
-            );
-
-        const result =
-            await response
-                .json()
-                .catch(()=>({}));
-
-        if(
-            !response.ok ||
-            !result.success
-        ){
-
-            throw new Error(
-                result.error ||
-                result.message ||
-                "Invalid admin password"
-            );
-
-        }
-
-        adminPassword =
-            password;
-
-        sessionStorage.setItem(
-            "stockpulse_admin_password",
-            password
+    if(!password){
+        throw new Error(
+            "Admin password required"
         );
-
-        document.getElementById(
-            "loginOverlay"
-        ).style.display = "none";
-
-        showStatus(
-            "✅ Admin login successful"
-        );
-
-        await checkServer();
-        await loadSignals();
-
-    }catch(error){
-
-        errorBox.textContent =
-            error.message ||
-            "Login failed.";
-
-    }finally{
-
-        button.disabled = false;
-
-        button.textContent =
-            "🔓 Login";
-
     }
 
+    const response =
+        await fetch(
+            `${API_BASE}/api/admin/login`,
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":
+                        "application/json"
+                },
+                body:
+                    JSON.stringify({
+                        password
+                    })
+            }
+        );
+
+    const data =
+        await readJson(response);
+
+    setPassword(password);
+
+    return data;
 }
 
 
-/* ========================================================= */
-/* LOGOUT */
-/* ========================================================= */
+async function authorizedFetch(
+    url,
+    options = {},
+    retry = true
+){
 
-function logoutAdmin(){
+    const headers = {
+        ...(options.headers || {}),
+        "x-admin-password":
+            getPassword()
+    };
 
-    sessionStorage.removeItem(
-        "stockpulse_admin_password"
-    );
+    let response =
+        await fetch(
+            url,
+            {
+                ...options,
+                headers
+            }
+        );
 
-    adminPassword = "";
+    if(
+        response.status === 401 &&
+        retry
+    ){
 
-    location.reload();
+        clearPassword();
 
-}
+        await loginAdmin();
 
-
-/* ========================================================= */
-/* EXISTING LOGIN */
-/* ========================================================= */
-
-async function checkExistingLogin(){
-
-    if(!adminPassword){
-
-        return false;
-
-    }
-
-    try{
-
-        const response =
+        response =
             await fetch(
-                API_BASE +
-                "/api/admin/status",
+                url,
                 {
+                    ...options,
                     headers:{
+                        ...(options.headers || {}),
                         "x-admin-password":
-                            adminPassword
+                            getPassword()
                     }
                 }
             );
-
-        if(response.ok){
-
-            document.getElementById(
-                "loginOverlay"
-            ).style.display =
-                "none";
-
-            return true;
-
-        }
-
-    }catch(error){
-
-        console.error(error);
-
     }
 
-    sessionStorage.removeItem(
-        "stockpulse_admin_password"
-    );
-
-    adminPassword = "";
-
-    return false;
-
+    return response;
 }
 
 
-/* ========================================================= */
-/* SERVER STATUS */
-/* ========================================================= */
+function setValue(id,value){
 
-async function checkServer(){
+    const el =
+        document.getElementById(id);
 
-    const dot =
-        document.getElementById(
-            "statusDot"
-        );
+    if(el){
+        el.value =
+            value ?? "";
+    }
+}
 
-    const text =
-        document.getElementById(
-            "serverStatusText"
-        );
+
+function setFields(type,data){
+
+    if(!data) return;
+
+    setValue(
+        type+"Name",
+        data.name || data.symbol
+    );
+
+    setValue(
+        type+"Side",
+        data.side || data.type || "BUY"
+    );
+
+    setValue(
+        type+"Setup",
+        data.setup || data.note
+    );
+
+    setValue(
+        type+"Entry",
+        data.entry
+    );
+
+    setValue(
+        type+"Target1",
+        data.target1 || data.target
+    );
+
+    setValue(
+        type+"Target2",
+        data.target2
+    );
+
+    setValue(
+        type+"Target3",
+        data.target3
+    );
+
+    setValue(
+        type+"SL",
+        data.stopLoss || data.sl
+    );
+}
+
+
+async function loadSignals(){
 
     try{
 
-        const response =
-            await fetch(
-                API_BASE +
-                "/api/health"
-            );
-
-        if(response.ok){
-
-            dot.classList.add(
-                "online"
-            );
-
-            dot.classList.remove(
-                "offline"
-            );
-
-            text.textContent =
-                "StockPulse server is online";
-
-        }else{
-
-            throw new Error();
-
+        if(!getPassword()){
+            await loginAdmin();
         }
 
-    }catch{
+        const response =
+            await authorizedFetch(
+                `${API_BASE}/api/admin/signals`,
+                {
+                    cache:"no-store"
+                }
+            );
 
-        dot.classList.remove(
-            "online"
+        const data =
+            await readJson(response);
+
+        latestSignals = {};
+
+        (data.signals || [])
+        .forEach(signal => {
+
+            const category =
+                signal.category;
+
+            if(
+                !latestSignals[category]
+            ){
+                latestSignals[category] =
+                    signal;
+            }
+        });
+
+        setFields(
+            "stock",
+            latestSignals.stocks
         );
 
-        dot.classList.add(
-            "offline"
+        setFields(
+            "crypto",
+            latestSignals.crypto
         );
 
-        text.textContent =
-            "Server connection problem";
+        setFields(
+            "gold",
+            latestSignals.commodity
+        );
 
+        setFields(
+            "intraday",
+            latestSignals.intraday
+        );
+
+        showStatus(
+            "✅ MongoDB connected"
+        );
+
+    }catch(error){
+
+        console.error(
+            "LOAD ERROR:",
+            error
+        );
+
+        showStatus(
+            "❌ " + error.message
+        );
     }
-
 }
 
-
-/* ========================================================= */
-/* CATEGORY */
-/* ========================================================= */
-
-function getCategory(type){
-
-    return {
-
-        stock:"stocks",
-
-        crypto:"crypto",
-
-        gold:"commodity",
-
-        intraday:"intraday"
-
-    }[type] || "";
-
-}
-
-
-/* ========================================================= */
-/* TYPE NAME */
-/* ========================================================= */
-
-function getTypeName(type){
-
-    return {
-
-        stock:"Indian Stock",
-
-        crypto:"Crypto",
-
-        gold:"Commodity",
-
-        intraday:"Intraday"
-
-    }[type] || type;
-
-}
-
-
-/* ========================================================= */
-/* SAVE SIGNAL */
-/* ========================================================= */
 
 async function saveSignal(
     type,
     button
 ){
 
-    if(!adminPassword){
+    const category =
+        categoryMap[type];
+
+    const name =
+        document
+        .getElementById(
+            type+"Name"
+        )
+        .value
+        .trim();
+
+    if(!name){
 
         showStatus(
-            "❌ Please login first.",
-            true
+            "❌ Name / Symbol required"
         );
 
         return;
-
     }
+
+    let symbol = name;
+
+    // GOLD NORMALIZATION
+    if(type === "gold"){
+
+        symbol = "GOLDG";
+    }
+
+    const data = {
+
+        id:
+            latestSignals[category]?._id ||
+            "",
+
+        category,
+
+        symbol,
+
+        name,
+
+        side:
+            document
+            .getElementById(
+                type+"Side"
+            )
+            .value
+            .toUpperCase(),
+
+        type:
+            document
+            .getElementById(
+                type+"Side"
+            )
+            .value
+            .toUpperCase(),
+
+        entry:
+            document
+            .getElementById(
+                type+"Entry"
+            )
+            .value
+            .trim(),
+
+        target1:
+            document
+            .getElementById(
+                type+"Target1"
+            )
+            .value
+            .trim(),
+
+        target2:
+            document
+            .getElementById(
+                type+"Target2"
+            )
+            .value
+            .trim(),
+
+        target3:
+            document
+            .getElementById(
+                type+"Target3"
+            )
+            .value
+            .trim(),
+
+        stopLoss:
+            document
+            .getElementById(
+                type+"SL"
+            )
+            .value
+            .trim(),
+
+        sl:
+            document
+            .getElementById(
+                type+"SL"
+            )
+            .value
+            .trim(),
+
+        setup:
+            document
+            .getElementById(
+                type+"Setup"
+            )
+            .value
+            .trim(),
+
+        note:
+            document
+            .getElementById(
+                type+"Setup"
+            )
+            .value
+            .trim(),
+
+        risk:"Medium",
+
+        exchange:
+            type === "gold"
+                ? "MCX"
+                : type === "crypto"
+                    ? "Crypto"
+                    : "NSE",
+
+        active:true
+    };
+
 
     button.disabled = true;
 
-    const originalText =
+    const oldText =
         button.textContent;
 
     button.textContent =
@@ -1910,233 +1036,51 @@ async function saveSignal(
 
     try{
 
-        const name =
-            document.getElementById(
-                type + "Name"
-            ).value.trim();
-
-
-        const side =
-            document.getElementById(
-                type + "Side"
-            ).value;
-
-
-        const entry =
-            document.getElementById(
-                type + "Entry"
-            ).value.trim();
-
-
-        /* STOCK EXCHANGE */
-
-        const exchange =
-            type === "stock"
-                ? document.getElementById(
-                    "stockExchange"
-                  ).value
-                : "";
-
-
-        const setup =
-            document.getElementById(
-                type + "Setup"
-            ).value.trim();
-
-
-        const target1 =
-            document.getElementById(
-                type + "Target1"
-            ).value.trim();
-
-
-        const target2 =
-            document.getElementById(
-                type + "Target2"
-            ).value.trim();
-
-
-        const target3 =
-            document.getElementById(
-                type + "Target3"
-            ).value.trim();
-
-
-        const sl =
-            document.getElementById(
-                type + "SL"
-            ).value.trim();
-
-
-        const risk =
-            document.getElementById(
-                type + "Risk"
-            ).value;
-
-
-        /* VALIDATION */
-
-        if(!name){
-
-            throw new Error(
-                "Please enter name/symbol"
-            );
-
+        if(!getPassword()){
+            await loginAdmin();
         }
-
-        if(!entry){
-
-            throw new Error(
-                "Please enter Entry"
-            );
-
-        }
-
-        if(!target1){
-
-            throw new Error(
-                "Please enter Target 1"
-            );
-
-        }
-
-        if(!target2){
-
-            throw new Error(
-                "Please enter Target 2"
-            );
-
-        }
-
-        if(!target3){
-
-            throw new Error(
-                "Please enter Target 3"
-            );
-
-        }
-
-        if(!sl){
-
-            throw new Error(
-                "Please enter Stop Loss"
-            );
-
-        }
-
-
-        /* DATA SENT TO BACKEND */
-
-        const data = {
-
-            category:
-                getCategory(type),
-
-            symbol:
-                name.toUpperCase(),
-
-            name:
-                name.toUpperCase(),
-
-            type:
-                side,
-
-            exchange:
-                exchange,
-
-            entry:
-                entry,
-
-            stopLoss:
-                sl,
-
-            target1:
-                target1,
-
-            target2:
-                target2,
-
-            target3:
-                target3,
-
-            risk:
-                risk,
-
-            note:
-                setup,
-
-            active:
-                true
-
-        };
-
 
         const response =
-            await fetch(
-                API_BASE +
-                "/api/admin/signals",
+            await authorizedFetch(
+                `${API_BASE}/api/admin/signals`,
                 {
                     method:"POST",
-
-                    headers:
-                        authHeaders(),
-
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
                     body:
                         JSON.stringify(data)
                 }
             );
 
-
         const result =
-            await response
-                .json()
-                .catch(()=>({}));
+            await readJson(response);
 
+        if(result.signal){
 
-        if(response.status === 401){
-
-            logoutAdmin();
-
-            return;
-
+            latestSignals[
+                category
+            ] =
+                result.signal;
         }
-
-
-        if(
-            !response.ok ||
-            !result.success
-        ){
-
-            throw new Error(
-                result.error ||
-                result.message ||
-                "Server rejected signal"
-            );
-
-        }
-
 
         showStatus(
-            "✅ " +
-            getTypeName(type) +
-            " saved successfully"
+            "✅ Signal saved successfully"
         );
-
-
-        clearForm(type);
-
 
         await loadSignals();
 
-
     }catch(error){
 
-        console.error(error);
+        console.error(
+            "SAVE ERROR:",
+            error
+        );
 
         showStatus(
-            "❌ " +
-            error.message,
-            true
+            "❌ Save failed: " +
+            error.message
         );
 
     }finally{
@@ -2144,509 +1088,17 @@ async function saveSignal(
         button.disabled = false;
 
         button.textContent =
-            originalText;
-
+            oldText;
     }
-
 }
 
-
-/* ========================================================= */
-/* CLEAR FORM */
-/* ========================================================= */
-
-function clearForm(type){
-
-    [
-
-        type + "Name",
-
-        type + "Setup",
-
-        type + "Entry",
-
-        type + "Target1",
-
-        type + "Target2",
-
-        type + "Target3",
-
-        type + "SL"
-
-    ].forEach(id=>{
-
-        const element =
-            document.getElementById(id);
-
-        if(element){
-
-            element.value = "";
-
-        }
-
-    });
-
-
-    const risk =
-        document.getElementById(
-            type + "Risk"
-        );
-
-    if(risk){
-
-        risk.value =
-            "Medium";
-
-    }
-
-
-    /* RESET STOCK EXCHANGE */
-
-    if(type === "stock"){
-
-        const exchange =
-            document.getElementById(
-                "stockExchange"
-            );
-
-        if(exchange){
-
-            exchange.value =
-                "NSE";
-
-        }
-
-    }
-
-}
-
-
-/* ========================================================= */
-/* LOAD SIGNALS */
-/* ========================================================= */
-
-async function loadSignals(){
-
-    const list =
-        document.getElementById(
-            "signalList"
-        );
-
-
-    if(!adminPassword){
-
-        list.innerHTML =
-            '<div style="color:#64748b;font-size:12px;">Login to load signals.</div>';
-
-        return;
-
-    }
-
-
-    list.innerHTML =
-        '<div style="color:#64748b;font-size:12px;">Loading signals...</div>';
-
-
-    try{
-
-        const response =
-            await fetch(
-                API_BASE +
-                "/api/admin/signals",
-                {
-                    headers:{
-                        "x-admin-password":
-                            adminPassword
-                    }
-                }
-            );
-
-
-        const result =
-            await response
-                .json()
-                .catch(()=>({}));
-
-
-        if(response.status === 401){
-
-            logoutAdmin();
-
-            return;
-
-        }
-
-
-        if(
-            !response.ok ||
-            !result.success
-        ){
-
-            throw new Error(
-                result.error ||
-                "Unable to load signals"
-            );
-
-        }
-
-
-        const signals =
-            Array.isArray(
-                result.signals
-            )
-            ? result.signals
-            : [];
-
-
-        if(!signals.length){
-
-            list.innerHTML =
-                '<div style="color:#64748b;font-size:12px;">No signals saved yet.</div>';
-
-            return;
-
-        }
-
-
-        list.innerHTML =
-            signals.map(signal=>{
-
-                const date =
-                    signal.updatedAt
-                    ? new Date(
-                        signal.updatedAt
-                    ).toLocaleString(
-                        "en-IN"
-                    )
-                    : "-";
-
-
-                return `
-
-                <div class="saved-signal">
-
-                    <div class="saved-signal-main">
-
-                        <strong>
-
-                            ${escapeHtml(
-                                signal.symbol ||
-                                signal.name ||
-                                "-"
-                            )}
-
-                            •
-
-                            ${escapeHtml(
-                                signal.type ||
-                                "-"
-                            )}
-
-                        </strong>
-
-
-                        <small>
-
-                            ${escapeHtml(
-                                signal.category ||
-                                "-"
-                            )}
-
-                            |
-
-                            Exchange:
-                            ${escapeHtml(
-                                signal.exchange ||
-                                "-"
-                            )}
-
-                            |
-
-                            Entry:
-                            ${escapeHtml(
-                                signal.entry ||
-                                "-"
-                            )}
-
-                            |
-
-                            T1:
-                            ${escapeHtml(
-                                signal.target1 ||
-                                "-"
-                            )}
-
-                            |
-
-                            T2:
-                            ${escapeHtml(
-                                signal.target2 ||
-                                "-"
-                            )}
-
-                            |
-
-                            T3:
-                            ${escapeHtml(
-                                signal.target3 ||
-                                "-"
-                            )}
-
-                            |
-
-                            SL:
-                            ${escapeHtml(
-                                signal.stopLoss ||
-                                "-"
-                            )}
-
-                            |
-
-                            Risk:
-                            ${escapeHtml(
-                                signal.risk ||
-                                "-"
-                            )}
-
-                            |
-
-                            ${escapeHtml(
-                                date
-                            )}
-
-                        </small>
-
-                    </div>
-
-
-                    <button
-                        class="delete-btn"
-                        type="button"
-                        onclick="deleteSignal('${escapeHtml(signal.id)}')">
-
-                        🗑 Delete
-
-                    </button>
-
-                </div>
-
-                `;
-
-            }).join("");
-
-    }catch(error){
-
-        console.error(error);
-
-        list.innerHTML =
-            '<div style="color:#ff7373;font-size:12px;">❌ ' +
-            escapeHtml(
-                error.message
-            ) +
-            '</div>';
-
-    }
-
-}
-
-
-/* ========================================================= */
-/* DELETE SIGNAL */
-/* ========================================================= */
-
-async function deleteSignal(id){
-
-    if(!adminPassword){
-
-        showStatus(
-            "❌ Please login first.",
-            true
-        );
-
-        return;
-
-    }
-
-
-    if(!confirm(
-        "Delete this signal?"
-    )){
-
-        return;
-
-    }
-
-
-    try{
-
-        const response =
-            await fetch(
-                API_BASE +
-                "/api/admin/signals/" +
-                encodeURIComponent(id),
-                {
-                    method:"DELETE",
-
-                    headers:{
-                        "x-admin-password":
-                            adminPassword
-                    }
-                }
-            );
-
-
-        const result =
-            await response
-                .json()
-                .catch(()=>({}));
-
-
-        if(response.status === 401){
-
-            logoutAdmin();
-
-            return;
-
-        }
-
-
-        if(
-            !response.ok ||
-            !result.success
-        ){
-
-            throw new Error(
-                result.error ||
-                "Delete failed"
-            );
-
-        }
-
-
-        showStatus(
-            "✅ Signal deleted"
-        );
-
-
-        await loadSignals();
-
-
-    }catch(error){
-
-        showStatus(
-            "❌ " +
-            error.message,
-            true
-        );
-
-    }
-
-}
-
-
-/* ========================================================= */
-/* ESCAPE HTML */
-/* ========================================================= */
-
-function escapeHtml(value){
-
-    return String(
-        value ?? ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
-}
-
-
-/* ========================================================= */
-/* EVENTS */
-/* ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    async function(){
-
-        document.getElementById(
-            "loginButton"
-        ).addEventListener(
-            "click",
-            adminLogin
-        );
-
-
-        document.getElementById(
-            "logoutButton"
-        ).addEventListener(
-            "click",
-            logoutAdmin
-        );
-
-
-        document.getElementById(
-            "adminPassword"
-        ).addEventListener(
-            "keydown",
-            event=>{
-
-                if(
-                    event.key === "Enter"
-                ){
-
-                    adminLogin();
-
-                }
-
-            }
-        );
-
-
-        const loggedIn =
-            await checkExistingLogin();
-
-
-        if(loggedIn){
-
-            await checkServer();
-
-            await loadSignals();
-
-        }else{
-
-            document.getElementById(
-                "loginOverlay"
-            ).style.display =
-                "flex";
-
-            document.getElementById(
-                "adminPassword"
-            ).focus();
-
-        }
-
-    }
+    loadSignals
 );
 
 </script>
 
 </body>
 </html>
-```
