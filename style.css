@@ -2723,3 +2723,28 @@ button {
     color:#041225 !important;
     border:none !important;
 }
+/* =====================================================
+   TODAY'S RECOMMENDATIONS - 4 CARDS IN ONE ROW
+   ===================================================== */
+
+.signal-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 22px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Tablet */
+@media (max-width: 1200px) {
+    .signal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .signal-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
