@@ -1,8 +1,9 @@
+
 // ======================================================
 // STOCKPULSE - SERVER
 // FREE VERSION
 // Upstox + Delta Exchange
-// MongoDB REMOVED
+// MongoDB CONNECTED
 // Razorpay REMOVED
 // Premium REMOVED
 // Live Prices + Real Candles
@@ -18,10 +19,13 @@ const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
 const path = require("path");
+const mongoose = require("mongoose");
+const Signal = require("./models/Signal");
 
 const app = express();
 
 const PORT = Number(process.env.PORT) || 8080;
+
 // ======================================================
 // STATIC WEBSITE FILES
 // ======================================================
@@ -46,6 +50,28 @@ const ADMIN_PASSWORD =
     process.env.ADMIN_PASSWORD || "";
 
 // ======================================================
+// MONGODB
+// ======================================================
+
+async function connectMongoDB() {
+
+    if (!process.env.MONGODB_URI) {
+
+        throw new Error(
+            "MONGODB_URI is not configured"
+        );
+    }
+
+    await mongoose.connect(
+        process.env.MONGODB_URI
+    );
+
+    console.log(
+        "MONGODB CONNECTED SUCCESSFULLY ✅"
+    );
+}
+
+// ======================================================
 // CONFIG
 // ======================================================
 
@@ -68,7 +94,7 @@ console.log(
         : "NOT CONFIGURED"
 );
 
-console.log("MONGODB: REMOVED");
+console.log("MONGODB: ENABLED");
 console.log("RAZORPAY: REMOVED");
 console.log("PREMIUM: REMOVED");
 
@@ -1605,147 +1631,93 @@ function verifyAdmin(
 }
 
 // ======================================================
-// HEALTH
-// ======================================================
-
-app.get(
-    "/api/health",
-    (req, res) => {
-
-        res.json({
-
-            success: true,
-
-            status: "OK",
-
-            server:
-                "StockPulse",
-
-            database:
-                "MongoDB disabled",
-
-            payments:
-                "Disabled",
-
-            premium:
-                "Disabled",
-
-            signals:
-                "Enabled",
-
-            signalCount:
-                signals.length,
-
-            timestamp:
-                new Date().toISOString()
-        });
-    }
-);
-
-// ======================================================
-// ADMIN LOGIN
-// ======================================================
-
-app.post(
-    "/api/admin/login",
-    (req, res) => {
-
-        try {
-
-            const password =
-                String(
-                    req.body?.password ||
-                    ""
-                ).trim();
-
-            if (!ADMIN_PASSWORD) {
-
-                return res.status(500).json({
-
-                    success: false,
-
-                    error:
-                        "ADMIN_PASSWORD is not configured on server"
-                });
-            }
-
-            if (
-                !password ||
-                password !== ADMIN_PASSWORD
-            ) {
-
-                return res.status(401).json({
-
-                    success: false,
-
-                    error:
-                        "Invalid admin password"
-                });
-            }
-
-            res.json({
-
-                success: true,
-
-                message:
-                    "Admin login successful",
-
-                adminPassword:
-                    password
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ADMIN LOGIN ERROR:",
-                error.message
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                error:
-                    "Admin login failed"
-            });
-        }
-    }
-);
-
-// ======================================================
-// ADMIN STATUS
-// ======================================================
-
-app.get(
-    "/api/admin/status",
-    verifyAdmin,
-    (req, res) => {
-
-        res.json({
-
-            success: true,
-
-            authenticated: true,
-
-            mongoConnected: false,
-
-            message:
-                "Admin authentication successful"
-        });
-    }
-);
-
-// ======================================================
 // SIGNAL STORAGE
-// ======================================================
-//
-// Temporary memory storage.
-// MongoDB intentionally disabled.
-//
-// Railway restart/redeploy = signals reset.
 // ======================================================
 
 let signals = [];
+
+// ======================================================
+// LOAD SIGNALS FROM MONGODB
+// ======================================================
+
+async function loadSignalsFromMongoDB() {
+
+    try {
+
+        const mongoSignals =
+            await Signal.find({})
+                .sort({ updatedAt: -1 })
+                .lean();
+
+        signals =
+            mongoSignals.map(
+                signal => ({
+
+                    id:
+                        signal.id,
+
+                    category:
+                        signal.category,
+
+                    symbol:
+                        signal.symbol,
+
+                    name:
+                        signal.name,
+
+                    type:
+                        signal.type,
+
+                    exchange:
+                        signal.exchange,
+
+                    entry:
+                        signal.entry,
+
+                    stopLoss:
+                        signal.stopLoss,
+
+                    target1:
+                        signal.target1,
+
+                    target2:
+                        signal.target2,
+
+                    target3:
+                        signal.target3,
+
+                    risk:
+                        signal.risk,
+
+                    note:
+                        signal.note,
+
+                    setup:
+                        signal.setup,
+
+                    active:
+                        signal.active,
+
+                    updatedAt:
+                        signal.updatedAt
+                })
+            );
+
+        console.log(
+    "SIGNALS LOADED FROM MONGODB: " +
+    signals.length +
+    " OK"
+);
+    } catch (error) {
+
+        console.error(
+            "MONGODB SIGNAL LOAD ERROR ❌:",
+            error.message
+        );
+
+        throw error;
+    }
+}
 
 // ======================================================
 // CATEGORY NORMALIZER
@@ -1908,7 +1880,7 @@ function cleanSignal(body) {
         active,
 
         updatedAt:
-            new Date().toISOString()
+            new Date()
     };
 }
 
@@ -1919,17 +1891,41 @@ function cleanSignal(body) {
 app.get(
     "/api/admin/signals",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
 
-        res.json({
+        try {
 
-            success: true,
+            const mongoSignals =
+                await Signal.find({})
+                    .sort({ updatedAt: -1 })
+                    .lean();
 
-            count:
-                signals.length,
+            res.json({
 
-            signals
-        });
+                success: true,
+
+                count:
+                    mongoSignals.length,
+
+                signals:
+                    mongoSignals
+            });
+
+        } catch (error) {
+
+            console.error(
+                "GET ADMIN SIGNALS ERROR:",
+                error.message
+            );
+
+            res.status(500).json({
+
+                success: false,
+
+                error:
+                    "Failed to load signals from MongoDB"
+            });
+        }
     }
 );
 
@@ -1940,7 +1936,7 @@ app.get(
 app.post(
     "/api/admin/signals",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
 
         try {
 
@@ -2040,24 +2036,25 @@ app.post(
                 });
             }
 
-            const existingIndex =
-                signals.findIndex(
-                    item =>
-                        item.id === signal.id
-                );
+            await Signal.findOneAndUpdate(
 
-            if (existingIndex >= 0) {
+                {
+                    id: signal.id
+                },
 
-                signals[existingIndex] =
-                    signal;
+                signal,
 
-            } else {
+                {
+                    upsert: true,
+                    new: true,
+                    setDefaultsOnInsert: true
+                }
+            );
 
-                signals.push(signal);
-            }
+            await loadSignalsFromMongoDB();
 
             console.log(
-                "SIGNAL SAVED:",
+                "SIGNAL SAVED TO MONGODB:",
                 JSON.stringify(signal)
             );
 
@@ -2098,7 +2095,7 @@ app.post(
 app.delete(
     "/api/admin/signals/:id",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
 
         try {
 
@@ -2107,17 +2104,13 @@ app.delete(
                     req.params.id || ""
                 ).trim();
 
-            const oldLength =
-                signals.length;
-
-            signals =
-                signals.filter(
-                    item =>
-                        item.id !== id
-                );
+            const result =
+                await Signal.deleteOne({
+                    id
+                });
 
             if (
-                signals.length === oldLength
+                result.deletedCount === 0
             ) {
 
                 return res.status(404).json({
@@ -2129,8 +2122,10 @@ app.delete(
                 });
             }
 
+            await loadSignalsFromMongoDB();
+
             console.log(
-                "SIGNAL DELETED:",
+                "SIGNAL DELETED FROM MONGODB:",
                 id
             );
 
@@ -2169,15 +2164,18 @@ app.delete(
 
 app.get(
     "/api/signals",
-    (req, res) => {
+    async (req, res) => {
 
         try {
 
-            const activeSignals =
-                signals.filter(
-                    signal =>
-                        signal.active === true
-                );
+            const mongoSignals =
+                await Signal.find({
+                    active: true
+                })
+                    .sort({
+                        updatedAt: -1
+                    })
+                    .lean();
 
             res.setHeader(
                 "Cache-Control",
@@ -2199,10 +2197,10 @@ app.get(
                 success: true,
 
                 count:
-                    activeSignals.length,
+                    mongoSignals.length,
 
                 signals:
-                    activeSignals
+                    mongoSignals
             });
 
         } catch (error) {
@@ -2224,39 +2222,207 @@ app.get(
 );
 
 // ======================================================
+// HEALTH
+// ======================================================
+
+app.get(
+    "/api/health",
+    async (req, res) => {
+
+        const mongoConnected =
+            mongoose.connection.readyState === 1;
+
+        res.json({
+
+            success: true,
+
+            status: "OK",
+
+            server:
+                "StockPulse",
+
+            database:
+                mongoConnected
+                    ? "MongoDB Connected"
+                    : "MongoDB Disconnected",
+
+            mongoConnected,
+
+            payments:
+                "Disabled",
+
+            premium:
+                "Disabled",
+
+            signals:
+                "Enabled",
+
+            signalCount:
+                signals.length,
+
+            timestamp:
+                new Date().toISOString()
+        });
+    }
+);
+
+// ======================================================
+// ADMIN LOGIN
+// ======================================================
+
+app.post(
+    "/api/admin/login",
+    (req, res) => {
+
+        try {
+
+            const password =
+                String(
+                    req.body?.password ||
+                    ""
+                ).trim();
+
+            if (!ADMIN_PASSWORD) {
+
+                return res.status(500).json({
+
+                    success: false,
+
+                    error:
+                        "ADMIN_PASSWORD is not configured on server"
+                });
+            }
+
+            if (
+                !password ||
+                password !== ADMIN_PASSWORD
+            ) {
+
+                return res.status(401).json({
+
+                    success: false,
+
+                    error:
+                        "Invalid admin password"
+                });
+            }
+
+            res.json({
+
+                success: true,
+
+                message:
+                    "Admin login successful",
+
+                adminPassword:
+                    password
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ADMIN LOGIN ERROR:",
+                error.message
+            );
+
+            res.status(500).json({
+
+                success: false,
+
+                error:
+                    "Admin login failed"
+            });
+        }
+    }
+);
+
+// ======================================================
+// ADMIN STATUS
+// ======================================================
+
+app.get(
+    "/api/admin/status",
+    verifyAdmin,
+    (req, res) => {
+
+        const mongoConnected =
+            mongoose.connection.readyState === 1;
+
+        res.json({
+
+            success: true,
+
+            authenticated: true,
+
+            mongoConnected,
+
+            message:
+                mongoConnected
+                    ? "Admin authentication successful - MongoDB connected"
+                    : "Admin authentication successful - MongoDB disconnected"
+        });
+    }
+);
+
+// ======================================================
 // ADMIN STATS
 // ======================================================
 
 app.get(
     "/api/admin/stats",
     verifyAdmin,
-    (req, res) => {
+    async (req, res) => {
 
-        res.json({
+        try {
 
-            success: true,
+            const totalSignals =
+                await Signal.countDocuments();
 
-            stats: {
+            const activeSignals =
+                await Signal.countDocuments({
+                    active: true
+                });
 
-                totalCustomers: 0,
-                totalPayments: 0,
-                successfulPayments: 0,
-                totalRevenue: 0,
-                activePremium: 0,
+            res.json({
 
-                totalSignals:
-                    signals.length,
+                success: true,
 
-                activeSignals:
-                    signals.filter(
-                        signal =>
-                            signal.active
-                    ).length
-            },
+                stats: {
 
-            message:
-                "MongoDB and payment system are disabled."
-        });
+                    totalCustomers: 0,
+
+                    totalPayments: 0,
+
+                    successfulPayments: 0,
+
+                    totalRevenue: 0,
+
+                    activePremium: 0,
+
+                    totalSignals,
+
+                    activeSignals
+                },
+
+                message:
+                    "StockPulse is running in free mode. Payment and premium systems are disabled."
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ADMIN STATS ERROR:",
+                error.message
+            );
+
+            res.status(500).json({
+
+                success: false,
+
+                error:
+                    error.message
+            });
+        }
     }
 );
 
@@ -2278,7 +2444,7 @@ app.get(
             customers: [],
 
             message:
-                "Customer database is disabled."
+                "Customer database is disabled because StockPulse is free."
         });
     }
 );
@@ -2314,6 +2480,9 @@ app.get(
     "/",
     (req, res) => {
 
+        const mongoConnected =
+            mongoose.connection.readyState === 1;
+
         res.json({
 
             success: true,
@@ -2325,7 +2494,9 @@ app.get(
                 "Free",
 
             database:
-                "MongoDB Disabled",
+                mongoConnected
+                    ? "MongoDB Connected"
+                    : "MongoDB Disconnected",
 
             payment:
                 "Disabled",
@@ -2334,7 +2505,7 @@ app.get(
                 "Disabled",
 
             signalsStorage:
-                "Temporary Memory",
+                "MongoDB",
 
             signalCount:
                 signals.length,
@@ -2377,82 +2548,110 @@ app.get(
 // START SERVER
 // ======================================================
 
-function startServer() {
+async function startServer() {
 
-    console.log("");
-    console.log("==========================================");
-    console.log("       STOCKPULSE SERVER STARTING");
-    console.log("==========================================");
+    try {
 
-    console.log(
-        "Port:",
-        PORT
-    );
+        await connectMongoDB();
 
-    console.log(
-        "Upstox:",
-        UPSTOX_ACCESS_TOKEN
-            ? "READY"
-            : "NOT CONFIGURED"
-    );
+        await loadSignalsFromMongoDB();
 
-    console.log(
-        "Admin:",
-        ADMIN_PASSWORD
-            ? "READY"
-            : "NOT CONFIGURED"
-    );
+        console.log("");
+        console.log("==========================================");
+        console.log("       STOCKPULSE SERVER STARTING");
+        console.log("==========================================");
 
-    console.log(
-        "MongoDB: DISABLED"
-    );
+        console.log(
+            "Port:",
+            PORT
+        );
 
-    console.log(
-        "Razorpay: DISABLED"
-    );
+        console.log(
+            "Upstox:",
+            UPSTOX_ACCESS_TOKEN
+                ? "READY"
+                : "NOT CONFIGURED"
+        );
 
-    console.log(
-        "Premium: DISABLED"
-    );
+        console.log(
+            "Admin:",
+            ADMIN_PASSWORD
+                ? "READY"
+                : "NOT CONFIGURED"
+        );
 
-    console.log(
-        "Signals: ENABLED"
-    );
+        console.log(
+            "MongoDB: CONNECTED"
+        );
 
-    console.log("==========================================");
+        console.log(
+            "Razorpay: DISABLED"
+        );
 
-    app.listen(
-        PORT,
-        "0.0.0.0",
-        () => {
+        console.log(
+            "Premium: DISABLED"
+        );
 
-            console.log("");
-            console.log(
-                "STOCKPULSE SERVER STARTED"
-            );
+        console.log(
+            "Signals: ENABLED"
+        );
 
-            console.log(
-                "Listening on port:",
-                PORT
-            );
+        console.log("==========================================");
 
-            console.log(
-                "Health: /api/health"
-            );
+        app.listen(
+            PORT,
+            "0.0.0.0",
+            () => {
 
-            console.log(
-                "Signals: /api/signals"
-            );
+                console.log("");
+                console.log(
+                    "STOCKPULSE SERVER STARTED"
+                );
 
-            console.log(
-                "Admin Signals: /api/admin/signals"
-            );
+                console.log(
+                    "Listening on port:",
+                    PORT
+                );
 
-            console.log(
-                "=========================================="
-            );
-        }
-    );
+                console.log(
+                    "Health: /api/health"
+                );
+
+                console.log(
+                    "Signals: /api/signals"
+                );
+
+                console.log(
+                    "Admin Signals: /api/admin/signals"
+                );
+
+                console.log(
+                    "=========================================="
+                );
+            }
+        );
+
+    } catch (error) {
+
+        console.error("");
+        console.error(
+            "=========================================="
+        );
+
+        console.error(
+            "STOCKPULSE SERVER FAILED TO START ❌"
+        );
+
+        console.error(
+            error.message
+        );
+
+        console.error(
+            "=========================================="
+        );
+
+        process.exit(1);
+    }
 }
 
 startServer();
