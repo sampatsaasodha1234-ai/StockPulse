@@ -2825,3 +2825,456 @@ button {
         grid-template-columns: 1fr !important;
     }
 }
+/* =========================================================
+   STOCKPULSE - TODAY RECOMMENDATIONS
+   COLORFUL ENTRY / SL / TARGET DESIGN
+   ========================================================= */
+
+/* Main signal card */
+.signal {
+    position: relative;
+    overflow: hidden !important;
+    padding: 22px !important;
+    border-radius: 20px !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(18, 28, 48, 0.98),
+            rgba(10, 18, 32, 0.98)
+        ) !important;
+
+    border: 1px solid rgba(255,255,255,0.08) !important;
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,0.20);
+
+    transition:
+        transform .3s ease,
+        box-shadow .3s ease,
+        border-color .3s ease;
+}
+
+/* Top glow */
+.signal::before {
+    content: "";
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: rgba(0,245,160,0.08);
+    filter: blur(35px);
+    pointer-events: none;
+}
+
+/* Hover */
+.signal:hover {
+    transform: translateY(-8px) !important;
+
+    box-shadow:
+        0 20px 45px rgba(0,0,0,0.35),
+        0 0 25px rgba(0,245,160,0.08);
+
+    border-color:
+        rgba(0,245,160,0.28) !important;
+}
+
+/* =========================================================
+   SIGNAL TOP
+   ========================================================= */
+
+.signal-top {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+    margin-bottom: 18px !important;
+}
+
+.signal-label {
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.5px !important;
+    color: #94a3b8 !important;
+}
+
+/* =========================================================
+   STOCK NAME
+   ========================================================= */
+
+.signal h2 {
+    position: relative;
+    z-index: 2;
+
+    font-size: 24px !important;
+    font-weight: 800 !important;
+
+    margin-bottom: 18px !important;
+
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   ALL LEVEL ROWS
+   ========================================================= */
+
+.signal .level-row,
+.signal .info-row {
+
+    position: relative;
+    z-index: 2;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    min-height: 54px;
+
+    margin: 9px 0 !important;
+    padding: 11px 13px !important;
+
+    border: none !important;
+    border-radius: 12px !important;
+
+    background: rgba(255,255,255,0.035);
+
+    transition:
+        transform .2s ease,
+        background .2s ease;
+}
+
+.signal .level-row:hover,
+.signal .info-row:hover {
+    transform: translateX(3px);
+    background: rgba(255,255,255,0.06);
+}
+
+/* Label */
+.signal .level-row span,
+.signal .info-row span {
+
+    color: #94a3b8 !important;
+
+    font-size: 11px !important;
+    font-weight: 700 !important;
+
+    letter-spacing: .5px;
+}
+
+/* Value */
+.signal .level-row strong,
+.signal .info-row strong {
+
+    font-size: 15px !important;
+    font-weight: 800 !important;
+
+    color: #ffffff !important;
+
+    text-align: right;
+}
+
+/* =========================================================
+   ENTRY - GREEN
+   ========================================================= */
+
+.signal .level-row:nth-child(1) {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,245,160,0.13),
+            rgba(0,245,160,0.035)
+        ) !important;
+
+    border-left:
+        3px solid #00f5a0 !important;
+
+    box-shadow:
+        inset 0 0 20px rgba(0,245,160,0.025);
+}
+
+.signal .level-row:nth-child(1) strong {
+
+    color: #00f5a0 !important;
+
+    text-shadow:
+        0 0 12px rgba(0,245,160,0.25);
+}
+
+/* =========================================================
+   STOP LOSS - RED
+   ========================================================= */
+
+.signal .level-row:nth-child(2) {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,82,82,0.13),
+            rgba(255,82,82,0.035)
+        ) !important;
+
+    border-left:
+        3px solid #ff5252 !important;
+
+    box-shadow:
+        inset 0 0 20px rgba(255,82,82,0.025);
+}
+
+.signal .level-row:nth-child(2) strong {
+
+    color: #ff5252 !important;
+
+    text-shadow:
+        0 0 12px rgba(255,82,82,0.25);
+}
+
+/* =========================================================
+   TARGET 1 - BLUE
+   ========================================================= */
+
+.signal .level-row:nth-child(3) {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,194,255,0.13),
+            rgba(0,194,255,0.035)
+        ) !important;
+
+    border-left:
+        3px solid #00c2ff !important;
+}
+
+.signal .level-row:nth-child(3) strong {
+
+    color: #00c2ff !important;
+
+    text-shadow:
+        0 0 12px rgba(0,194,255,0.25);
+}
+
+/* =========================================================
+   TARGET 2 - PURPLE
+   ========================================================= */
+
+.signal .level-row:nth-child(4) {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(168,85,247,0.14),
+            rgba(168,85,247,0.035)
+        ) !important;
+
+    border-left:
+        3px solid #a855f7 !important;
+}
+
+.signal .level-row:nth-child(4) strong {
+
+    color: #c084fc !important;
+
+    text-shadow:
+        0 0 12px rgba(168,85,247,0.25);
+}
+
+/* =========================================================
+   TARGET 3 - ORANGE
+   ========================================================= */
+
+.signal .level-row:nth-child(5) {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(251,146,60,0.14),
+            rgba(251,146,60,0.035)
+        ) !important;
+
+    border-left:
+        3px solid #fb923c !important;
+}
+
+.signal .level-row:nth-child(5) strong {
+
+    color: #fb923c !important;
+
+    text-shadow:
+        0 0 12px rgba(251,146,60,0.25);
+}
+
+/* =========================================================
+   BUY / SELL BADGE
+   ========================================================= */
+
+.signal .buy-badge,
+.signal .sell-badge,
+.signal .hold-badge {
+
+    padding: 7px 12px !important;
+
+    border-radius: 20px !important;
+
+    font-size: 10px !important;
+    font-weight: 900 !important;
+
+    letter-spacing: .7px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.15);
+}
+
+/* BUY */
+.signal .buy-badge {
+
+    color: #00f5a0 !important;
+
+    background:
+        rgba(0,245,160,0.12) !important;
+
+    border:
+        1px solid rgba(0,245,160,0.28) !important;
+}
+
+/* SELL */
+.signal .sell-badge {
+
+    color: #ff5d6c !important;
+
+    background:
+        rgba(255,93,108,0.12) !important;
+
+    border:
+        1px solid rgba(255,93,108,0.28) !important;
+}
+
+/* HOLD */
+.signal .hold-badge {
+
+    color: #fbbf24 !important;
+
+    background:
+        rgba(251,191,36,0.12) !important;
+
+    border:
+        1px solid rgba(251,191,36,0.28) !important;
+}
+
+/* =========================================================
+   VIEW DETAILS
+   ========================================================= */
+
+.signal-view {
+
+    position: relative;
+    z-index: 2;
+
+    margin-top: 18px !important;
+    padding-top: 14px !important;
+
+    border-top:
+        1px solid rgba(255,255,255,0.07) !important;
+
+    color: #00f5a0 !important;
+
+    font-size: 11px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: .5px;
+}
+
+/* =========================================================
+   LIGHT MODE
+   ========================================================= */
+
+body.light-mode .signal {
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f7fafc
+        ) !important;
+
+    box-shadow:
+        0 12px 30px rgba(15,23,42,0.10);
+}
+
+body.light-mode .signal h2 {
+
+    color: #0f172a !important;
+}
+
+body.light-mode .signal .level-row,
+body.light-mode .signal .info-row {
+
+    background: rgba(15,23,42,0.035);
+}
+
+body.light-mode .signal .level-row strong,
+body.light-mode .signal .info-row strong {
+
+    color: #0f172a !important;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .signal {
+        padding: 18px !important;
+        border-radius: 17px !important;
+    }
+
+    .signal h2 {
+        font-size: 21px !important;
+    }
+
+    .signal .level-row,
+    .signal .info-row {
+        min-height: 51px;
+        padding: 10px 11px !important;
+    }
+
+    .signal .level-row span,
+    .signal .info-row span {
+        font-size: 10px !important;
+    }
+
+    .signal .level-row strong,
+    .signal .info-row strong {
+        font-size: 14px !important;
+    }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .signal {
+        padding: 15px !important;
+    }
+
+    .signal .level-row,
+    .signal .info-row {
+        padding: 9px 10px !important;
+    }
+
+    .signal .level-row strong,
+    .signal .info-row strong {
+        font-size: 13px !important;
+    }
+}
