@@ -1851,27 +1851,40 @@ async function createChart() {
 
                 },
 
-                timeScale: {
+               timeScale: {
 
-                    borderColor:
-                        "rgba(128,128,128,0.20)",
+    borderColor:
+        "rgba(128,128,128,0.20)",
 
-                    timeVisible:
-                        true,
+    timeVisible:
+        true,
 
-                    secondsVisible:
-                        false,
+    secondsVisible:
+        false,
 
-                    rightOffset:
-                        5,
+    rightOffset:
+        5,
 
-                    barSpacing:
-                        8,
+    barSpacing:
+        window.innerWidth <= 600
+            ? 10
+            : 8,
 
-                    tickMarkFormatter:
-                        chartTickFormatter
+    minBarSpacing:
+        window.innerWidth <= 600
+            ? 6
+            : 3,
 
-                },
+    tickMarkFormatter:
+        chartTickFormatter,
+
+    lockVisibleTimeRangeOnResize:
+        false,
+
+    rightBarStaysOnScroll:
+        false
+
+},
 
                 localization: {
 
@@ -1917,14 +1930,49 @@ async function createChart() {
         });
 
 
-    chartResizeHandler =
-        resizeChart;
+   chartResizeHandler =
+    resizeChart;
 
 
-    window.addEventListener(
-        "resize",
-        chartResizeHandler
-    );
+window.addEventListener(
+    "resize",
+    chartResizeHandler
+);
+
+
+/* Mobile chart resize + date/time labels */
+setTimeout(() => {
+
+    resizeChart();
+
+    if (chart) {
+
+        chart.timeScale().applyOptions({
+
+            barSpacing:
+                window.innerWidth <= 600
+                    ? 10
+                    : 8,
+
+            minBarSpacing:
+                window.innerWidth <= 600
+                    ? 6
+                    : 3,
+
+            timeVisible:
+                true,
+
+            secondsVisible:
+                false,
+
+            tickMarkFormatter:
+                chartTickFormatter
+
+        });
+
+    }
+
+}, 150);
 
 
     return chart;
