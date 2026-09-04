@@ -280,7 +280,9 @@ button:disabled{
 
 <div class="grid">
 
-<!-- STOCK -->
+<!-- =========================================================
+     INDIAN STOCK
+========================================================= -->
 <div class="card">
 
 <div class="card-title">
@@ -318,6 +320,21 @@ button:disabled{
 <input id="stockSetup" placeholder="Bullish momentum">
 </div>
 
+<!-- STOCK DATE + TIME -->
+<div class="row">
+
+<div class="group">
+<label>Update Date</label>
+<input id="stockDate" type="date">
+</div>
+
+<div class="group">
+<label>Update Time</label>
+<input id="stockTime" type="time">
+</div>
+
+</div>
+
 <div class="row">
 
 <div class="group">
@@ -353,7 +370,9 @@ button:disabled{
 </div>
 
 
-<!-- CRYPTO -->
+<!-- =========================================================
+     CRYPTO
+========================================================= -->
 <div class="card">
 
 <div class="card-title">
@@ -391,6 +410,21 @@ button:disabled{
 <input id="cryptoSetup" placeholder="Strong bullish momentum">
 </div>
 
+<!-- CRYPTO DATE + TIME -->
+<div class="row">
+
+<div class="group">
+<label>Update Date</label>
+<input id="cryptoDate" type="date">
+</div>
+
+<div class="group">
+<label>Update Time</label>
+<input id="cryptoTime" type="time">
+</div>
+
+</div>
+
 <div class="row">
 
 <div class="group">
@@ -426,7 +460,9 @@ button:disabled{
 </div>
 
 
-<!-- GOLD -->
+<!-- =========================================================
+     GOLD
+========================================================= -->
 <div class="card">
 
 <div class="card-title">
@@ -464,6 +500,21 @@ button:disabled{
 <input id="goldSetup" placeholder="Bullish gold setup">
 </div>
 
+<!-- GOLD DATE + TIME -->
+<div class="row">
+
+<div class="group">
+<label>Update Date</label>
+<input id="goldDate" type="date">
+</div>
+
+<div class="group">
+<label>Update Time</label>
+<input id="goldTime" type="time">
+</div>
+
+</div>
+
 <div class="row">
 
 <div class="group">
@@ -499,7 +550,9 @@ button:disabled{
 </div>
 
 
-<!-- INTRADAY -->
+<!-- =========================================================
+     INTRADAY
+========================================================= -->
 <div class="card">
 
 <div class="card-title">
@@ -535,6 +588,21 @@ button:disabled{
 <div class="group">
 <label>Setup</label>
 <input id="intradaySetup" placeholder="Intraday momentum setup">
+</div>
+
+<!-- INTRADAY DATE + TIME -->
+<div class="row">
+
+<div class="group">
+<label>Update Date</label>
+<input id="intradayDate" type="date">
+</div>
+
+<div class="group">
+<label>Update Time</label>
+<input id="intradayTime" type="time">
+</div>
+
 </div>
 
 <div class="row">
@@ -768,6 +836,10 @@ function setValue(id,value){
 }
 
 
+/* =========================================================
+   LOAD DATA INTO ADMIN FIELDS
+========================================================= */
+
 function setFields(type,data){
 
     if(!data) return;
@@ -811,8 +883,24 @@ function setFields(type,data){
         type+"SL",
         data.stopLoss || data.sl
     );
+
+    /* DATE */
+    setValue(
+        type + "Date",
+        data.signalDate || data.date || ""
+    );
+
+    /* TIME */
+    setValue(
+        type + "Time",
+        data.signalTime || data.time || ""
+    );
 }
 
+
+/* =========================================================
+   LOAD SIGNALS FROM MONGODB
+========================================================= */
 
 async function loadSignals(){
 
@@ -887,6 +975,10 @@ async function loadSignals(){
 }
 
 
+/* =========================================================
+   SAVE SIGNAL
+========================================================= */
+
 async function saveSignal(
     type,
     button
@@ -914,11 +1006,14 @@ async function saveSignal(
 
     let symbol = name;
 
-    // GOLD NORMALIZATION
+
+    /* GOLD NORMALIZATION */
+
     if(type === "gold"){
 
         symbol = "GOLDG";
     }
+
 
     const data = {
 
@@ -1012,6 +1107,27 @@ async function saveSignal(
             .value
             .trim(),
 
+
+        /* =================================================
+           DATE + TIME
+           ALL 4 SECTIONS
+        ================================================= */
+
+        signalDate:
+            document
+            .getElementById(
+                type + "Date"
+            )
+            .value,
+
+        signalTime:
+            document
+            .getElementById(
+                type + "Time"
+            )
+            .value,
+
+
         risk:"Medium",
 
         exchange:
@@ -1045,10 +1161,12 @@ async function saveSignal(
                 `${API_BASE}/api/admin/signals`,
                 {
                     method:"POST",
+
                     headers:{
                         "Content-Type":
                             "application/json"
                     },
+
                     body:
                         JSON.stringify(data)
                 }
@@ -1056,6 +1174,7 @@ async function saveSignal(
 
         const result =
             await readJson(response);
+
 
         if(result.signal){
 
@@ -1065,11 +1184,14 @@ async function saveSignal(
                 result.signal;
         }
 
+
         showStatus(
             "✅ Signal saved successfully"
         );
 
+
         await loadSignals();
+
 
     }catch(error){
 
@@ -1092,6 +1214,10 @@ async function saveSignal(
     }
 }
 
+
+/* =========================================================
+   PAGE LOAD
+========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
