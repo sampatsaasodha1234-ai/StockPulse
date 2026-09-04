@@ -3399,7 +3399,29 @@ function normalizeSignal(signal) {
                     "segment"
                 ]
             )
+        ,
 
+        signalDate:
+            getSignalValue(
+                signal,
+                [
+                    "signalDate",
+                    "date",
+                    "updateDate",
+                    "updatedDate"
+                ]
+            ),
+
+        signalTime:
+            getSignalValue(
+                signal,
+                [
+                    "signalTime",
+                    "time",
+                    "updateTime",
+                    "updatedTime"
+                ]
+            )
     };
 
 }
@@ -3553,145 +3575,166 @@ function normalizeSignalCategory(signal) {
 
 const SIGNAL_CARD_CONFIG = {
 
-    stock: {
+   stock: {
 
-        card:
-            "stockSignal",
+    card:
+        "stockSignal",
 
-        side:
-            "stockSide",
+    side:
+        "stockSide",
 
-        name:
-            "stockName",
+    name:
+        "stockName",
 
-        setup:
-            "stockSetup",
+    setup:
+        "stockSetup",
 
-        entry:
-            "stockEntry",
+    entry:
+        "stockEntry",
 
-        target1:
-            "stockTarget1",
+    target1:
+        "stockTarget1",
 
-        target2:
-            "stockTarget2",
+    target2:
+        "stockTarget2",
 
-        target3:
-            "stockTarget3",
+    target3:
+        "stockTarget3",
 
-        stopLoss:
-            "stockSL",
+    stopLoss:
+        "stockSL",
 
-        risk:
-            "stockRisk"
+    risk:
+        "stockRisk",
 
-    },
+    date:
+        "stockSignalDate",
 
+    time:
+        "stockSignalTime"
+
+},
 
     crypto: {
 
-        card:
-            "cryptoSignal",
+    card:
+        "cryptoSignal",
 
-        side:
-            "cryptoSide",
+    side:
+        "cryptoSide",
 
-        name:
-            "cryptoName",
+    name:
+        "cryptoName",
 
-        setup:
-            "cryptoSetup",
+    setup:
+        "cryptoSetup",
 
-        entry:
-            "cryptoEntry",
+    entry:
+        "cryptoEntry",
 
-        target1:
-            "cryptoTarget1",
+    target1:
+        "cryptoTarget1",
 
-        target2:
-            "cryptoTarget2",
+    target2:
+        "cryptoTarget2",
 
-        target3:
-            "cryptoTarget3",
+    target3:
+        "cryptoTarget3",
 
-        stopLoss:
-            "cryptoSL",
+    stopLoss:
+        "cryptoSL",
 
-        risk:
-            "cryptoRisk"
+    risk:
+        "cryptoRisk",
 
-    },
+    date:
+        "cryptoSignalDate",
+
+    time:
+        "cryptoSignalTime"
+
+},
 
 
-    commodity: {
+   commodity: {
 
-        card:
-            "goldSignal",
+    card:
+        "goldSignal",
 
-        side:
-            "goldSide",
+    side:
+        "goldSide",
 
-        name:
-            "goldName",
+    name:
+        "goldName",
 
-        setup:
-            "goldSetup",
+    setup:
+        "goldSetup",
 
-        entry:
-            "goldEntry",
+    entry:
+        "goldEntry",
 
-        target1:
-            "goldTarget1",
+    target1:
+        "goldTarget1",
 
-        target2:
-            "goldTarget2",
+    target2:
+        "goldTarget2",
 
-        target3:
-            "goldTarget3",
+    target3:
+        "goldTarget3",
 
-        stopLoss:
-            "goldSL",
+    stopLoss:
+        "goldSL",
 
-        risk:
-            "goldRisk"
+    risk:
+        "goldRisk",
 
-    },
+    date:
+        "goldSignalDate",
 
+    time:
+        "goldSignalTime"
+
+},
 
     intraday: {
 
-        card:
-            "intradaySignal",
+    card:
+        "intradaySignal",
 
-        side:
-            "intradaySide",
+    side:
+        "intradaySide",
 
-        name:
-            "intradayName",
+    name:
+        "intradayName",
 
-        setup:
-            "intradaySetup",
+    setup:
+        "intradaySetup",
 
-        entry:
-            "intradayEntry",
+    entry:
+        "intradayEntry",
 
-        target1:
-            "intradayTarget1",
+    target1:
+        "intradayTarget1",
 
-        target2:
-            "intradayTarget2",
+    target2:
+        "intradayTarget2",
 
-        target3:
-            "intradayTarget3",
+    target3:
+        "intradayTarget3",
 
-        stopLoss:
-            "intradaySL",
+    stopLoss:
+        "intradaySL",
 
-        risk:
-            "intradayRisk"
+    risk:
+        "intradayRisk",
 
-    }
+    date:
+        "intradaySignalDate",
 
+    time:
+        "intradaySignalTime"
+
+}
 };
 
 
@@ -3800,7 +3843,19 @@ function clearSignalCard(category) {
             "--";
 
     }
+    if ($(config.date)) {
 
+        $(config.date).textContent =
+            "--";
+
+    }
+
+    if ($(config.time)) {
+
+        $(config.time).textContent =
+            "--";
+
+    }
 }
 
 
@@ -3933,7 +3988,21 @@ function updateSignalCard(
             "Medium";
 
     }
+    if ($(config.date)) {
 
+        $(config.date).textContent =
+            normalized.signalDate ||
+            "--";
+
+    }
+
+    if ($(config.time)) {
+
+        $(config.time).textContent =
+            normalized.signalTime ||
+            "--";
+
+    }
 }
 
 
