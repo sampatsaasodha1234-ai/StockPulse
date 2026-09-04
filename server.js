@@ -118,6 +118,16 @@ const signalSchema =
                 type: String,
                 default: ""
             },
+            signalDate: {
+    type: String,
+    default: ""
+},
+
+signalTime: {
+    type: String,
+    default: ""
+},
+
 
             active: {
                 type: Boolean,
@@ -270,6 +280,11 @@ function signalOutput(signal) {
 
         note:
             signal.setup,
+            signalDate:
+    signal.signalDate,
+
+signalTime:
+    signal.signalTime,
 
         active:
             signal.active,
@@ -531,15 +546,29 @@ app.post(
                         )
                     ).trim(),
 
-                setup:
-                    String(
-                        body.setup ||
-                        body.note ||
-                        ""
-                    ).trim(),
+               setup:
+    String(
+        body.setup ||
+        body.note ||
+        ""
+    ).trim(),
 
-                active:
-                    body.active !== false
+signalDate:
+    String(
+        body.signalDate ||
+        body.date ||
+        ""
+    ).trim(),
+
+signalTime:
+    String(
+        body.signalTime ||
+        body.time ||
+        ""
+    ).trim(),
+
+active:
+    body.active !== false
             };
 
             let signal = null;
@@ -777,24 +806,56 @@ app.put(
             }
 
             if (
-                body.exchange !== undefined
-            ) {
+    body.exchange !== undefined
+) {
 
-                update.exchange =
-                    String(
-                        body.exchange
-                    ).trim();
-            }
+    update.exchange =
+        String(
+            body.exchange
+        ).trim();
+}
 
-            if (
-                body.active !== undefined
-            ) {
 
-                update.active =
-                    Boolean(
-                        body.active
-                    );
-            }
+// ========================================================
+// UPDATE SIGNAL DATE + TIME
+// ========================================================
+
+if (
+    body.signalDate !== undefined ||
+    body.date !== undefined
+) {
+
+    update.signalDate =
+        String(
+            body.signalDate ??
+            body.date ??
+            ""
+        ).trim();
+}
+
+if (
+    body.signalTime !== undefined ||
+    body.time !== undefined
+) {
+
+    update.signalTime =
+        String(
+            body.signalTime ??
+            body.time ??
+            ""
+        ).trim();
+}
+
+
+if (
+    body.active !== undefined
+) {
+
+    update.active =
+        Boolean(
+            body.active
+        );
+}
 
             const signal =
                 await Signal.findByIdAndUpdate(
