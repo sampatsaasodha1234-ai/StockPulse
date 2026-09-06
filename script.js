@@ -1,5 +1,5 @@
 /* =========================================================
-   STOCKPULSE - COMPLETE FREE LIVE MARKET SCRIPT
+   BHAVLIVE - COMPLETE FREE LIVE MARKET SCRIPT
    =========================================================
    FEATURES:
    - Live NIFTY / BANKNIFTY / SENSEX / NIFTY IT
@@ -4481,9 +4481,7 @@ function startLiveUpdates() {
 
 async function initStockPulse() {
 
-    console.log(
-        "🚀 StockPulse FREE frontend starting..."
-    );
+    console.log("🚀 BhavLive FREE frontend starting...");
 
 
     try {
@@ -4516,17 +4514,12 @@ async function initStockPulse() {
         startLiveUpdates();
 
 
-        console.log(
-            "✅ StockPulse FREE frontend ready"
-        );
+       console.log("✅ BhavLive FREE frontend ready");
 
 
     } catch (error) {
 
-        console.error(
-            "❌ StockPulse initialization error:",
-            error
-        );
+        console.error("❌ BhavLive initialization error:", error);
 
 
         startLiveUpdates();
