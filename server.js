@@ -1,4 +1,3 @@
-```js
 require("dotenv").config();
 
 // ============================================================
@@ -50,14 +49,9 @@ app.use(
     })
 );
 
-// IMPORTANT:
-// Do not let Express automatically try to use
-// index.html for "/". We handle "/" manually below.
-app.use(
-    express.static(__dirname, {
-        index: false
-    })
-);
+app.use(express.static(__dirname, {
+    index: false
+}));
 
 
 // ============================================================
@@ -127,16 +121,16 @@ const signalSchema =
                 type: String,
                 default: ""
             },
-
             signalDate: {
-                type: String,
-                default: ""
-            },
+    type: String,
+    default: ""
+},
 
-            signalTime: {
-                type: String,
-                default: ""
-            },
+signalTime: {
+    type: String,
+    default: ""
+},
+
 
             active: {
                 type: Boolean,
@@ -289,12 +283,11 @@ function signalOutput(signal) {
 
         note:
             signal.setup,
+            signalDate:
+    signal.signalDate,
 
-        signalDate:
-            signal.signalDate,
-
-        signalTime:
-            signal.signalTime,
+signalTime:
+    signal.signalTime,
 
         active:
             signal.active,
@@ -556,29 +549,29 @@ app.post(
                         )
                     ).trim(),
 
-                setup:
-                    String(
-                        body.setup ||
-                        body.note ||
-                        ""
-                    ).trim(),
+               setup:
+    String(
+        body.setup ||
+        body.note ||
+        ""
+    ).trim(),
 
-                signalDate:
-                    String(
-                        body.signalDate ||
-                        body.date ||
-                        ""
-                    ).trim(),
+signalDate:
+    String(
+        body.signalDate ||
+        body.date ||
+        ""
+    ).trim(),
 
-                signalTime:
-                    String(
-                        body.signalTime ||
-                        body.time ||
-                        ""
-                    ).trim(),
+signalTime:
+    String(
+        body.signalTime ||
+        body.time ||
+        ""
+    ).trim(),
 
-                active:
-                    body.active !== false
+active:
+    body.active !== false
             };
 
             let signal = null;
@@ -816,56 +809,56 @@ app.put(
             }
 
             if (
-                body.exchange !== undefined
-            ) {
+    body.exchange !== undefined
+) {
 
-                update.exchange =
-                    String(
-                        body.exchange
-                    ).trim();
-            }
-
-
-            // ========================================================
-            // UPDATE SIGNAL DATE + TIME
-            // ========================================================
-
-            if (
-                body.signalDate !== undefined ||
-                body.date !== undefined
-            ) {
-
-                update.signalDate =
-                    String(
-                        body.signalDate ??
-                        body.date ??
-                        ""
-                    ).trim();
-            }
-
-            if (
-                body.signalTime !== undefined ||
-                body.time !== undefined
-            ) {
-
-                update.signalTime =
-                    String(
-                        body.signalTime ??
-                        body.time ??
-                        ""
-                    ).trim();
-            }
+    update.exchange =
+        String(
+            body.exchange
+        ).trim();
+}
 
 
-            if (
-                body.active !== undefined
-            ) {
+// ========================================================
+// UPDATE SIGNAL DATE + TIME
+// ========================================================
 
-                update.active =
-                    Boolean(
-                        body.active
-                    );
-            }
+if (
+    body.signalDate !== undefined ||
+    body.date !== undefined
+) {
+
+    update.signalDate =
+        String(
+            body.signalDate ??
+            body.date ??
+            ""
+        ).trim();
+}
+
+if (
+    body.signalTime !== undefined ||
+    body.time !== undefined
+) {
+
+    update.signalTime =
+        String(
+            body.signalTime ??
+            body.time ??
+            ""
+        ).trim();
+}
+
+
+if (
+    body.active !== undefined
+) {
+
+    update.active =
+        Boolean(
+            body.active
+        );
+}
 
             const signal =
                 await Signal.findByIdAndUpdate(
@@ -1328,6 +1321,11 @@ function isValidUpstoxInstrumentKey(
         String(
             value || ""
         ).trim();
+
+    // Upstox instrument keys are
+    // generally SEGMENT|IDENTIFIER.
+    // Keep this generic so future
+    // NSE/BSE/MCX instruments work.
 
     return /^[A-Z0-9_]+\|.+$/i.test(
         key
@@ -2797,609 +2795,229 @@ app.get(
 // FIXED + ROBUST VERSION
 // ======================================================
 
-app.get(
-    "/api/crypto/candles",
-    async (req, res) => {
+app.get("/api/crypto/candles", async (req, res) => {
+
+    try {
+
+        const symbol =
+            String(req.query.symbol || "BTC")
+                .toUpperCase()
+                .trim();
+
+        const resolution =
+            String(req.query.resolution || "1m")
+                .trim()
+                .toLowerCase();
+
+
+        // --------------------------------------------------
+        // CRYPTO SYMBOLS
+        // --------------------------------------------------
+
+        const cryptoSymbols = {
+
+            BTC: "BTCUSD",
+            ETH: "ETHUSD",
+            SOL: "SOLUSD",
+            XRP: "XRPUSD"
+
+        };
+
+
+        const deltaSymbol =
+            cryptoSymbols[symbol];
+
+
+        if (!deltaSymbol) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                error:
+                    `Crypto ${symbol} is not configured`
+
+            });
+
+        }
+
+
+        // --------------------------------------------------
+        // SUPPORTED RESOLUTIONS
+        // Delta Exchange supported resolutions
+        // --------------------------------------------------
+
+        const secondsMap = {
+
+            "1m": 60,
+            "3m": 180,
+            "5m": 300,
+            "15m": 900,
+            "30m": 1800,
+
+            "1h": 3600,
+            "2h": 7200,
+            "4h": 14400,
+            "6h": 21600,
+
+            "1d": 86400,
+            "1w": 604800
+
+        };
+
+
+        const seconds =
+            secondsMap[resolution];
+
+
+        if (!seconds) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                error:
+                    `Invalid crypto resolution: ${resolution}`
+
+            });
+
+        }
+
+
+        // --------------------------------------------------
+        // REQUEST CANDLES
+        // --------------------------------------------------
+
+        const candleCount = 200;
+
+
+        const end =
+            Math.floor(
+                Date.now() / 1000
+            );
+
+
+        const start =
+            end -
+            (
+                seconds *
+                candleCount
+            );
+
+
+        // --------------------------------------------------
+        // DELTA HISTORY API
+        // --------------------------------------------------
+
+        const params =
+            new URLSearchParams({
+
+                resolution:
+                    resolution,
+
+                symbol:
+                    deltaSymbol,
+
+                start:
+                    String(start),
+
+                end:
+                    String(end)
+
+            });
+
+
+        const url =
+            `${DELTA_API_URL}/v2/history/candles?${params.toString()}`;
+
+
+        console.log("");
+        console.log(
+            "=========================================="
+        );
+        console.log(
+            "📈 DELTA CRYPTO CANDLE REQUEST"
+        );
+        console.log(
+            "Symbol:",
+            symbol
+        );
+        console.log(
+            "Delta Symbol:",
+            deltaSymbol
+        );
+        console.log(
+            "Resolution:",
+            resolution
+        );
+        console.log(
+            "Start:",
+            start
+        );
+        console.log(
+            "End:",
+            end
+        );
+        console.log(
+            "URL:",
+            url
+        );
+        console.log(
+            "=========================================="
+        );
+
+
+        // --------------------------------------------------
+        // FETCH DELTA
+        // --------------------------------------------------
+
+        const response =
+            await fetch(
+                url,
+                {
+                    method: "GET",
+
+                    headers: {
+
+                        Accept:
+                            "application/json",
+
+                        "User-Agent":
+                            "StockPulse/1.0"
+
+                    }
+                }
+            );
+
+
+        const text =
+            await response.text();
+
+
+        console.log(
+            "Delta HTTP:",
+            response.status
+        );
+
+
+        let data = null;
+
 
         try {
 
-            const symbol =
-                String(
-                    req.query.symbol || "BTC"
-                )
-                    .toUpperCase()
-                    .trim();
+            data =
+                JSON.parse(text);
 
-            const resolution =
-                String(
-                    req.query.resolution || "1m"
-                )
-                    .trim()
-                    .toLowerCase();
+        } catch (parseError) {
 
-
-            // --------------------------------------------------
-            // CRYPTO SYMBOLS
-            // --------------------------------------------------
-
-            const cryptoSymbols = {
-
-                BTC: "BTCUSD",
-                ETH: "ETHUSD",
-                SOL: "SOLUSD",
-                XRP: "XRPUSD"
-
-            };
-
-
-            const deltaSymbol =
-                cryptoSymbols[symbol];
-
-
-            if (!deltaSymbol) {
-
-                return res.status(404).json({
-
-                    success: false,
-
-                    error:
-                        `Crypto ${symbol} is not configured`
-
-                });
-
-            }
-
-
-            // --------------------------------------------------
-            // SUPPORTED RESOLUTIONS
-            // --------------------------------------------------
-
-            const secondsMap = {
-
-                "1m": 60,
-                "3m": 180,
-                "5m": 300,
-                "15m": 900,
-                "30m": 1800,
-
-                "1h": 3600,
-                "2h": 7200,
-                "4h": 14400,
-                "6h": 21600,
-
-                "1d": 86400,
-                "1w": 604800
-
-            };
-
-
-            const seconds =
-                secondsMap[resolution];
-
-
-            if (!seconds) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    error:
-                        `Invalid crypto resolution: ${resolution}`
-
-                });
-
-            }
-
-
-            // --------------------------------------------------
-            // REQUEST CANDLES
-            // --------------------------------------------------
-
-            const candleCount = 200;
-
-
-            const end =
-                Math.floor(
-                    Date.now() / 1000
-                );
-
-
-            const start =
-                end -
-                (
-                    seconds *
-                    candleCount
-                );
-
-
-            // --------------------------------------------------
-            // DELTA HISTORY API
-            // --------------------------------------------------
-
-            const params =
-                new URLSearchParams({
-
-                    resolution:
-                        resolution,
-
-                    symbol:
-                        deltaSymbol,
-
-                    start:
-                        String(start),
-
-                    end:
-                        String(end)
-
-                });
-
-
-            const url =
-                `${DELTA_API_URL}/v2/history/candles?${params.toString()}`;
-
-
-            console.log("");
-            console.log(
-                "=========================================="
-            );
-            console.log(
-                "📈 DELTA CRYPTO CANDLE REQUEST"
-            );
-            console.log(
-                "Symbol:",
-                symbol
-            );
-            console.log(
-                "Delta Symbol:",
-                deltaSymbol
-            );
-            console.log(
-                "Resolution:",
-                resolution
-            );
-            console.log(
-                "Start:",
-                start
-            );
-            console.log(
-                "End:",
-                end
-            );
-            console.log(
-                "URL:",
-                url
-            );
-            console.log(
-                "=========================================="
+            console.error(
+                "DELTA JSON PARSE ERROR:",
+                text
             );
 
+            return res.status(502).json({
 
-            // --------------------------------------------------
-            // FETCH DELTA
-            // --------------------------------------------------
-
-            const response =
-                await fetch(
-                    url,
-                    {
-                        method: "GET",
-
-                        headers: {
-
-                            Accept:
-                                "application/json",
-
-                            "User-Agent":
-                                "StockPulse/1.0"
-
-                        }
-                    }
-                );
-
-
-            const text =
-                await response.text();
-
-
-            console.log(
-                "Delta HTTP:",
-                response.status
-            );
-
-
-            let data = null;
-
-
-            try {
-
-                data =
-                    JSON.parse(text);
-
-            } catch (parseError) {
-
-                console.error(
-                    "DELTA JSON PARSE ERROR:",
-                    text
-                );
-
-                return res.status(502).json({
-
-                    success: false,
-
-                    symbol,
-
-                    deltaSymbol,
-
-                    resolution,
-
-                    error:
-                        "Invalid response received from Delta Exchange"
-
-                });
-
-            }
-
-
-            // --------------------------------------------------
-            // HTTP ERROR
-            // --------------------------------------------------
-
-            if (!response.ok) {
-
-                console.error(
-                    "DELTA HTTP ERROR:",
-                    data
-                );
-
-                return res.status(
-                    response.status
-                ).json({
-
-                    success: false,
-
-                    symbol,
-
-                    deltaSymbol,
-
-                    resolution,
-
-                    error:
-                        data?.error?.message ||
-                        data?.error ||
-                        data?.message ||
-                        "Delta candle API failed",
-
-                    deltaResponse:
-                        data
-
-                });
-
-            }
-
-
-            // --------------------------------------------------
-            // DELTA SUCCESS ERROR
-            // --------------------------------------------------
-
-            if (
-                data &&
-                data.success === false
-            ) {
-
-                console.error(
-                    "DELTA API ERROR:",
-                    data
-                );
-
-                return res.status(502).json({
-
-                    success: false,
-
-                    symbol,
-
-                    deltaSymbol,
-
-                    resolution,
-
-                    error:
-                        data?.error?.message ||
-                        data?.error ||
-                        "Delta API returned an error"
-
-                });
-
-            }
-
-
-            // --------------------------------------------------
-            // GET RAW RESULT
-            // --------------------------------------------------
-
-            const rawCandles =
-                Array.isArray(data?.result)
-                    ? data.result
-                    : [];
-
-
-            console.log(
-                "Raw candles:",
-                rawCandles.length
-            );
-
-
-            // --------------------------------------------------
-            // NORMALIZE CANDLES
-            // --------------------------------------------------
-
-            const candles =
-                rawCandles
-
-                    .map(candle => {
-
-                        let time;
-                        let open;
-                        let high;
-                        let low;
-                        let close;
-                        let volume;
-
-
-                        // --------------------------------------
-                        // ARRAY FORMAT
-                        // --------------------------------------
-
-                        if (
-                            Array.isArray(candle)
-                        ) {
-
-                            if (
-                                candle.length < 5
-                            ) {
-
-                                return null;
-
-                            }
-
-
-                            time =
-                                Number(
-                                    candle[0]
-                                );
-
-                            open =
-                                Number(
-                                    candle[1]
-                                );
-
-                            high =
-                                Number(
-                                    candle[2]
-                                );
-
-                            low =
-                                Number(
-                                    candle[3]
-                                );
-
-                            close =
-                                Number(
-                                    candle[4]
-                                );
-
-                            volume =
-                                Number(
-                                    candle[5] || 0
-                                );
-
-                        }
-
-
-                        // --------------------------------------
-                        // OBJECT FORMAT
-                        // --------------------------------------
-
-                        else if (
-                            candle &&
-                            typeof candle === "object"
-                        ) {
-
-                            time =
-                                Number(
-                                    candle.time ??
-                                    candle.timestamp ??
-                                    candle.ts
-                                );
-
-                            open =
-                                Number(
-                                    candle.open ??
-                                    candle.o
-                                );
-
-                            high =
-                                Number(
-                                    candle.high ??
-                                    candle.h
-                                );
-
-                            low =
-                                Number(
-                                    candle.low ??
-                                    candle.l
-                                );
-
-                            close =
-                                Number(
-                                    candle.close ??
-                                    candle.c
-                                );
-
-                            volume =
-                                Number(
-                                    candle.volume ??
-                                    candle.v ??
-                                    0
-                                );
-
-                        }
-
-
-                        else {
-
-                            return null;
-
-                        }
-
-
-                        // --------------------------------------
-                        // VALIDATE
-                        // --------------------------------------
-
-                        if (
-                            !Number.isFinite(time) ||
-                            !Number.isFinite(open) ||
-                            !Number.isFinite(high) ||
-                            !Number.isFinite(low) ||
-                            !Number.isFinite(close)
-                        ) {
-
-                            return null;
-
-                        }
-
-
-                        // --------------------------------------
-                        // TIMESTAMP NORMALIZATION
-                        // --------------------------------------
-
-                        let normalizedTime =
-                            time;
-
-
-                        if (
-                            normalizedTime > 100000000000000
-                        ) {
-
-                            normalizedTime =
-                                Math.floor(
-                                    normalizedTime /
-                                    1000000
-                                );
-
-                        }
-                        else if (
-                            normalizedTime > 100000000000
-                        ) {
-
-                            normalizedTime =
-                                Math.floor(
-                                    normalizedTime /
-                                    1000
-                                );
-
-                        }
-
-
-                        return {
-
-                            time:
-                                normalizedTime,
-
-                            open,
-
-                            high,
-
-                            low,
-
-                            close,
-
-                            volume
-
-                        };
-
-                    })
-
-                    .filter(Boolean)
-
-                    .filter(candle => {
-
-                        return (
-                            candle.time > 0 &&
-                            candle.open > 0 &&
-                            candle.high > 0 &&
-                            candle.low > 0 &&
-                            candle.close > 0
-                        );
-
-                    })
-
-                    .sort(
-                        (a, b) =>
-                            a.time - b.time
-                    );
-
-
-            console.log(
-                "Valid candles:",
-                candles.length
-            );
-
-
-            // --------------------------------------------------
-            // EMPTY RESULT
-            // --------------------------------------------------
-
-            if (
-                candles.length === 0
-            ) {
-
-                console.error(
-                    "⚠️ Delta returned no valid candles."
-                );
-
-                console.error(
-                    "Delta raw response:",
-                    JSON.stringify(
-                        data
-                    ).slice(
-                        0,
-                        3000
-                    )
-                );
-
-
-                return res.status(502).json({
-
-                    success: false,
-
-                    symbol,
-
-                    deltaSymbol,
-
-                    resolution,
-
-                    count: 0,
-
-                    candles: [],
-
-                    error:
-                        "Delta returned no valid candles",
-
-                    deltaResponse:
-                        data
-
-                });
-
-            }
-
-
-            // --------------------------------------------------
-            // FINAL RESPONSE
-            // --------------------------------------------------
-
-            return res.json({
-
-                success: true,
+                success: false,
 
                 symbol,
 
@@ -3407,37 +3025,430 @@ app.get(
 
                 resolution,
 
-                count:
-                    candles.length,
-
-                candles
-
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "DELTA CRYPTO CANDLE ERROR:",
-                error
-            );
-
-
-            return res.status(500).json({
-
-                success: false,
-
                 error:
-                    error.message ||
-                    "Crypto candle API failed"
+                    "Invalid response received from Delta Exchange"
 
             });
 
         }
 
-    }
-);
 
+        // --------------------------------------------------
+        // HTTP ERROR
+        // --------------------------------------------------
+
+        if (!response.ok) {
+
+            console.error(
+                "DELTA HTTP ERROR:",
+                data
+            );
+
+            return res.status(
+                response.status
+            ).json({
+
+                success: false,
+
+                symbol,
+
+                deltaSymbol,
+
+                resolution,
+
+                error:
+                    data?.error?.message ||
+                    data?.error ||
+                    data?.message ||
+                    "Delta candle API failed",
+
+                deltaResponse:
+                    data
+
+            });
+
+        }
+
+
+        // --------------------------------------------------
+        // DELTA SUCCESS ERROR
+        // --------------------------------------------------
+
+        if (
+            data &&
+            data.success === false
+        ) {
+
+            console.error(
+                "DELTA API ERROR:",
+                data
+            );
+
+            return res.status(502).json({
+
+                success: false,
+
+                symbol,
+
+                deltaSymbol,
+
+                resolution,
+
+                error:
+                    data?.error?.message ||
+                    data?.error ||
+                    "Delta API returned an error"
+
+            });
+
+        }
+
+
+        // --------------------------------------------------
+        // GET RAW RESULT
+        // --------------------------------------------------
+
+        const rawCandles =
+            Array.isArray(data?.result)
+                ? data.result
+                : [];
+
+
+        console.log(
+            "Raw candles:",
+            rawCandles.length
+        );
+
+
+        // --------------------------------------------------
+        // NORMALIZE CANDLES
+        // SUPPORT BOTH:
+        //
+        // ARRAY:
+        // [time, open, high, low, close, volume]
+        //
+        // OBJECT:
+        // {
+        //   time,
+        //   open,
+        //   high,
+        //   low,
+        //   close,
+        //   volume
+        // }
+        // --------------------------------------------------
+
+        const candles =
+            rawCandles
+
+                .map(candle => {
+
+                    let time;
+                    let open;
+                    let high;
+                    let low;
+                    let close;
+                    let volume;
+
+
+                    // --------------------------------------
+                    // ARRAY FORMAT
+                    // --------------------------------------
+
+                    if (
+                        Array.isArray(candle)
+                    ) {
+
+                        if (
+                            candle.length < 5
+                        ) {
+
+                            return null;
+
+                        }
+
+
+                        time =
+                            Number(
+                                candle[0]
+                            );
+
+                        open =
+                            Number(
+                                candle[1]
+                            );
+
+                        high =
+                            Number(
+                                candle[2]
+                            );
+
+                        low =
+                            Number(
+                                candle[3]
+                            );
+
+                        close =
+                            Number(
+                                candle[4]
+                            );
+
+                        volume =
+                            Number(
+                                candle[5] || 0
+                            );
+
+                    }
+
+
+                    // --------------------------------------
+                    // OBJECT FORMAT
+                    // --------------------------------------
+
+                    else if (
+                        candle &&
+                        typeof candle === "object"
+                    ) {
+
+                        time =
+                            Number(
+                                candle.time ??
+                                candle.timestamp ??
+                                candle.ts
+                            );
+
+                        open =
+                            Number(
+                                candle.open ??
+                                candle.o
+                            );
+
+                        high =
+                            Number(
+                                candle.high ??
+                                candle.h
+                            );
+
+                        low =
+                            Number(
+                                candle.low ??
+                                candle.l
+                            );
+
+                        close =
+                            Number(
+                                candle.close ??
+                                candle.c
+                            );
+
+                        volume =
+                            Number(
+                                candle.volume ??
+                                candle.v ??
+                                0
+                            );
+
+                    }
+
+
+                    else {
+
+                        return null;
+
+                    }
+
+
+                    // --------------------------------------
+                    // VALIDATE
+                    // --------------------------------------
+
+                    if (
+                        !Number.isFinite(time) ||
+                        !Number.isFinite(open) ||
+                        !Number.isFinite(high) ||
+                        !Number.isFinite(low) ||
+                        !Number.isFinite(close)
+                    ) {
+
+                        return null;
+
+                    }
+
+
+                    // --------------------------------------
+                    // TIMESTAMP NORMALIZATION
+                    //
+                    // Delta REST normally uses seconds,
+                    // but this also handles milliseconds/
+                    // microseconds safely.
+                    // --------------------------------------
+
+                    let normalizedTime =
+                        time;
+
+
+                    if (
+                        normalizedTime > 100000000000000
+                    ) {
+
+                        // microseconds
+                        normalizedTime =
+                            Math.floor(
+                                normalizedTime /
+                                1000000
+                            );
+
+                    }
+                    else if (
+                        normalizedTime > 100000000000
+                    ) {
+
+                        // milliseconds
+                        normalizedTime =
+                            Math.floor(
+                                normalizedTime /
+                                1000
+                            );
+
+                    }
+
+
+                    return {
+
+                        time:
+                            normalizedTime,
+
+                        open,
+
+                        high,
+
+                        low,
+
+                        close,
+
+                        volume
+
+                    };
+
+                })
+
+                .filter(Boolean)
+
+                .filter(candle => {
+
+                    return (
+                        candle.time > 0 &&
+                        candle.open > 0 &&
+                        candle.high > 0 &&
+                        candle.low > 0 &&
+                        candle.close > 0
+                    );
+
+                })
+
+                .sort(
+                    (a, b) =>
+                        a.time - b.time
+                );
+
+
+        console.log(
+            "Valid candles:",
+            candles.length
+        );
+
+
+        // --------------------------------------------------
+        // EMPTY RESULT
+        // --------------------------------------------------
+
+        if (
+            candles.length === 0
+        ) {
+
+            console.error(
+                "⚠️ Delta returned no valid candles."
+            );
+
+            console.error(
+                "Delta raw response:",
+                JSON.stringify(
+                    data
+                ).slice(
+                    0,
+                    3000
+                )
+            );
+
+
+            return res.status(502).json({
+
+                success: false,
+
+                symbol,
+
+                deltaSymbol,
+
+                resolution,
+
+                count: 0,
+
+                candles: [],
+
+                error:
+                    "Delta returned no valid candles",
+
+                deltaResponse:
+                    data
+
+            });
+
+        }
+
+
+        // --------------------------------------------------
+        // FINAL RESPONSE
+        // --------------------------------------------------
+
+        return res.json({
+
+            success: true,
+
+            symbol,
+
+            deltaSymbol,
+
+            resolution,
+
+            count:
+                candles.length,
+
+            candles
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "DELTA CRYPTO CANDLE ERROR:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            error:
+                error.message ||
+                "Crypto candle API failed"
+
+        });
+
+    }
+
+});
 
 // ============================================================
 // OLD CRYPTO CANDLE COMPATIBILITY
@@ -3519,53 +3530,34 @@ app.get(
 
 
 // ============================================================
-// ROOT
-// IMPORTANT RAILWAY FIX
+// WEBSITE ROOT
 // ============================================================
 
-app.get(
-    "/",
-    (req, res) => {
+app.get("/", (req, res) => {
 
-        const indexPath =
-            path.join(
-                __dirname,
-                "index.html"
-            );
+    res.sendFile(
+        path.join(__dirname, "index.html"),
+        (error) => {
 
-        res.sendFile(
-            indexPath,
-            (error) => {
+            if (error) {
 
-                if (error) {
+                console.error(
+                    "INDEX.HTML ERROR:",
+                    error
+                );
 
-                    console.error(
-                        "INDEX.HTML ERROR:",
-                        error
-                    );
-
-                    if (!res.headersSent) {
-
-                        res.status(500).json({
-
-                            success: false,
-
-                            error:
-                                "index.html could not be loaded",
-
-                            path:
-                                indexPath
-
-                        });
-
-                    }
-
-                }
-
+                res.status(500).json({
+                    success: false,
+                    error:
+                        "index.html could not be loaded"
+                });
             }
-        );
-    }
-);
+
+        }
+    );
+
+});
+
 
 
 // ============================================================
@@ -3820,4 +3812,3 @@ async function startServer() {
 
 
 startServer();
-```
